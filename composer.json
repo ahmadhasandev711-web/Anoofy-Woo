@@ -1,0 +1,32 @@
+{
+  "name": "anoofy/anoofy-woo",
+  "description": "Anoofy for WooCommerce: order operations (call-center confirmation, preparation, delivery, COD settlement, returns).",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=8.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "10.5.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Anoofy\\Woo\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Anoofy\\Woo\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "platform": {
+      "php": "8.1.0"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}

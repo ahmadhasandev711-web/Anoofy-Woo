@@ -1,0 +1,20 @@
+/* Logical properties only (RTL-safe). */
+.anoofy-box .anoofy-section { margin-block: 0 16px; }
+.anoofy-box h4 { margin-block: 0 6px; }
+.anoofy-box .anoofy-note { inline-size: min(100%, 320px); }
+.anoofy-box .anoofy-reason { inline-size: 100%; max-inline-size: 480px; }
+.anoofy-box .anoofy-table { max-inline-size: 720px; }
+.anoofy-history { margin: 0; padding-inline-start: 18px; list-style: disc; }
+.anoofy-when { color: #646970; margin-inline-end: 6px; }
+
+.anoofy-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; line-height: 1.6; background: #dcdcde; color: #1d2327; }
+.anoofy-badge--new { background: #dbe7ff; color: #1d3a8a; }
+.anoofy-badge--under-review { background: #fff1c2; color: #6b4e00; }
+.anoofy-badge--confirmed, .anoofy-badge--delivered { background: #d3f0dd; color: #0b5a2b; }
+.anoofy-badge--rejected, .anoofy-badge--cancelled, .anoofy-badge--delivery-failed { background: #f8d7da; color: #8a1c24; }
+.anoofy-badge--preparing, .anoofy-badge--ready-to-ship, .anoofy-badge--shipped, .anoofy-badge--cancellation-pending { background: #e9e0fb; color: #4b2a8f; }
+
+.anoofy-views { margin-block: 4px 12px; }
+.anoofy-views a { margin-inline-end: 12px; }
+.anoofy-views .current { font-weight: 600; }
+.anoofy-assign-bar select { margin-inline-end: 6px; }
