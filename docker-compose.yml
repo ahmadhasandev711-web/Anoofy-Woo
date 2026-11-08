@@ -49,6 +49,23 @@ services:
       - ./:/app
     entrypoint: ['composer']
 
+  wpcli:
+    image: wordpress:cli-php8.3
+    profiles: ['tools']
+    user: '33:33'
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+    volumes:
+      - anoofy-woo-wp:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/anoofy-woo
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   anoofy-woo-db:
   anoofy-woo-wp:
