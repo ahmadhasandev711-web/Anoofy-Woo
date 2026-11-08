@@ -3,7 +3,7 @@
 Order operations for WooCommerce stores: call-center confirmation, preparation, delivery attempts,
 COD settlement and returns. Arabic (RTL) and English. See [SPEC.md](SPEC.md) for scope and decisions.
 
-Status: **Phase 1 built, not yet run on a real WooCommerce** — Orders screen (tabs, search, assignment), order box (call log, confirm/reject/cancel), audit log, Arabic translation. The pure core is unit-tested; the WordPress glue needs the spikes in SPEC section 6 (S-8..S-12).
+Status: **Phase 1 verified on WooCommerce 11.2.1 (HPOS verified; Legacy search S-9 finding pending Phase 2)** — Orders screen (tabs, search, assignment), order box (call log, confirm/reject/cancel), audit log, Arabic translation. The pure core is unit-tested; the WordPress integration is verified with real WooCommerce orders via `tools/run-integration.ps1`.
 
 ## Try it locally (Docker only, no PHP needed)
 
