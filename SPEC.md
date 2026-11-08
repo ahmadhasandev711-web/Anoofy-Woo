@@ -65,7 +65,7 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
 | Phase | Content | Status |
 |---|---|---|
 | 0 | Skeleton, HPOS declaration, roles/capabilities, schema, pure core (state machine + permissions) with tests, dev Docker. Next: CI, WordPress/Woo stubs + PHPStan, integration tests on real WooCommerce (wp-env or this compose file). | **Core done** |
-| 1 | Confirmation: hook new orders into ops, Orders screen (status tabs with counts, search, assignment), order meta box (call log, confirm/reject/cancel, assign), audit log, Arabic translation. | **Verified on WooCommerce 11.2.1 (HPOS verified; Legacy search S-9 finding pending P2)** |
+| 1 | Confirmation: hook new orders into ops, Orders screen (status tabs with counts, search, assignment), order meta box (call log, confirm/reject/cancel, assign), audit log, Arabic translation. | **Run on WooCommerce 11.2.1: all cases pass with HPOS; legacy (HPOS off) search by name/phone/email fails — Finding S-9** |
 | 2 | Preparation + shipping (courier, tracking). | |
 | 3 | Delivery attempts, failed/retry/return-to-origin. | |
 | 4 | COD settlement: import the courier statement (CSV), match by tracking number, mark paid in one batch. | |

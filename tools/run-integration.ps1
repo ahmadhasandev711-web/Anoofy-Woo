@@ -85,3 +85,18 @@ foreach ($hpos in $modes) {
     }
 }
 Write-Host "`n========================================================`n" -ForegroundColor Cyan
+
+$allPassed = $true
+foreach ($hpos in $modes) {
+    foreach ($test in $tests) {
+        if ($results[$hpos][$test.Name] -ne 'PASS') {
+            $allPassed = $false
+        }
+    }
+}
+
+if (-not $allPassed) {
+    exit 1
+}
+
+exit 0
