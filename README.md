@@ -3,7 +3,7 @@
 Order operations for WooCommerce stores: call-center confirmation, preparation, delivery attempts,
 COD settlement and returns. Arabic (RTL) and English. See [SPEC.md](SPEC.md) for scope and decisions.
 
-Status: **Run on WooCommerce 11.2.1: all cases pass with HPOS; legacy (HPOS off) search by name/phone/email fails — Finding S-9** — Orders screen (tabs, search, assignment), order box (call log, confirm/reject/cancel), audit log, Arabic translation. The pure core is unit-tested; integration tests run against real WooCommerce via `tools/run-integration.ps1`.
+Status: **Phase 1 verified on WooCommerce 11.2.1 (HPOS + legacy)** — Orders screen (tabs, search, assignment), order box (call log, confirm/reject/cancel), audit log, Arabic translation. The pure core is unit-tested; integration tests pass in both HPOS and legacy modes via `tools/run-integration.ps1`.
 
 ## Try it locally (Docker only, no PHP needed)
 

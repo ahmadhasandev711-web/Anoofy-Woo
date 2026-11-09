@@ -65,7 +65,7 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
 | Phase | Content | Status |
 |---|---|---|
 | 0 | Skeleton, HPOS declaration, roles/capabilities, schema, pure core (state machine + permissions) with tests, dev Docker. Next: CI, WordPress/Woo stubs + PHPStan, integration tests on real WooCommerce (wp-env or this compose file). | **Core done** |
-| 1 | Confirmation: hook new orders into ops, Orders screen (status tabs with counts, search, assignment), order meta box (call log, confirm/reject/cancel, assign), audit log, Arabic translation. | **Run on WooCommerce 11.2.1: all cases pass with HPOS; legacy (HPOS off) search by name/phone/email fails — Finding S-9** |
+| 1 | Confirmation: hook new orders into ops, Orders screen (status tabs with counts, search, assignment), order meta box (call log, confirm/reject/cancel, assign), audit log, Arabic translation. | **Phase 1 verified on WooCommerce 11.2.1 (HPOS + legacy)** |
 | 2 | Preparation + shipping (courier, tracking). | |
 | 3 | Delivery attempts, failed/retry/return-to-origin. | |
 | 4 | COD settlement: import the courier statement (CSV), match by tracking number, mark paid in one batch. | |
@@ -92,8 +92,8 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
   - *Result*: Verified. Real COD orders immediately produce 1 row with status `NEW`. `checkout-draft` and `pending` are untracked (0 rows), and transition to `processing` creates exactly 1 row (`NEW`). Re-firing hooks is idempotent (still 1 row).
 - **S-9** Orders screen search: `wc_get_orders(['s' => ...])` must match name, phone, email and order number in both HPOS and legacy storage.
   - *Result (HPOS on)*: Verified PASS for Name, Phone, Email, and Order ID. `OrdersTableDataStore` natively queries `wp_wc_order_addresses`.
-  - *Result (HPOS off / Legacy CPT)*: Order ID search PASSED (via numeric ID fallback). Name, Phone, and Email searches FAILED (returned 0 matching orders).
-  - *Finding (Wave P2)*: In legacy mode, `wc_get_orders(['s' => $term])` searches `wp_posts` (`post_title`, `post_content`) and does not inspect `wp_postmeta` (`_billing_first_name`, `_billing_phone`, `_billing_email`). `OrdersPage::searchOrderIds` needs a meta query or search filter fallback when HPOS is disabled.
+  - *Result (HPOS off / Legacy CPT)*: Order ID search PASSED (via numeric ID fallback). Name, Phone, and Email searches FAILED on initial spike (returned 0 matching orders).
+  - *Finding S-9 (Resolved in commit `37dd4bd`)*: In legacy mode, `wc_get_orders(['s' => $term])` searches `wp_posts` (`post_title`, `post_content`) and does not inspect `wp_postmeta` (`_billing_first_name`, `_billing_phone`, `_billing_email`). Resolved in `OrdersPage::searchOrderIds` by delegating to `wc_order_search` in legacy mode with candidate capping (`MAX_SEARCH_RESULTS + 1`) and `wc_get_orders(['post__in' => ...])` filtering to `shop_order`. All search criteria pass in both HPOS and legacy storage.
 - **S-10** Meta box on the HPOS order screen: `add_meta_box` with `wc_get_page_screen_id('shop-order')`, and `assets/js/order-box.js` posting to `admin-post.php` (the box cannot contain its own form: WooCommerce's order form already wraps it and its hidden `action` field would win).
   - *Result*: Verified interactively on HPOS order screen via browser automation (`tests/Integration/screenshots/s10_*.png`). Logging a call transitions `NEW` -> `UNDER_REVIEW`, updates the call log table, and renders decision actions. Confirming transitions to `CONFIRMED`. Rejecting with reason transitions to `REJECTED` and sets WooCommerce order status to `cancelled`.
 - **S-11** Rejecting/cancelling calls `$order->update_status('cancelled')`: confirm WooCommerce restores the reduced stock and that our own `woocommerce_order_status_cancelled` handler ignores it (re-entrancy guard).
