@@ -10,4 +10,5 @@ enum Effect: string
     case CancelWooOrder = 'CANCEL_WOO_ORDER';
     case OpenRtoReturn = 'OPEN_RTO_RETURN';
     case AddRtoTag = 'ADD_RTO_TAG';
+    case HandOverToEngaz = 'HAND_OVER_TO_ENGAZ';
 }

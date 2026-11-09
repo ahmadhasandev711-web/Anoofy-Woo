@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "event_id": "11111111-1111-4111-8111-111111111111",
+  "event_type": "connection.verify",
+  "occurred_at": "2026-11-04T12:00:00Z",
+  "order_version": 1,
+  "data": {
+    "site_url": "https://mystore.example.com",
+    "callback_url": "https://mystore.example.com/wp-json/anoofy/v1/callback",
+    "plugin_version": "1.0.0"
+  }
+}
