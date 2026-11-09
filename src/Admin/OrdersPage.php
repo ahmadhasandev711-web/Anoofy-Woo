@@ -7,6 +7,7 @@ use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Order\StatusTabs;
 use Anoofy\Woo\Data\OpsQuery;
 use Anoofy\Woo\Services\Services;
+use Automattic\WooCommerce\Utilities\OrderUtil;
 
 /** Orders screen: status tabs with counts, "mine/unassigned" filter, search, bulk assignment. Server-rendered. */
 final class OrdersPage
@@ -73,13 +74,55 @@ final class OrdersPage
      */
     private static function searchOrderIds(string $term): array
     {
-        $ids = wc_get_orders(['s' => $term, 'limit' => self::MAX_SEARCH_RESULTS, 'return' => 'ids', 'type' => 'shop_order']);
-        $ids = array_map('intval', is_array($ids) ? $ids : []);
+        $ids = self::matchingOrderIds($term);
         if (ctype_digit($term)) {
             $ids[] = (int) $term;
         }
 
-        return array_values(array_unique($ids));
+        $unique = array_values(array_unique($ids));
+        if (count($unique) > self::MAX_SEARCH_RESULTS) {
+            $unique = array_slice($unique, 0, self::MAX_SEARCH_RESULTS);
+        }
+
+        return $unique;
+    }
+
+    /**
+     * In HPOS, wc_get_orders(['s' => ...]) natively searches customer fields and order numbers with limit and type.
+     * In legacy CPT storage, wc_get_orders searches only wp_posts; wc_order_search queries postmeta for customer fields
+     * without a limit, so we cap candidate IDs before querying shop_order posts.
+     *
+     * @return list<int>
+     */
+    private static function matchingOrderIds(string $term): array
+    {
+        $isHpos = class_exists(OrderUtil::class) && OrderUtil::custom_orders_table_usage_is_enabled();
+        if ($isHpos) {
+            $ids = wc_get_orders([
+                's' => $term,
+                'limit' => self::MAX_SEARCH_RESULTS,
+                'return' => 'ids',
+                'type' => 'shop_order',
+            ]);
+
+            return array_map('intval', is_array($ids) ? $ids : []);
+        }
+
+        $found = function_exists('wc_order_search') ? wc_order_search($term) : [];
+        if (!is_array($found) || $found === []) {
+            return [];
+        }
+
+        // Cap candidate IDs before post__in so the SQL IN list never exceeds 501 items.
+        $candidateIds = array_slice(array_map('intval', $found), 0, self::MAX_SEARCH_RESULTS + 1);
+        $ids = wc_get_orders([
+            'post__in' => $candidateIds,
+            'limit' => self::MAX_SEARCH_RESULTS,
+            'return' => 'ids',
+            'type' => 'shop_order',
+        ]);
+
+        return array_map('intval', is_array($ids) ? $ids : []);
     }
 
     /** @param array<string, int> $counts */
