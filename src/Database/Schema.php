@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '1';
+    public const VERSION = '2';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -36,6 +36,8 @@ final class Schema
   delivery_attempts smallint(5) unsigned NOT NULL DEFAULT 0,
   courier varchar(100) DEFAULT NULL,
   tracking_number varchar(100) DEFAULT NULL,
+  engaz_handover_at datetime DEFAULT NULL,
+  engaz_out_version int(10) unsigned NOT NULL DEFAULT 0,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (order_id),
@@ -70,6 +72,26 @@ final class Schema
   KEY order_id (order_id),
   KEY user_id (user_id),
   KEY created_at (created_at)
+) {$collate};",
+
+            // Reliable async outbound events to EngazPRO.
+            "CREATE TABLE {$prefix}anoofy_outbox (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  event_id char(36) NOT NULL,
+  event_type varchar(64) NOT NULL,
+  wc_order_id bigint(20) unsigned DEFAULT NULL,
+  order_version int(10) unsigned DEFAULT NULL,
+  payload longtext NOT NULL,
+  status enum('pending','in_flight','sent','failed') NOT NULL DEFAULT 'pending',
+  attempts int(10) unsigned NOT NULL DEFAULT 0,
+  next_retry_at datetime DEFAULT NULL,
+  last_error text DEFAULT NULL,
+  created_at datetime NOT NULL,
+  sent_at datetime DEFAULT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY event_id (event_id),
+  KEY status_retry (status, next_retry_at),
+  KEY wc_order_id (wc_order_id)
 ) {$collate};",
         ];
     }
