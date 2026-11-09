@@ -9,6 +9,7 @@ $tests = @(
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
+    @{ Name = 'S-9 (Search Limit > 500)'; File = 'test-s9-search-limit.php' },
     @{ Name = 'S-11 (Reject & Cancel & Stock)'; File = 'test-s11-cancel.php' },
     @{ Name = 'S-12 (Legacy Order Auto-Track)'; File = 'test-s12-legacy-order.php' }
 )
