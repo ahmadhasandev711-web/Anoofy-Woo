@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Services;
 
+use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
 use Anoofy\Woo\Data\OpsRepository;
@@ -14,6 +15,19 @@ final class Services
     private static ?OpsRepository $repository = null;
     private static ?CallLog $callLog = null;
     private static ?AuditLog $auditLog = null;
+    private static ?EngazConnectionService $engazConnection = null;
+
+    public static function engazConnection(): EngazConnectionService
+    {
+        return self::$engazConnection ??= new EngazConnectionService();
+    }
+
+    public static function mode(): OperatingMode
+    {
+        return self::engazConnection()->isConnected()
+            ? OperatingMode::Connected
+            : OperatingMode::Standalone;
+    }
 
     public static function repository(): OpsRepository
     {

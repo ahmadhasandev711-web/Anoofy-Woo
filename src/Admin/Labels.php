@@ -76,6 +76,8 @@ final class Labels
             'cancel_direct' => __('Order cancelled.', 'anoofy-woo'),
             'assigned' => __('Assignment updated.', 'anoofy-woo'),
             'bulk_assigned' => __('Selected orders assigned.', 'anoofy-woo'),
+            'connected' => __('Connected to EngazPRO successfully.', 'anoofy-woo'),
+            'disconnected' => __('Disconnected from EngazPRO.', 'anoofy-woo'),
             default => null,
         };
     }
@@ -100,6 +102,7 @@ final class Labels
             ActionResult::INVALID_ASSIGNEE => __('That user cannot be assigned to orders.', 'anoofy-woo'),
             ActionResult::INVALID_INPUT => __('Invalid request.', 'anoofy-woo'),
             ActionResult::EFFECT_FAILED => __('The status changed, but updating WooCommerce failed. Check the order notes.', 'anoofy-woo'),
+            'CONNECTION_FAILED' => __('Failed to connect to EngazPRO. Please verify the connection key.', 'anoofy-woo'),
             default => __('Something went wrong.', 'anoofy-woo'),
         };
     }

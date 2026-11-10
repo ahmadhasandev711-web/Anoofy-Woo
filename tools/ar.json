@@ -105,5 +105,18 @@
  "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its operational status was NOT changed; decide what to do with the shipment.": "Anoofy: تم إلغاء هذا الطلب في ووكومرس بعد شحنه. لم تتغير حالته التشغيلية؛ قرّر ما تفعله بالشحنة.",
  "Cancelled by Anoofy: %s": "تم الإلغاء بواسطة Anoofy: %s",
  "Status updated by Anoofy.": "تم تحديث الحالة بواسطة Anoofy.",
- "dependencies are missing. Run \"composer install --no-dev\" in the plugin folder.": "المكتبات المطلوبة غير موجودة. شغّل \"composer install --no-dev\" داخل مجلد الإضافة."
+ "dependencies are missing. Run \"composer install --no-dev\" in the plugin folder.": "المكتبات المطلوبة غير موجودة. شغّل \"composer install --no-dev\" داخل مجلد الإضافة.",
+ "Connected to EngazPRO successfully.": "تم الربط مع EngazPRO بنجاح.",
+ "Disconnected from EngazPRO.": "تم فصل الربط مع EngazPRO.",
+ "Failed to connect to EngazPRO. Please verify the connection key.": "فشل الربط مع EngazPRO. يرجى التحقق من مفتاح الربط.",
+ "EngazPRO Integration": "الربط مع EngazPRO",
+ "Paste your connection key from EngazPRO to enable connected mode.": "الصق مفتاح الربط من EngazPRO لتفعيل الوضع المربوط.",
+ "Connection key": "مفتاح الربط",
+ "Connect to EngazPRO": "ربط مع EngazPRO",
+ "Connected to EngazPRO": "مربوط بـ EngazPRO",
+ "Key ID (kid)": "معرف المفتاح (kid)",
+ "Connected at": "تاريخ الربط",
+ "Disconnect from EngazPRO": "فصل الربط مع EngazPRO",
+ "Status": "الحالة",
+ "You do not have permission to access this page.": "ليس لديك الصلاحية للوصول إلى هذه الصفحة."
 }

@@ -24,6 +24,7 @@ final class Menu
             // Rename the auto-created first submenu from "Anoofy" to "Orders", then add the health check.
             add_submenu_page('anoofy', __('Orders', 'anoofy-woo'), __('Orders', 'anoofy-woo'), Action::OrderView->capability(), 'anoofy', [OrdersPage::class, 'render']);
             add_submenu_page('anoofy', __('System status', 'anoofy-woo'), __('System status', 'anoofy-woo'), Action::PluginSettings->capability(), 'anoofy-status', [self::class, 'render']);
+            add_submenu_page('anoofy', __('EngazPRO Integration', 'anoofy-woo'), __('EngazPRO Integration', 'anoofy-woo'), Action::IntegrationManage->capability(), 'anoofy-connection', [ConnectionSettings::class, 'render']);
         });
         add_action('admin_enqueue_scripts', static function (string $hook): void {
             if (str_contains($hook, 'anoofy')) {
