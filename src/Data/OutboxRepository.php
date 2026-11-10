@@ -132,4 +132,50 @@ final class OutboxRepository
             'sent_at' => $sentAt,
         ], ['id' => $id], ['%s', '%s'], ['%d']);
     }
+
+    /**
+     * Atomically claim a row for processing (Compare-and-Set).
+     * Claims if:
+     * - status is 'pending' AND (next_retry_at is null OR next_retry_at <= now)
+     * - OR status is 'in_flight' AND next_retry_at <= now (lease expired after 10 minutes)
+     * Sets lease 10 minutes in the future.
+     */
+    public function claimForProcessing(int $id): bool
+    {
+        global $wpdb;
+
+        $now = gmdate('Y-m-d H:i:s');
+        $leaseUntil = gmdate('Y-m-d H:i:s', time() + 600);
+
+        $sql = "UPDATE {$this->table()}
+                SET status = %s, next_retry_at = %s
+                WHERE id = %d
+                  AND (
+                    (status = %s AND (next_retry_at IS NULL OR next_retry_at <= %s))
+                    OR (status = %s AND next_retry_at <= %s)
+                  )";
+
+        $wpdb->query($wpdb->prepare(
+            $sql,
+            OutboxStatus::InFlight->value,
+            $leaseUntil,
+            $id,
+            OutboxStatus::Pending->value,
+            $now,
+            OutboxStatus::InFlight->value,
+            $now
+        ));
+
+        return ((int) $wpdb->rows_affected) === 1;
+    }
+
+    public function resetForRetry(int $id): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET status = %s, next_retry_at = NULL WHERE id = %d",
+            OutboxStatus::Pending->value,
+            $id
+        ));
+    }
 }

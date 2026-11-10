@@ -13,20 +13,14 @@ final class EngazOutboxWorker
     public static function process(int $outboxId): void
     {
         $repo = Services::outbox();
+        if (!$repo->claimForProcessing($outboxId)) {
+            return;
+        }
+
         $row = $repo->find($outboxId);
         if ($row === null) {
             return;
         }
-
-        if ($row['status'] !== OutboxStatus::Pending->value && $row['status'] !== OutboxStatus::InFlight->value) {
-            return;
-        }
-
-        if (!empty($row['next_retry_at']) && strtotime($row['next_retry_at']) > time()) {
-            return;
-        }
-
-        $repo->updateStatus($outboxId, OutboxStatus::InFlight);
 
         $conn = Services::engazConnection()->getConnection();
         if ($conn === null) {

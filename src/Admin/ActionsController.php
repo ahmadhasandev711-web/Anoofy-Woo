@@ -163,13 +163,19 @@ final class ActionsController
         check_admin_referer('anoofy_retry_outbox_' . $orderId, '_anoofy_nonce');
 
         $outboxId = isset($_POST['anoofy_outbox_id']) ? (int) $_POST['anoofy_outbox_id'] : 0;
-        if ($outboxId > 0) {
-            Services::outbox()->updateStatus($outboxId, OutboxStatus::Pending, nextRetryAt: gmdate('Y-m-d H:i:s'));
-            \Anoofy\Woo\Services\EngazOutboxWorker::process($outboxId);
-        }
-
         $order = wc_get_order($orderId);
         $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
+
+        if ($outboxId > 0) {
+            $row = Services::outbox()->find($outboxId);
+            if ($row !== null && (int) ($row['wc_order_id'] ?? 0) === $orderId && $row['status'] === OutboxStatus::Failed->value) {
+                Services::outbox()->resetForRetry($outboxId);
+                if (function_exists('as_enqueue_async_action')) {
+                    as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $outboxId]);
+                }
+            }
+        }
+
         wp_safe_redirect($url);
         exit;
     }
