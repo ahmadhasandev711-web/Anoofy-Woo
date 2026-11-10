@@ -79,6 +79,7 @@ final class OrderBox
 
         echo '<div class="anoofy-box" data-anoofy-box data-order-id="' . esc_attr((string) $orderId) . '" data-nonce="' . esc_attr($nonce) . '">';
         self::outboxAlert($orderId);
+        self::retryHandoverAlert($orderId);
         self::summary($ops);
         self::assignment($ops, $orderId);
         if ($role !== null) {
@@ -109,6 +110,25 @@ final class OrderBox
         echo '<input type="hidden" name="anoofy_order_id" value="' . esc_attr((string) $orderId) . '" />';
         echo '<button type="submit" class="button button-secondary">' . esc_html__('Retry send to EngazPRO', 'anoofy-woo') . '</button>';
         echo '</form></div>';
+    }
+
+    private static function retryHandoverAlert(int $orderId): void
+    {
+        if (!Services::orderOps()->canRetryHandover($orderId)) {
+            return;
+        }
+
+        echo '<div class="notice notice-error" style="padding:10px;margin:5px 0 15px 0;">';
+        echo '<p><strong>' . esc_html__('Failed to handover order to EngazPRO.', 'anoofy-woo') . '</strong></p>';
+        if (current_user_can(Action::IntegrationManage->capability())) {
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+            wp_nonce_field('anoofy_retry_handover_' . $orderId, '_anoofy_nonce');
+            echo '<input type="hidden" name="action" value="anoofy_retry_handover" />';
+            echo '<input type="hidden" name="anoofy_order_id" value="' . esc_attr((string) $orderId) . '" />';
+            echo '<button type="submit" class="button button-primary">' . esc_html__('Retry Handover to EngazPRO', 'anoofy-woo') . '</button>';
+            echo '</form>';
+        }
+        echo '</div>';
     }
 
     private static function summary(OrderOps $ops): void

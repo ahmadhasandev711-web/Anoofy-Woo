@@ -222,79 +222,133 @@ final class OrderOpsService
         }
     }
 
-    private function handOverToEngaz(\WC_Order $order, int $userId): void
+    public function canRetryHandover(int $orderId): bool
     {
-        $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
-        $version = $this->ops->recordHandover($order->get_id(), $now);
-
-        $user = get_userdata($userId);
-        $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
-
-        $lineItems = [];
-        foreach ($order->get_items() as $item) {
-            if (!$item instanceof \WC_Order_Item_Product) {
-                continue;
-            }
-            $product = $item->get_product();
-            $productId = $item->get_product_id();
-            $variationId = $item->get_variation_id();
-            $sku = $product ? $product->get_sku() : '';
-            $quantity = $item->get_quantity();
-            $subtotal = (float) $item->get_subtotal();
-            $total = (float) $item->get_total();
-            $price = $quantity > 0 ? (float) ($subtotal / $quantity) : 0.0;
-
-            $lineItems[] = [
-                'wc_product_id' => $productId,
-                'wc_variation_id' => $variationId > 0 ? $variationId : null,
-                'quantity' => $quantity,
-                'name' => $item->get_name(),
-                'sku' => $sku !== '' ? $sku : null,
-                'price' => (int) round($price) == $price ? (int) $price : $price,
-                'total' => (int) round($total) == $total ? (int) $total : $total,
-            ];
+        if (Services::mode() !== \Anoofy\Woo\Core\Mode\OperatingMode::Connected) {
+            return false;
         }
 
-        $address1 = $order->get_shipping_address_1() ?: $order->get_billing_address_1();
-        $address2 = $order->get_shipping_address_2() ?: $order->get_billing_address_2();
-        $city = $order->get_shipping_city() ?: $order->get_billing_city();
-        $state = $order->get_shipping_state() ?: $order->get_billing_state();
-        $phone = $order->get_billing_phone();
+        $ops = $this->ops->find($orderId);
+        if ($ops === null || $ops->status !== OrderStatus::Confirmed || $ops->isHandedOver()) {
+            return false;
+        }
 
-        $data = [
-            'wc_order_id' => $order->get_id(),
-            'confirmed_at' => $now,
-            'confirmed_by_name' => $confirmedByName,
-            'customer' => [
-                'phone' => $phone,
-                'address_1' => $address1,
-                'address_2' => $address2,
-                'city' => $city,
-                'state' => $state,
-            ],
-            'line_items' => $lineItems,
-        ];
+        $conn = Services::engazConnection()->getConnection();
+        if ($conn === null || empty($conn['connected_at'])) {
+            return false;
+        }
 
-        $envelope = EnvelopeFactory::build(
-            type: EngazEventType::OrderConfirmed,
-            orderVersion: $version,
-            data: $data,
-            occurredAt: new \DateTimeImmutable($now)
-        );
+        return $this->audit->hasActionAfter($orderId, 'order.effect_failed', $conn['connected_at']);
+    }
 
-        $payload = json_encode($envelope, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    public function retryHandover(int $orderId, int $userId): ActionResult
+    {
+        $role = $this->roleFor($userId);
+        if ($role === null || !Permissions::can($role, Action::IntegrationManage)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
 
-        $outboxId = Services::outbox()->create(
-            $envelope['event_id'],
-            $envelope['event_type'],
-            $order->get_id(),
-            $version,
-            $payload
-        );
+        if (!$this->canRetryHandover($orderId)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
 
-        if (function_exists('as_enqueue_async_action')) {
+        $order = wc_get_order($orderId);
+        if (!$order instanceof \WC_Order) {
+            return ActionResult::fail(ActionResult::NOT_FOUND);
+        }
+
+        $ok = $this->handOverToEngaz($order, $userId);
+
+        return $ok ? ActionResult::ok() : ActionResult::fail(ActionResult::EFFECT_FAILED);
+    }
+
+    private function handOverToEngaz(\WC_Order $order, int $userId): bool
+    {
+        global $wpdb;
+
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+        $wpdb->query('START TRANSACTION');
+
+        try {
+            $version = $this->ops->recordHandover($order->get_id(), $now);
+
+            $user = get_userdata($userId);
+            $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
+
+            $lineItems = [];
+            foreach ($order->get_items() as $item) {
+                if (!$item instanceof \WC_Order_Item_Product) {
+                    continue;
+                }
+                $product = $item->get_product();
+                $productId = $item->get_product_id();
+                $variationId = $item->get_variation_id();
+                $sku = $product ? $product->get_sku() : '';
+                $quantity = $item->get_quantity();
+                $subtotal = (float) $item->get_subtotal();
+                $total = (float) $item->get_total();
+                $price = $quantity > 0 ? (float) ($subtotal / $quantity) : 0.0;
+
+                $lineItems[] = [
+                    'wc_product_id' => $productId,
+                    'wc_variation_id' => $variationId > 0 ? $variationId : null,
+                    'quantity' => $quantity,
+                    'name' => $item->get_name(),
+                    'sku' => $sku !== '' ? $sku : null,
+                    'price' => (int) round($price) == $price ? (int) $price : $price,
+                    'total' => (int) round($total) == $total ? (int) $total : $total,
+                ];
+            }
+
+            $address1 = $order->get_shipping_address_1() ?: $order->get_billing_address_1();
+            $address2 = $order->get_shipping_address_2() ?: $order->get_billing_address_2();
+            $city = $order->get_shipping_city() ?: $order->get_billing_city();
+            $state = $order->get_shipping_state() ?: $order->get_billing_state();
+            $phone = $order->get_billing_phone();
+
+            $data = [
+                'wc_order_id' => $order->get_id(),
+                'confirmed_at' => $now,
+                'confirmed_by_name' => $confirmedByName,
+                'customer' => [
+                    'phone' => $phone,
+                    'address_1' => $address1,
+                    'address_2' => $address2,
+                    'city' => $city,
+                    'state' => $state,
+                ],
+                'line_items' => $lineItems,
+            ];
+
+            $envelope = EnvelopeFactory::build(
+                type: EngazEventType::OrderConfirmed,
+                orderVersion: $version,
+                data: $data,
+                occurredAt: new \DateTimeImmutable($now)
+            );
+
+            $payload = json_encode($envelope, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+            $outboxId = Services::outbox()->create(
+                $envelope['event_id'],
+                $envelope['event_type'],
+                $order->get_id(),
+                $version,
+                $payload
+            );
+
+            $wpdb->query('COMMIT');
+        } catch (\Throwable $e) {
+            $wpdb->query('ROLLBACK');
+            $this->audit->record($order->get_id(), $userId, 'order.effect_failed', null, null, 'handover_failed: ' . $e->getMessage());
+            return false;
+        }
+
+        if (function_exists('as_enqueue_async_action') && $outboxId > 0) {
             as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $outboxId]);
         }
+
+        return true;
     }
 
     private function syncWooStatusEnabled(): bool

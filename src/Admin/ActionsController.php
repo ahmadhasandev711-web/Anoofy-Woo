@@ -28,6 +28,7 @@ final class ActionsController
         add_action('admin_post_anoofy_connect', [self::class, 'connect']);
         add_action('admin_post_anoofy_disconnect', [self::class, 'disconnect']);
         add_action('admin_post_anoofy_retry_outbox', [self::class, 'retryOutbox']);
+        add_action('admin_post_anoofy_retry_handover', [self::class, 'retryHandover']);
     }
 
     public static function logCall(): void
@@ -171,6 +172,16 @@ final class ActionsController
         $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
         wp_safe_redirect($url);
         exit;
+    }
+
+    public static function retryHandover(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::IntegrationManage);
+        check_admin_referer('anoofy_retry_handover_' . $orderId, '_anoofy_nonce');
+
+        $result = Services::orderOps()->retryHandover($orderId, get_current_user_id());
+        self::finish($orderId, $result, 'handover_retried');
     }
 
     private static function finish(int $orderId, ActionResult $result, string $successCode): never

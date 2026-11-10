@@ -121,6 +121,8 @@
  "You do not have permission to access this page.": "ليس لديك الصلاحية للوصول إلى هذه الصفحة.",
  "Failed to send order to EngazPRO.": "فشل إرسال الطلب إلى EngazPRO.",
  "Retry send to EngazPRO": "إعادة محاولة الإرسال إلى EngazPRO",
+ "Failed to handover order to EngazPRO.": "فشل تسليم الطلب إلى EngazPRO.",
+ "Retry Handover to EngazPRO": "إعادة التسليم لـ EngazPRO",
  "Handed over to EngazPRO": "مُسلّم لـ EngazPRO",
  "The order is being processed in EngazPRO. Operational actions are managed there.": "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك."
 }

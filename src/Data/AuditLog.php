@@ -55,4 +55,20 @@ final class AuditLog
 
         return $out;
     }
+
+    public function hasActionAfter(int $orderId, string $action, string $afterUtc): bool
+    {
+        global $wpdb;
+        $timestamp = strtotime($afterUtc);
+        $afterSql = gmdate('Y-m-d H:i:s', $timestamp !== false ? $timestamp : 0);
+
+        $count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table()} WHERE order_id = %d AND action = %s AND created_at >= %s",
+            $orderId,
+            $action,
+            $afterSql
+        ));
+
+        return ((int) $count) > 0;
+    }
 }

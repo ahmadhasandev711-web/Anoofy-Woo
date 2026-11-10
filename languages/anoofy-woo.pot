@@ -7,13 +7,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src\Admin\ActionsController.php:73 src\Admin\ActionsController.php:106
-#: src\Admin\ActionsController.php:127 src\Admin\ActionsController.php:144
+#: src\Admin\ActionsController.php:75 src\Admin\ActionsController.php:108
+#: src\Admin\ActionsController.php:129 src\Admin\ActionsController.php:146
 #: src\Admin\Labels.php:90 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src\Admin\ActionsController.php:102 src\Admin\Labels.php:103
+#: src\Admin\ActionsController.php:104 src\Admin\Labels.php:103
 msgid "Invalid request."
 msgstr ""
 
@@ -320,111 +320,119 @@ msgid ""
 "settlement and returns."
 msgstr ""
 
-#: src\Admin\OrderBox.php:40
+#: src\Admin\OrderBox.php:41
 msgid "Anoofy: order operations"
 msgstr ""
 
-#: src\Admin\OrderBox.php:54
+#: src\Admin\OrderBox.php:55
 msgid "Sending…"
 msgstr ""
 
-#: src\Admin\OrderBox.php:55
+#: src\Admin\OrderBox.php:56
 msgid "The request failed. Check your connection and try again."
 msgstr ""
 
-#: src\Admin\OrderBox.php:71
+#: src\Admin\OrderBox.php:72
 msgid ""
 "This order is not tracked yet: it is still a draft or awaiting payment."
 msgstr ""
 
-#: src\Admin\OrderBox.php:100
+#: src\Admin\OrderBox.php:102
 msgid "Failed to send order to EngazPRO."
 msgstr ""
 
-#: src\Admin\OrderBox.php:109
+#: src\Admin\OrderBox.php:111
 msgid "Retry send to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:117
+#: src\Admin\OrderBox.php:122
+msgid "Failed to handover order to EngazPRO."
+msgstr ""
+
+#: src\Admin\OrderBox.php:128
+msgid "Retry Handover to EngazPRO"
+msgstr ""
+
+#: src\Admin\OrderBox.php:138
 msgid "Operational status:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:124
+#: src\Admin\OrderBox.php:145
 msgid "Handed over to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:133 src\Admin\OrdersTable.php:40
+#: src\Admin\OrderBox.php:154 src\Admin\OrdersTable.php:40
 msgid "Assigned to"
 msgstr ""
 
-#: src\Admin\OrderBox.php:136 src\Admin\OrderBox.php:141
+#: src\Admin\OrderBox.php:157 src\Admin\OrderBox.php:162
 #: src\Admin\OrdersPage.php:154 src\Admin\OrdersTable.php:158
 msgid "Unassigned"
 msgstr ""
 
-#: src\Admin\OrderBox.php:145
+#: src\Admin\OrderBox.php:166
 msgid "Save"
 msgstr ""
 
-#: src\Admin\OrderBox.php:156
+#: src\Admin\OrderBox.php:177
 msgid "Log a call"
 msgstr ""
 
-#: src\Admin\OrderBox.php:162
+#: src\Admin\OrderBox.php:183
 msgid "Note (optional)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:163
+#: src\Admin\OrderBox.php:184
 msgid "Log call"
 msgstr ""
 
-#: src\Admin\OrderBox.php:169 src\Admin\OrderBox.php:187
+#: src\Admin\OrderBox.php:190 src\Admin\OrderBox.php:208
 msgid "Decision"
 msgstr ""
 
-#: src\Admin\OrderBox.php:171
+#: src\Admin\OrderBox.php:192
 msgid ""
 "The order is being processed in EngazPRO. Operational actions are managed "
 "there."
 msgstr ""
 
-#: src\Admin\OrderBox.php:189
+#: src\Admin\OrderBox.php:210
 msgid "Log an answered call before confirming."
 msgstr ""
 
-#: src\Admin\OrderBox.php:192
+#: src\Admin\OrderBox.php:213
 msgid "Reason (required to reject or cancel)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:209
+#: src\Admin\OrderBox.php:230
 msgid "Call log"
 msgstr ""
 
-#: src\Admin\OrderBox.php:211
+#: src\Admin\OrderBox.php:232
 msgid "No calls yet."
 msgstr ""
 
-#: src\Admin\OrderBox.php:215
+#: src\Admin\OrderBox.php:236
 msgid "When"
 msgstr ""
 
-#: src\Admin\OrderBox.php:216
+#: src\Admin\OrderBox.php:237
 msgid "Employee"
 msgstr ""
 
-#: src\Admin\OrderBox.php:216
+#: src\Admin\OrderBox.php:237
 msgid "Result"
 msgstr ""
 
-#: src\Admin\OrderBox.php:217
+#: src\Admin\OrderBox.php:238
 msgid "Note"
 msgstr ""
 
-#: src\Admin\OrderBox.php:239
+#: src\Admin\OrderBox.php:260
 msgid "History"
 msgstr ""
 
-#: src\Admin\OrderBox.php:247
+#: src\Admin\OrderBox.php:268
 msgid "System"
 msgstr ""
 
@@ -476,19 +484,19 @@ msgstr ""
 msgid "Assign selected"
 msgstr ""
 
-#: src\Capabilities.php:43
+#: src\Capabilities.php:77
 msgid "Anoofy Order Manager"
 msgstr ""
 
-#: src\Capabilities.php:44
+#: src\Capabilities.php:78
 msgid "Anoofy Warehouse"
 msgstr ""
 
-#: src\Capabilities.php:45
+#: src\Capabilities.php:79
 msgid "Anoofy Shipping"
 msgstr ""
 
-#: src\Capabilities.php:46
+#: src\Capabilities.php:80
 msgid "Anoofy Customer Service"
 msgstr ""
 
@@ -496,23 +504,23 @@ msgstr ""
 msgid "is inactive:"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:181
+#: src\Services\OrderOpsService.php:182
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce while it was being prepared."
 " Make sure the items are put back on the shelf."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:186
+#: src\Services\OrderOpsService.php:187
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its "
 "operational status was NOT changed; decide what to do with the shipment."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:202
+#: src\Services\OrderOpsService.php:203
 msgid "Cancelled by Anoofy: %s"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:219
+#: src\Services\OrderOpsService.php:220
 msgid "Status updated by Anoofy."
 msgstr ""
 

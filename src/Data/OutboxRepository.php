@@ -25,7 +25,7 @@ final class OutboxRepository
         global $wpdb;
         $now = gmdate('Y-m-d H:i:s');
 
-        $wpdb->insert($this->table(), [
+        $inserted = $wpdb->insert($this->table(), [
             'event_id' => $eventId,
             'event_type' => $eventType,
             'wc_order_id' => $wcOrderId,
@@ -44,6 +44,10 @@ final class OutboxRepository
             '%d',
             '%s',
         ]);
+
+        if ($inserted === false || $wpdb->insert_id <= 0) {
+            throw new \RuntimeException('Failed to insert outbox row: ' . $wpdb->last_error);
+        }
 
         return (int) $wpdb->insert_id;
     }
