@@ -1,0 +1,129 @@
+<?php
+declare(strict_types=1);
+
+namespace Anoofy\Woo\Data;
+
+use Anoofy\Woo\Database\Schema;
+
+final class OutboxRepository
+{
+    private function table(): string
+    {
+        global $wpdb;
+
+        return Schema::table($wpdb->prefix, 'outbox');
+    }
+
+    public function create(
+        string $eventId,
+        string $eventType,
+        ?int $wcOrderId,
+        ?int $orderVersion,
+        string $payload
+    ): int {
+        global $wpdb;
+        $now = gmdate('Y-m-d H:i:s');
+
+        $wpdb->insert($this->table(), [
+            'event_id' => $eventId,
+            'event_type' => $eventType,
+            'wc_order_id' => $wcOrderId,
+            'order_version' => $orderVersion,
+            'payload' => $payload,
+            'status' => 'pending',
+            'attempts' => 0,
+            'created_at' => $now,
+        ], [
+            '%s',
+            '%s',
+            $wcOrderId === null ? null : '%d',
+            $orderVersion === null ? null : '%d',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+        ]);
+
+        return (int) $wpdb->insert_id;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function find(int $id): ?array
+    {
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$this->table()} WHERE id = %d", $id), ARRAY_A);
+
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getLatestForOrder(int $orderId): ?array
+    {
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE wc_order_id = %d ORDER BY id DESC LIMIT 1",
+            $orderId
+        ), ARRAY_A);
+
+        return is_array($row) ? $row : null;
+    }
+
+    public function updateStatus(
+        int $id,
+        string $status,
+        ?string $nextRetryAt = null,
+        ?string $lastError = null,
+        bool $incrementAttempts = false
+    ): void {
+        global $wpdb;
+
+        $fields = ['status' => $status];
+        $formats = ['%s'];
+
+        if ($nextRetryAt !== null) {
+            $fields['next_retry_at'] = $nextRetryAt;
+            $formats[] = '%s';
+        }
+
+        if ($lastError !== null) {
+            $fields['last_error'] = $lastError;
+            $formats[] = '%s';
+        }
+
+        if ($incrementAttempts) {
+            $sql = "UPDATE {$this->table()} SET status = %s, attempts = attempts + 1";
+            $params = [$status];
+
+            if ($nextRetryAt !== null) {
+                $sql .= ", next_retry_at = %s";
+                $params[] = $nextRetryAt;
+            }
+
+            if ($lastError !== null) {
+                $sql .= ", last_error = %s";
+                $params[] = $lastError;
+            }
+
+            $sql .= " WHERE id = %d";
+            $params[] = $id;
+
+            $wpdb->query($wpdb->prepare($sql, ...$params));
+            return;
+        }
+
+        $wpdb->update($this->table(), $fields, ['id' => $id], $formats, ['%d']);
+    }
+
+    public function markSent(int $id, string $sentAt): void
+    {
+        global $wpdb;
+        $wpdb->update($this->table(), [
+            'status' => 'sent',
+            'sent_at' => $sentAt,
+        ], ['id' => $id], ['%s', '%s'], ['%d']);
+    }
+}

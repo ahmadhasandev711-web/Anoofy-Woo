@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Services;
 
+use Anoofy\Woo\Core\Connection\EngazEventType;
+use Anoofy\Woo\Core\Connection\EnvelopeFactory;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
 use Anoofy\Woo\Core\Identity\Role;
 use Anoofy\Woo\Core\Identity\RoleResolver;
+use Anoofy\Woo\Core\Mode\ModePolicy;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\Effect;
 use Anoofy\Woo\Core\Order\OrderEvent;
@@ -75,6 +78,9 @@ final class OrderOpsService
 
         $reason = $this->clean($reason);
         $ops = $this->ops->ensure($orderId);
+        if (!ModePolicy::allows($event, $ops->isHandedOver())) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
         $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason));
         if (!$result->ok || $result->from === null || $result->to === null) {
             return ActionResult::fail($result->error?->value ?? TransitionError::InvalidState->value);
@@ -86,8 +92,11 @@ final class OrderOpsService
         }
         $this->audit->record($orderId, $userId, 'order.' . strtolower($event->value), $result->from->value, $result->to->value, $reason);
 
+        $extraEffects = ModePolicy::extraEffects(Services::mode(), $event);
+        $allEffects = array_merge($result->effects, $extraEffects);
+
         try {
-            $this->applyEffects($order, $result->effects, $result->to, $reason);
+            $this->applyEffects($order, $allEffects, $result->to, $reason, $userId);
         } catch (\Throwable $e) {
             $this->audit->record($orderId, $userId, 'order.effect_failed', $result->from->value, $result->to->value, null, ['error' => $e->getMessage()]);
 
@@ -180,7 +189,7 @@ final class OrderOpsService
     }
 
     /** @param list<Effect> $effects */
-    private function applyEffects(\WC_Order $order, array $effects, OrderStatus $newStatus, ?string $reason): void
+    private function applyEffects(\WC_Order $order, array $effects, OrderStatus $newStatus, ?string $reason, int $userId = 0): void
     {
         $cancelled = false;
         foreach ($effects as $effect) {
@@ -196,6 +205,8 @@ final class OrderOpsService
                 } finally {
                     unset($this->cancelling[$order->get_id()]);
                 }
+            } elseif ($effect === Effect::HandOverToEngaz) {
+                $this->handOverToEngaz($order, $userId);
             }
             // OpenRtoReturn / AddRtoTag belong to Phase 5 (returns) and are intentionally ignored here.
         }
@@ -207,6 +218,81 @@ final class OrderOpsService
             if ($target !== null && $order->get_status() !== $target) {
                 $order->update_status($target, __('Status updated by Anoofy.', 'anoofy-woo'));
             }
+        }
+    }
+
+    private function handOverToEngaz(\WC_Order $order, int $userId): void
+    {
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+        $version = $this->ops->recordHandover($order->get_id(), $now);
+
+        $user = get_userdata($userId);
+        $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
+
+        $lineItems = [];
+        foreach ($order->get_items() as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $product = $item->get_product();
+            $productId = $item->get_product_id();
+            $variationId = $item->get_variation_id();
+            $sku = $product ? $product->get_sku() : '';
+            $quantity = $item->get_quantity();
+            $subtotal = (float) $item->get_subtotal();
+            $total = (float) $item->get_total();
+            $price = $quantity > 0 ? (float) ($subtotal / $quantity) : 0.0;
+
+            $lineItems[] = [
+                'wc_product_id' => $productId,
+                'wc_variation_id' => $variationId > 0 ? $variationId : null,
+                'quantity' => $quantity,
+                'name' => $item->get_name(),
+                'sku' => $sku !== '' ? $sku : null,
+                'price' => (int) round($price) == $price ? (int) $price : $price,
+                'total' => (int) round($total) == $total ? (int) $total : $total,
+            ];
+        }
+
+        $address1 = $order->get_shipping_address_1() ?: $order->get_billing_address_1();
+        $address2 = $order->get_shipping_address_2() ?: $order->get_billing_address_2();
+        $city = $order->get_shipping_city() ?: $order->get_billing_city();
+        $state = $order->get_shipping_state() ?: $order->get_billing_state();
+        $phone = $order->get_billing_phone();
+
+        $data = [
+            'wc_order_id' => $order->get_id(),
+            'confirmed_at' => $now,
+            'confirmed_by_name' => $confirmedByName,
+            'customer' => [
+                'phone' => $phone,
+                'address_1' => $address1,
+                'address_2' => $address2,
+                'city' => $city,
+                'state' => $state,
+            ],
+            'line_items' => $lineItems,
+        ];
+
+        $envelope = EnvelopeFactory::build(
+            type: EngazEventType::OrderConfirmed,
+            orderVersion: $version,
+            data: $data,
+            occurredAt: new \DateTimeImmutable($now)
+        );
+
+        $payload = json_encode($envelope, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
+        $outboxId = Services::outbox()->create(
+            $envelope['event_id'],
+            $envelope['event_type'],
+            $order->get_id(),
+            $version,
+            $payload
+        );
+
+        if (function_exists('as_enqueue_async_action')) {
+            as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $outboxId]);
         }
     }
 

@@ -26,6 +26,7 @@ final class ActionsController
         add_action('admin_post_anoofy_bulk_assign', [self::class, 'bulkAssign']);
         add_action('admin_post_anoofy_connect', [self::class, 'connect']);
         add_action('admin_post_anoofy_disconnect', [self::class, 'disconnect']);
+        add_action('admin_post_anoofy_retry_outbox', [self::class, 'retryOutbox']);
     }
 
     public static function logCall(): void
@@ -151,6 +152,24 @@ final class ActionsController
             'disconnected',
             true
         );
+    }
+
+    public static function retryOutbox(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::IntegrationManage);
+        check_admin_referer('anoofy_retry_outbox_' . $orderId, '_anoofy_nonce');
+
+        $outboxId = isset($_POST['anoofy_outbox_id']) ? (int) $_POST['anoofy_outbox_id'] : 0;
+        if ($outboxId > 0) {
+            Services::outbox()->updateStatus($outboxId, 'pending', nextRetryAt: gmdate('Y-m-d H:i:s'));
+            \Anoofy\Woo\Services\EngazOutboxWorker::process($outboxId);
+        }
+
+        $order = wc_get_order($orderId);
+        $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
+        wp_safe_redirect($url);
+        exit;
     }
 
     private static function finish(int $orderId, ActionResult $result, string $successCode): never

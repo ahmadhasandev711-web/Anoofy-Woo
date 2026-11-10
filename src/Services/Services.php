@@ -16,6 +16,12 @@ final class Services
     private static ?CallLog $callLog = null;
     private static ?AuditLog $auditLog = null;
     private static ?EngazConnectionService $engazConnection = null;
+    private static ?\Anoofy\Woo\Data\OutboxRepository $outbox = null;
+
+    public static function outbox(): \Anoofy\Woo\Data\OutboxRepository
+    {
+        return self::$outbox ??= new \Anoofy\Woo\Data\OutboxRepository();
+    }
 
     public static function engazConnection(): EngazConnectionService
     {

@@ -77,6 +77,7 @@ final class OrderBox
         $nonce = wp_create_nonce('anoofy_order_' . $orderId);
 
         echo '<div class="anoofy-box" data-anoofy-box data-order-id="' . esc_attr((string) $orderId) . '" data-nonce="' . esc_attr($nonce) . '">';
+        self::outboxAlert($orderId);
         self::summary($ops);
         self::assignment($ops, $orderId);
         if ($role !== null) {
@@ -88,14 +89,43 @@ final class OrderBox
         echo '</div>';
     }
 
+    private static function outboxAlert(int $orderId): void
+    {
+        $latest = Services::outbox()->getLatestForOrder($orderId);
+        if ($latest === null || $latest['status'] !== 'failed') {
+            return;
+        }
+
+        echo '<div class="notice notice-error" style="padding:10px;margin:5px 0 15px 0;">';
+        echo '<p><strong>' . esc_html__('Failed to send order to EngazPRO.', 'anoofy-woo') . '</strong></p>';
+        if (!empty($latest['last_error'])) {
+            echo '<p><code>' . esc_html((string) $latest['last_error']) . '</code></p>';
+        }
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('anoofy_retry_outbox_' . $orderId, '_anoofy_nonce');
+        echo '<input type="hidden" name="action" value="anoofy_retry_outbox" />';
+        echo '<input type="hidden" name="anoofy_outbox_id" value="' . esc_attr((string) $latest['id']) . '" />';
+        echo '<input type="hidden" name="anoofy_order_id" value="' . esc_attr((string) $orderId) . '" />';
+        echo '<button type="submit" class="button button-secondary">' . esc_html__('Retry send to EngazPRO', 'anoofy-woo') . '</button>';
+        echo '</form></div>';
+    }
+
     private static function summary(OrderOps $ops): void
     {
         printf(
-            '<p class="anoofy-summary"><strong>%s</strong> <span class="anoofy-badge anoofy-badge--%s">%s</span></p>',
+            '<p class="anoofy-summary"><strong>%s</strong> <span class="anoofy-badge anoofy-badge--%s">%s</span>',
             esc_html__('Operational status:', 'anoofy-woo'),
             esc_attr(strtolower(str_replace('_', '-', $ops->status->value))),
             esc_html(Labels::status($ops->status)),
         );
+        if ($ops->isHandedOver()) {
+            printf(
+                ' <span class="anoofy-badge anoofy-badge--handed-over" style="background:#007017;color:#fff;padding:2px 8px;border-radius:3px;margin-left:6px;">%s%s</span>',
+                esc_html__('Handed over to EngazPRO', 'anoofy-woo'),
+                $ops->engazHandoverAt ? ' (' . esc_html($ops->engazHandoverAt) . ')' : ''
+            );
+        }
+        echo '</p>';
     }
 
     private static function assignment(OrderOps $ops, int $orderId): void
@@ -117,7 +147,8 @@ final class OrderBox
 
     private static function callForm(OrderOps $ops, \Anoofy\Woo\Core\Identity\Role $role, int $orderId): void
     {
-        $canLog = Permissions::can($role, Action::OrderLogCall)
+        $canLog = !$ops->isHandedOver()
+            && Permissions::can($role, Action::OrderLogCall)
             && in_array($ops->status, [OrderStatus::New, OrderStatus::UnderReview], true);
         if (!$canLog) {
             return;
@@ -134,6 +165,15 @@ final class OrderBox
 
     private static function decisions(OrderOps $ops, \Anoofy\Woo\Core\Identity\Role $role): void
     {
+        if ($ops->isHandedOver()) {
+            echo '<div class="anoofy-section"><h4>' . esc_html__('Decision', 'anoofy-woo') . '</h4>';
+            echo '<p class="notice notice-info" style="padding:10px;margin:5px 0;">'
+                . esc_html__('The order is being processed in EngazPRO. Operational actions are managed there.', 'anoofy-woo')
+                . '</p></div>';
+
+            return;
+        }
+
         $events = [];
         foreach (OrderStateMachine::eventsFrom($ops->status) as $event) {
             if (in_array($event, self::EVENTS, true) && Permissions::can($role, OrderStateMachine::actionFor($event))) {
