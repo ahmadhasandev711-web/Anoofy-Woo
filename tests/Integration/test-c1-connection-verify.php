@@ -36,6 +36,9 @@ function test_c1_b64url(string $data): string {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
+// Ensure clean initial state
+delete_option('anoofy_engaz_connection');
+
 // 1. Initial State: Standalone
 assert_c1(Services::mode() === OperatingMode::Standalone, "Initial mode is Standalone");
 assert_c1(!Services::engazConnection()->isConnected(), "Initially not connected");

@@ -6,12 +6,19 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
+    @{ Name = 'Schema v2 (Migration)'; File = 'test-schema-v2.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
     @{ Name = 'S-9 (Search Limit > 500)'; File = 'test-s9-search-limit.php' },
     @{ Name = 'S-11 (Reject & Cancel & Stock)'; File = 'test-s11-cancel.php' },
-    @{ Name = 'S-12 (Legacy Order Auto-Track)'; File = 'test-s12-legacy-order.php' }
+    @{ Name = 'S-12 (Legacy Order Auto-Track)'; File = 'test-s12-legacy-order.php' },
+    @{ Name = 'C-1 (Connection Verify)'; File = 'test-c1-connection-verify.php' },
+    @{ Name = 'C-2 (Standalone Mode)'; File = 'test-c2-standalone.php' },
+    @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
+    @{ Name = 'C-4 (Outbox Retry Backoff)'; File = 'test-c4-retry-backoff.php' },
+    @{ Name = 'C-5 (Handed-over Orders Blocked)'; File = 'test-c5-handed-over-blocked.php' },
+    @{ Name = 'C-6 (Pre-connection Orders Standalone)'; File = 'test-c6-pre-connection-orders.php' }
 )
 
 $results = @{}
