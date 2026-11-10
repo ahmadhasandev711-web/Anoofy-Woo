@@ -13,6 +13,38 @@ use Anoofy\Woo\Core\Identity\Role;
  */
 final class Capabilities
 {
+    public const HASH_OPTION = 'anoofy_permissions_hash';
+
+    public static function matrixHash(): string
+    {
+        return hash('sha256', serialize(Permissions::matrix()));
+    }
+
+    public static function maybeSync(): void
+    {
+        $currentHash = self::matrixHash();
+        $storedHash = get_option(self::HASH_OPTION, '');
+
+        if ($storedHash !== $currentHash || !self::adminHasCaps()) {
+            self::install();
+            update_option(self::HASH_OPTION, $currentHash, false);
+        }
+    }
+
+    private static function adminHasCaps(): bool
+    {
+        $admin = get_role('administrator');
+        if ($admin === null) {
+            return true;
+        }
+        foreach (Permissions::actionsFor(Role::Owner) as $action) {
+            if (!$admin->has_cap($action->capability())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function install(): void
     {
         foreach (['administrator', 'shop_manager'] as $slug) {
@@ -34,6 +66,8 @@ final class Capabilities
             remove_role('anoofy_' . $role);
             add_role('anoofy_' . $role, $label, $caps);
         }
+
+        update_option(self::HASH_OPTION, self::matrixHash(), false);
     }
 
     /** @return array<string, string> role value => label (Owner has no dedicated WP role) */

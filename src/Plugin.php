@@ -16,7 +16,7 @@ final class Plugin
     {
         // WooCommerce may not be loaded yet during activation; only touch our own data here.
         Migrator::maybeUpgrade();
-        Capabilities::install();
+        Capabilities::maybeSync();
         update_option(self::VERSION_OPTION, ANOOFY_WOO_VERSION, false);
     }
 
@@ -42,13 +42,11 @@ final class Plugin
             return;
         }
 
-        // Plugin updated in place (no activation): bring the tables and capabilities up to date.
+        // Bring tables and capabilities up to date (hash-checked).
+        Migrator::maybeUpgrade();
+        Capabilities::maybeSync();
         if (get_option(self::VERSION_OPTION) !== ANOOFY_WOO_VERSION) {
-            Migrator::maybeUpgrade();
-            Capabilities::install();
             update_option(self::VERSION_OPTION, ANOOFY_WOO_VERSION, false);
-        } else {
-            Migrator::maybeUpgrade();
         }
 
         Hooks::register();
