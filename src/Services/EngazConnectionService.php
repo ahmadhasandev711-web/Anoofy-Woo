@@ -88,13 +88,13 @@ final class EngazConnectionService
         ]);
 
         if (is_wp_error($response)) {
-            return ActionResult::fail('CONNECTION_FAILED', $response->get_error_message());
+            return ActionResult::fail(ActionResult::CONNECTION_FAILED);
         }
 
         $code = (int) wp_remote_retrieve_response_code($response);
         if ($code !== 200) {
             $this->handleHttpResponse($code);
-            return ActionResult::fail('CONNECTION_FAILED', "EngazPRO verification failed with status {$code}");
+            return ActionResult::fail(ActionResult::CONNECTION_FAILED);
         }
 
         update_option(self::OPTION_NAME, [

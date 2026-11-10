@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
 use Anoofy\Woo\Core\Order\CallOutcome;
@@ -52,7 +53,7 @@ final class OrderBox
         wp_localize_script('anoofy-order-box', 'anoofyOrderBox', [
             'endpoint' => admin_url('admin-post.php'),
             'sending' => __('Sending…', 'anoofy-woo'),
-            'failed' => __('The request failed. Check your connection and try again.', 'anoofy-woo'),
+            OutboxStatus::Failed->value => __('The request failed. Check your connection and try again.', 'anoofy-woo'),
         ]);
     }
 
@@ -92,7 +93,7 @@ final class OrderBox
     private static function outboxAlert(int $orderId): void
     {
         $latest = Services::outbox()->getLatestForOrder($orderId);
-        if ($latest === null || $latest['status'] !== 'failed') {
+        if ($latest === null || $latest['status'] !== OutboxStatus::Failed->value) {
             return;
         }
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Data;
 
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Database\Schema;
 
 final class OutboxRepository
@@ -30,7 +31,7 @@ final class OutboxRepository
             'wc_order_id' => $wcOrderId,
             'order_version' => $orderVersion,
             'payload' => $payload,
-            'status' => 'pending',
+            'status' => OutboxStatus::Pending->value,
             'attempts' => 0,
             'created_at' => $now,
         ], [
@@ -74,14 +75,15 @@ final class OutboxRepository
 
     public function updateStatus(
         int $id,
-        string $status,
+        OutboxStatus $status,
         ?string $nextRetryAt = null,
         ?string $lastError = null,
         bool $incrementAttempts = false
     ): void {
         global $wpdb;
 
-        $fields = ['status' => $status];
+        $statusValue = $status->value;
+        $fields = ['status' => $statusValue];
         $formats = ['%s'];
 
         if ($nextRetryAt !== null) {
@@ -96,7 +98,7 @@ final class OutboxRepository
 
         if ($incrementAttempts) {
             $sql = "UPDATE {$this->table()} SET status = %s, attempts = attempts + 1";
-            $params = [$status];
+            $params = [$statusValue];
 
             if ($nextRetryAt !== null) {
                 $sql .= ", next_retry_at = %s";
@@ -122,7 +124,7 @@ final class OutboxRepository
     {
         global $wpdb;
         $wpdb->update($this->table(), [
-            'status' => 'sent',
+            'status' => OutboxStatus::Sent->value,
             'sent_at' => $sentAt,
         ], ['id' => $id], ['%s', '%s'], ['%d']);
     }

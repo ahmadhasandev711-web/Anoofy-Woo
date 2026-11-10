@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
@@ -162,7 +163,7 @@ final class ActionsController
 
         $outboxId = isset($_POST['anoofy_outbox_id']) ? (int) $_POST['anoofy_outbox_id'] : 0;
         if ($outboxId > 0) {
-            Services::outbox()->updateStatus($outboxId, 'pending', nextRetryAt: gmdate('Y-m-d H:i:s'));
+            Services::outbox()->updateStatus($outboxId, OutboxStatus::Pending, nextRetryAt: gmdate('Y-m-d H:i:s'));
             \Anoofy\Woo\Services\EngazOutboxWorker::process($outboxId);
         }
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Services;
 
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Connection\Signature;
 
 final class EngazOutboxWorker
@@ -17,7 +18,7 @@ final class EngazOutboxWorker
             return;
         }
 
-        if ($row['status'] !== 'pending' && $row['status'] !== 'in_flight') {
+        if ($row['status'] !== OutboxStatus::Pending->value && $row['status'] !== OutboxStatus::InFlight->value) {
             return;
         }
 
@@ -25,11 +26,11 @@ final class EngazOutboxWorker
             return;
         }
 
-        $repo->updateStatus($outboxId, 'in_flight');
+        $repo->updateStatus($outboxId, OutboxStatus::InFlight);
 
         $conn = Services::engazConnection()->getConnection();
         if ($conn === null) {
-            $repo->updateStatus($outboxId, 'failed', lastError: 'Not connected to EngazPRO', incrementAttempts: true);
+            $repo->updateStatus($outboxId, OutboxStatus::Failed, lastError: 'Not connected to EngazPRO', incrementAttempts: true);
             return;
         }
 
@@ -58,13 +59,13 @@ final class EngazOutboxWorker
 
         if ($code === 401) {
             Services::engazConnection()->handleHttpResponse(401);
-            $repo->updateStatus($outboxId, 'failed', lastError: '401 Unauthorized', incrementAttempts: true);
+            $repo->updateStatus($outboxId, OutboxStatus::Failed, lastError: '401 Unauthorized', incrementAttempts: true);
             return;
         }
 
         $currentAttempts = (int) $row['attempts'] + 1;
         if ($currentAttempts > count(self::RETRY_SCHEDULE)) {
-            $repo->updateStatus($outboxId, 'failed', lastError: $errorMsg, incrementAttempts: true);
+            $repo->updateStatus($outboxId, OutboxStatus::Failed, lastError: $errorMsg, incrementAttempts: true);
             return;
         }
 
@@ -73,7 +74,7 @@ final class EngazOutboxWorker
 
         $repo->updateStatus(
             $outboxId,
-            'pending',
+            OutboxStatus::Pending,
             nextRetryAt: $nextRetryAt,
             lastError: $errorMsg,
             incrementAttempts: true

@@ -5,6 +5,7 @@ namespace Anoofy\Woo\Services;
 
 use Anoofy\Woo\Core\Connection\EngazEventType;
 use Anoofy\Woo\Core\Connection\EnvelopeFactory;
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
 use Anoofy\Woo\Core\Identity\Role;
@@ -28,7 +29,7 @@ use Anoofy\Woo\Data\OpsRepository;
 final class OrderOpsService
 {
     /** Not real orders yet (drafts, awaiting payment, failed): tracked later when they change to a real status. */
-    private const UNTRACKED_WOO_STATUSES = ['checkout-draft', 'auto-draft', 'trash', 'pending', 'failed'];
+    private const UNTRACKED_WOO_STATUSES = ['checkout-draft', 'auto-draft', 'trash', OutboxStatus::Pending->value, OutboxStatus::Failed->value];
     private const MAX_NOTE = 1000;
 
     /** @var array<int, true> orders we are cancelling ourselves right now (to ignore our own Woo cancel hook) */
