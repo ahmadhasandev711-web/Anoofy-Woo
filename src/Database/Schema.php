@@ -85,6 +85,7 @@ final class Schema
   status enum('pending','in_flight','sent','failed') NOT NULL DEFAULT 'pending',
   attempts int(10) unsigned NOT NULL DEFAULT 0,
   next_retry_at datetime DEFAULT NULL,
+  last_http_status smallint DEFAULT NULL,
   last_error text DEFAULT NULL,
   created_at datetime NOT NULL,
   sent_at datetime DEFAULT NULL,

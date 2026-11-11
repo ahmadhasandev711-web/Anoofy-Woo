@@ -42,12 +42,51 @@ final class EngazConnectionService
     public function disconnect(): void
     {
         delete_option(self::OPTION_NAME);
+        delete_option('anoofy_engaz_auth_failed_at');
+    }
+
+    public function isAuthFailed(): bool
+    {
+        $conn = get_option(self::OPTION_NAME, null);
+        if (is_array($conn) && !empty($conn['auth_failed_at'])) {
+            return true;
+        }
+
+        return !empty(get_option('anoofy_engaz_auth_failed_at'));
+    }
+
+    public function authFailedAt(): ?string
+    {
+        $conn = get_option(self::OPTION_NAME, null);
+        if (is_array($conn) && !empty($conn['auth_failed_at'])) {
+            return (string) $conn['auth_failed_at'];
+        }
+
+        $val = get_option('anoofy_engaz_auth_failed_at', null);
+
+        return is_string($val) && $val !== '' ? $val : null;
+    }
+
+    public function clearAuthFailed(): void
+    {
+        $conn = get_option(self::OPTION_NAME, null);
+        if (is_array($conn) && isset($conn['auth_failed_at'])) {
+            unset($conn['auth_failed_at']);
+            update_option(self::OPTION_NAME, $conn, false);
+        }
+        delete_option('anoofy_engaz_auth_failed_at');
     }
 
     public function handleHttpResponse(int $statusCode): void
     {
         if ($statusCode === 401) {
-            $this->disconnect();
+            $now = gmdate('Y-m-d\TH:i:s\Z');
+            $conn = get_option(self::OPTION_NAME, null);
+            if (is_array($conn)) {
+                $conn['auth_failed_at'] = $now;
+                update_option(self::OPTION_NAME, $conn, false);
+            }
+            update_option('anoofy_engaz_auth_failed_at', $now, false);
         }
     }
 
@@ -103,6 +142,24 @@ final class EngazConnectionService
             'secret' => $keyData->secret,
             'connected_at' => $now->format('Y-m-d\TH:i:s\Z'),
         ], false);
+        $this->clearAuthFailed();
+
+        // Reset failed 401 rows to pending
+        Services::outbox()->resetFailedAuthRows();
+
+        // Enqueue async action for each pending row, avoiding duplicates if already scheduled
+        $pendingIds = Services::outbox()->findPendingIds();
+        foreach ($pendingIds as $pId) {
+            if (function_exists('as_enqueue_async_action')) {
+                if (function_exists('as_has_scheduled_action')) {
+                    if (!as_has_scheduled_action('anoofy_engaz_send', ['outbox_id' => $pId])) {
+                        as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $pId]);
+                    }
+                } else {
+                    as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $pId]);
+                }
+            }
+        }
 
         return ActionResult::ok();
     }

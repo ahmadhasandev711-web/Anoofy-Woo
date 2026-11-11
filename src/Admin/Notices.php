@@ -22,6 +22,11 @@ final class Notices
 
     public static function render(): void
     {
+        if (\Anoofy\Woo\Services\Services::engazConnection()->isAuthFailed() && current_user_can(\Anoofy\Woo\Core\Identity\Action::IntegrationManage->capability())) {
+            $authMsg = __('الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)', 'anoofy-woo');
+            printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($authMsg));
+        }
+
         // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only banner, whitelisted codes only
         $raw = $_GET[self::KEY] ?? null;
         if (!is_string($raw)) {

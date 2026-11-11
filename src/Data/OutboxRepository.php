@@ -82,7 +82,8 @@ final class OutboxRepository
         OutboxStatus $status,
         ?string $nextRetryAt = null,
         ?string $lastError = null,
-        bool $incrementAttempts = false
+        bool $incrementAttempts = false,
+        ?int $lastHttpStatus = null
     ): void {
         global $wpdb;
 
@@ -100,6 +101,11 @@ final class OutboxRepository
             $formats[] = '%s';
         }
 
+        if ($lastHttpStatus !== null) {
+            $fields['last_http_status'] = $lastHttpStatus;
+            $formats[] = '%d';
+        }
+
         if ($incrementAttempts) {
             $sql = "UPDATE {$this->table()} SET status = %s, attempts = attempts + 1";
             $params = [$statusValue];
@@ -112,6 +118,11 @@ final class OutboxRepository
             if ($lastError !== null) {
                 $sql .= ", last_error = %s";
                 $params[] = $lastError;
+            }
+
+            if ($lastHttpStatus !== null) {
+                $sql .= ", last_http_status = %d";
+                $params[] = $lastHttpStatus;
             }
 
             $sql .= " WHERE id = %d";
@@ -177,5 +188,46 @@ final class OutboxRepository
             OutboxStatus::Pending->value,
             $id
         ));
+    }
+
+    /**
+     * Resets failed rows that failed due to HTTP 401 back to pending.
+     *
+     * @return list<int>
+     */
+    public function resetFailedAuthRows(): array
+    {
+        global $wpdb;
+        $table = $this->table();
+
+        $ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT id FROM {$table} WHERE status = %s AND last_http_status = 401",
+            OutboxStatus::Failed->value
+        ));
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $idList = implode(',', array_map('intval', $ids));
+        $wpdb->query("UPDATE {$table} SET status = '" . OutboxStatus::Pending->value . "', next_retry_at = NULL WHERE id IN ({$idList})");
+
+        return array_map('intval', $ids);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function findPendingIds(): array
+    {
+        global $wpdb;
+        $table = $this->table();
+
+        $ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT id FROM {$table} WHERE status = %s ORDER BY id ASC",
+            OutboxStatus::Pending->value
+        ));
+
+        return array_map('intval', $ids);
     }
 }

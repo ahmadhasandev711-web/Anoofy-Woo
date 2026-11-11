@@ -124,5 +124,6 @@
  "Failed to handover order to EngazPRO.": "فشل تسليم الطلب إلى EngazPRO.",
  "Retry Handover to EngazPRO": "إعادة التسليم لـ EngazPRO",
  "Handed over to EngazPRO": "مُسلّم لـ EngazPRO",
- "The order is being processed in EngazPRO. Operational actions are managed there.": "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك."
+ "The order is being processed in EngazPRO. Operational actions are managed there.": "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك.",
+ "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)": "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
 }

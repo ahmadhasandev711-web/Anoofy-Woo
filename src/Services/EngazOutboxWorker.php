@@ -12,6 +12,10 @@ final class EngazOutboxWorker
 
     public static function process(int $outboxId): void
     {
+        if (Services::engazConnection()->isAuthFailed()) {
+            return;
+        }
+
         $repo = Services::outbox();
         if (!$repo->claimForProcessing($outboxId)) {
             return;
@@ -53,7 +57,13 @@ final class EngazOutboxWorker
 
         if ($code === 401) {
             Services::engazConnection()->handleHttpResponse(401);
-            $repo->updateStatus($outboxId, OutboxStatus::Failed, lastError: '401 Unauthorized', incrementAttempts: true);
+            $repo->updateStatus(
+                $outboxId,
+                OutboxStatus::Failed,
+                lastError: '401 Unauthorized',
+                incrementAttempts: true,
+                lastHttpStatus: 401
+            );
             return;
         }
 

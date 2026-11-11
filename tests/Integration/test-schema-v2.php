@@ -54,6 +54,7 @@ if ($outboxExists) {
         'status',
         'attempts',
         'next_retry_at',
+        'last_http_status',
         'last_error',
         'created_at',
         'sent_at',
