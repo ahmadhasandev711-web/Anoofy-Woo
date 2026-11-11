@@ -19,5 +19,6 @@ final class Hooks
         add_action('woocommerce_order_status_cancelled', static function ($orderId): void {
             Services::orderOps()->onWooCancelled((int) $orderId);
         }, 20);
+        add_action('anoofy_engaz_send', [EngazOutboxWorker::class, 'process']);
     }
 }

@@ -3,10 +3,18 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Services;
 
+use Anoofy\Woo\Core\Connection\EngazEventType;
+use Anoofy\Woo\Core\Connection\EnvelopeFactory;
+use Anoofy\Woo\Core\Connection\OrderConfirmedPayload;
+use Anoofy\Woo\Core\Connection\OrderHandoverData;
+use Anoofy\Woo\Core\Connection\OrderHandoverItem;
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
 use Anoofy\Woo\Core\Identity\Role;
 use Anoofy\Woo\Core\Identity\RoleResolver;
+use Anoofy\Woo\Core\Mode\ModePolicy;
+use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\Effect;
 use Anoofy\Woo\Core\Order\OrderEvent;
@@ -25,7 +33,7 @@ use Anoofy\Woo\Data\OpsRepository;
 final class OrderOpsService
 {
     /** Not real orders yet (drafts, awaiting payment, failed): tracked later when they change to a real status. */
-    private const UNTRACKED_WOO_STATUSES = ['checkout-draft', 'auto-draft', 'trash', 'pending', 'failed'];
+    private const UNTRACKED_WOO_STATUSES = ['checkout-draft', 'auto-draft', 'trash', OutboxStatus::Pending->value, OutboxStatus::Failed->value];
     private const MAX_NOTE = 1000;
 
     /** @var array<int, true> orders we are cancelling ourselves right now (to ignore our own Woo cancel hook) */
@@ -75,6 +83,9 @@ final class OrderOpsService
 
         $reason = $this->clean($reason);
         $ops = $this->ops->ensure($orderId);
+        if (!ModePolicy::allows($ops->isHandedOver())) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
         $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason));
         if (!$result->ok || $result->from === null || $result->to === null) {
             return ActionResult::fail($result->error?->value ?? TransitionError::InvalidState->value);
@@ -86,8 +97,11 @@ final class OrderOpsService
         }
         $this->audit->record($orderId, $userId, 'order.' . strtolower($event->value), $result->from->value, $result->to->value, $reason);
 
+        $extraEffects = ModePolicy::extraEffects(Services::mode(), $event);
+        $allEffects = array_merge($result->effects, $extraEffects);
+
         try {
-            $this->applyEffects($order, $result->effects, $result->to, $reason);
+            $this->applyEffects($order, $allEffects, $result->to, $reason, $userId);
         } catch (\Throwable $e) {
             $this->audit->record($orderId, $userId, 'order.effect_failed', $result->from->value, $result->to->value, null, ['error' => $e->getMessage()]);
 
@@ -140,6 +154,10 @@ final class OrderOpsService
         if ($role === null || !Permissions::can($role, Action::OrderAssign)) {
             return ActionResult::fail(ActionResult::FORBIDDEN);
         }
+        $ops = $this->ops->find($orderId);
+        if ($ops !== null && $ops->isHandedOver()) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
         if ($assigneeId !== null && $assigneeId > 0 && $this->roleFor($assigneeId) === null) {
             return ActionResult::fail(ActionResult::INVALID_ASSIGNEE);
         }
@@ -180,7 +198,7 @@ final class OrderOpsService
     }
 
     /** @param list<Effect> $effects */
-    private function applyEffects(\WC_Order $order, array $effects, OrderStatus $newStatus, ?string $reason): void
+    private function applyEffects(\WC_Order $order, array $effects, OrderStatus $newStatus, ?string $reason, int $userId = 0): void
     {
         $cancelled = false;
         foreach ($effects as $effect) {
@@ -196,6 +214,8 @@ final class OrderOpsService
                 } finally {
                     unset($this->cancelling[$order->get_id()]);
                 }
+            } elseif ($effect === Effect::HandOverToEngaz) {
+                $this->handOverToEngaz($order, $userId);
             }
             // OpenRtoReturn / AddRtoTag belong to Phase 5 (returns) and are intentionally ignored here.
         }
@@ -208,6 +228,112 @@ final class OrderOpsService
                 $order->update_status($target, __('Status updated by Anoofy.', 'anoofy-woo'));
             }
         }
+    }
+
+    public function canRetryHandover(int $orderId): bool
+    {
+        if (Services::mode() !== OperatingMode::Connected) {
+            return false;
+        }
+
+        $ops = $this->ops->find($orderId);
+        if ($ops === null || $ops->status !== OrderStatus::Confirmed || $ops->isHandedOver()) {
+            return false;
+        }
+
+        $conn = Services::engazConnection()->getConnection();
+        if ($conn === null || empty($conn['connected_at'])) {
+            return false;
+        }
+
+        return $this->audit->hasActionAfter($orderId, 'order.effect_failed', $conn['connected_at']);
+    }
+
+    public function retryHandover(int $orderId, int $userId): ActionResult
+    {
+        $role = $this->roleFor($userId);
+        if ($role === null || !Permissions::can($role, Action::IntegrationManage)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
+
+        if (!$this->canRetryHandover($orderId)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
+
+        $order = wc_get_order($orderId);
+        if (!$order instanceof \WC_Order) {
+            return ActionResult::fail(ActionResult::NOT_FOUND);
+        }
+
+        $ok = $this->handOverToEngaz($order, $userId);
+
+        return $ok ? ActionResult::ok() : ActionResult::fail(ActionResult::EFFECT_FAILED);
+    }
+
+    private function handOverToEngaz(\WC_Order $order, int $userId): bool
+    {
+        global $wpdb;
+
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+        $user = get_userdata($userId);
+        $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
+
+        $handoverData = $this->extractHandoverData($order, $now, $confirmedByName);
+        $payloadData = OrderConfirmedPayload::build($handoverData);
+
+        $wpdb->query('START TRANSACTION');
+        try {
+            $version = $this->ops->recordHandover($order->get_id(), $now);
+            $envelope = EnvelopeFactory::build(EngazEventType::OrderConfirmed, $version, $payloadData, occurredAt: new \DateTimeImmutable($now));
+            $payload = json_encode($envelope, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+            $outboxId = Services::outbox()->create($envelope['event_id'], $envelope['event_type'], $order->get_id(), $version, $payload);
+            $wpdb->query('COMMIT');
+        } catch (\Throwable $e) {
+            $wpdb->query('ROLLBACK');
+            $this->audit->record($order->get_id(), $userId, 'order.effect_failed', null, null, 'handover_failed: ' . $e->getMessage());
+            return false;
+        }
+
+        if (function_exists('as_enqueue_async_action') && $outboxId > 0) {
+            as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $outboxId]);
+        }
+
+        return true;
+    }
+
+    private function extractHandoverData(\WC_Order $order, string $now, string $confirmedByName): OrderHandoverData
+    {
+        $items = [];
+        foreach ($order->get_items() as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $product = $item->get_product();
+            $variationId = $item->get_variation_id();
+            $sku = $product ? $product->get_sku() : '';
+
+            $items[] = OrderHandoverItem::fromMoney(
+                productId: $item->get_product_id(),
+                variationId: $variationId > 0 ? $variationId : null,
+                quantity: $item->get_quantity(),
+                name: $item->get_name(),
+                sku: $sku !== '' ? $sku : null,
+                subtotal: (string) $item->get_subtotal(),
+                total: (string) $item->get_total()
+            );
+        }
+
+        return new OrderHandoverData(
+            orderId: $order->get_id(),
+            confirmedAt: $now,
+            confirmedByName: $confirmedByName,
+            customerPhone: $order->get_billing_phone() ?: null,
+            address1: ($order->get_shipping_address_1() ?: $order->get_billing_address_1()) ?: null,
+            address2: ($order->get_shipping_address_2() ?: $order->get_billing_address_2()) ?: null,
+            city: ($order->get_shipping_city() ?: $order->get_billing_city()) ?: null,
+            state: ($order->get_shipping_state() ?: $order->get_billing_state()) ?: null,
+            items: $items
+        );
     }
 
     private function syncWooStatusEnabled(): bool

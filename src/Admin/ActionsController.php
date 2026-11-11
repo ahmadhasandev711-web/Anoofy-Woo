@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
+use Anoofy\Woo\Core\Order\OrderStateMachine;
 use Anoofy\Woo\Services\ActionResult;
 use Anoofy\Woo\Services\Services;
 
@@ -24,6 +26,10 @@ final class ActionsController
         add_action('admin_post_anoofy_order_event', [self::class, 'orderEvent']);
         add_action('admin_post_anoofy_assign', [self::class, 'assign']);
         add_action('admin_post_anoofy_bulk_assign', [self::class, 'bulkAssign']);
+        add_action('admin_post_anoofy_connect', [self::class, 'connect']);
+        add_action('admin_post_anoofy_disconnect', [self::class, 'disconnect']);
+        add_action('admin_post_anoofy_retry_outbox', [self::class, 'retryOutbox']);
+        add_action('admin_post_anoofy_retry_handover', [self::class, 'retryHandover']);
     }
 
     public static function logCall(): void
@@ -47,7 +53,7 @@ final class ActionsController
         if ($event === null || !in_array($event, self::EVENTS, true)) {
             self::finish($orderId, ActionResult::fail(ActionResult::INVALID_INPUT), 'confirm');
         }
-        self::guard($orderId, \Anoofy\Woo\Core\Order\OrderStateMachine::actionFor($event));
+        self::guard($orderId, OrderStateMachine::actionFor($event));
 
         $result = Services::orderOps()->runEvent($orderId, $event, get_current_user_id(), self::text('anoofy_reason', true));
         self::finish($orderId, $result, strtolower($event->value));
@@ -116,6 +122,73 @@ final class ActionsController
         $value = wp_unslash($raw);
 
         return $multiline ? sanitize_textarea_field($value) : sanitize_text_field($value);
+    }
+
+    public static function connect(): void
+    {
+        if (!current_user_can(Action::IntegrationManage->capability())) {
+            wp_die(esc_html__('You are not allowed to do this.', 'anoofy-woo'));
+        }
+        check_admin_referer('anoofy_connect', '_anoofy_nonce');
+
+        $key = sanitize_textarea_field(wp_unslash($_POST['anoofy_connection_key'] ?? ''));
+        $result = Services::engazConnection()->connect($key);
+
+        Notices::redirect(
+            admin_url('admin.php?page=anoofy-connection'),
+            $result->ok ? 'connected' : $result->code,
+            $result->ok
+        );
+    }
+
+    public static function disconnect(): void
+    {
+        if (!current_user_can(Action::IntegrationManage->capability())) {
+            wp_die(esc_html__('You are not allowed to do this.', 'anoofy-woo'));
+        }
+        check_admin_referer('anoofy_disconnect', '_anoofy_nonce');
+
+        Services::engazConnection()->disconnect();
+
+        Notices::redirect(
+            admin_url('admin.php?page=anoofy-connection'),
+            'disconnected',
+            true
+        );
+    }
+
+    public static function retryOutbox(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::IntegrationManage);
+        check_admin_referer('anoofy_retry_outbox_' . $orderId, '_anoofy_nonce');
+
+        $outboxId = isset($_POST['anoofy_outbox_id']) ? (int) $_POST['anoofy_outbox_id'] : 0;
+        $order = wc_get_order($orderId);
+        $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
+
+        if ($outboxId > 0) {
+            $row = Services::outbox()->find($outboxId);
+            if ($row !== null && (int) ($row['wc_order_id'] ?? 0) === $orderId && $row['status'] === OutboxStatus::Failed->value) {
+                Services::outbox()->resetForRetry($outboxId);
+                if (function_exists('as_enqueue_async_action')) {
+                    as_enqueue_async_action('anoofy_engaz_send', ['outbox_id' => $outboxId]);
+                }
+            }
+        }
+
+        wp_safe_redirect($url);
+        exit;
+    }
+
+    public static function retryHandover(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::IntegrationManage);
+        check_admin_referer('anoofy_retry_handover_' . $orderId, '_anoofy_nonce');
+
+        $result = Services::orderOps()->retryHandover($orderId, get_current_user_id());
+        self::finish($orderId, $result, 'handover_retried');
     }
 
     private static function finish(int $orderId, ActionResult $result, string $successCode): never

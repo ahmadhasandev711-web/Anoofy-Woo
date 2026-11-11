@@ -41,6 +41,7 @@ final class Permissions
             Action::ReturnApprove->value => [$o, $om],
             Action::ReportView->value => [$o, $om],
             Action::AuditView->value => [$o],
+            Action::IntegrationManage->value => [$o],
         ];
     }
 

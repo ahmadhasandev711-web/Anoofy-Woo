@@ -72,6 +72,24 @@ final class OpsRepository
         ));
     }
 
+    public function recordHandover(int $orderId, string $handoverAt): int
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET engaz_handover_at = %s, engaz_out_version = engaz_out_version + 1, updated_at = %s WHERE order_id = %d",
+            $handoverAt,
+            self::now(),
+            $orderId,
+        ));
+
+        $ver = $wpdb->get_var($wpdb->prepare(
+            "SELECT engaz_out_version FROM {$this->table()} WHERE order_id = %d",
+            $orderId,
+        ));
+
+        return (int) $ver;
+    }
+
     public function assign(int $orderId, ?int $userId): void
     {
         global $wpdb;

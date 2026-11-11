@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "event_id": "33333333-3333-4333-8333-333333333333",
+  "event_type": "order.stage_changed",
+  "occurred_at": "2026-11-04T12:10:00Z",
+  "order_version": 1,
+  "data": {
+    "wc_order_id": 5001,
+    "stage": "CONFIRMED",
+    "previous_stage": "PENDING_CONFIRMATION",
+    "changed_at": "2026-11-04T12:10:00Z",
+    "branch_name": "الفرع الرئيسي",
+    "courier_name": "شركة أرامكس",
+    "tracking_number": "TRK-987654321"
+  }
+}

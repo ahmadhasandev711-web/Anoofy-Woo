@@ -13,6 +13,7 @@ final class ActionResult
     public const INVALID_ASSIGNEE = 'INVALID_ASSIGNEE';
     public const INVALID_INPUT = 'INVALID_INPUT';
     public const EFFECT_FAILED = 'EFFECT_FAILED';
+    public const CONNECTION_FAILED = 'CONNECTION_FAILED';
 
     private function __construct(public readonly bool $ok, public readonly string $code)
     {

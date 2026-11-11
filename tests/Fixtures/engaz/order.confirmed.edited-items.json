@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "event_id": "33333333-3333-4333-8333-333333333333",
+  "event_type": "order.confirmed",
+  "occurred_at": "2026-11-04T12:10:00Z",
+  "order_version": 2,
+  "data": {
+    "wc_order_id": 5001,
+    "confirmed_at": "2026-11-04T12:10:00Z",
+    "confirmed_by_name": "محمود عادل",
+    "customer": {
+      "phone": "01099887766",
+      "address_1": "20 شارع التحرير",
+      "address_2": "الدور الثاني",
+      "city": "الدقي",
+      "state": "الجيزة"
+    },
+    "line_items": [
+      {
+        "wc_product_id": 901,
+        "wc_variation_id": null,
+        "quantity": 3,
+        "name": "قميص قطني",
+        "sku": "SHIRT-01",
+        "price": "100.00",
+        "total": "300.00"
+      },
+      {
+        "wc_product_id": 902,
+        "wc_variation_id": 9021,
+        "quantity": 1,
+        "name": "بنطلون جينز كحلي 32",
+        "sku": "JEANS-NAVY-32",
+        "price": "150.00",
+        "total": "150.00"
+      }
+    ]
+  }
+}

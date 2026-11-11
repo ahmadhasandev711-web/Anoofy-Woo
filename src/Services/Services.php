@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Services;
 
+use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
 use Anoofy\Woo\Data\OpsRepository;
+use Anoofy\Woo\Data\OutboxRepository;
 
 /** Tiny service locator (no container library on purpose). */
 final class Services
@@ -14,6 +16,25 @@ final class Services
     private static ?OpsRepository $repository = null;
     private static ?CallLog $callLog = null;
     private static ?AuditLog $auditLog = null;
+    private static ?EngazConnectionService $engazConnection = null;
+    private static ?OutboxRepository $outbox = null;
+
+    public static function outbox(): OutboxRepository
+    {
+        return self::$outbox ??= new OutboxRepository();
+    }
+
+    public static function engazConnection(): EngazConnectionService
+    {
+        return self::$engazConnection ??= new EngazConnectionService();
+    }
+
+    public static function mode(): OperatingMode
+    {
+        return self::engazConnection()->isConnected()
+            ? OperatingMode::Connected
+            : OperatingMode::Standalone;
+    }
 
     public static function repository(): OpsRepository
     {

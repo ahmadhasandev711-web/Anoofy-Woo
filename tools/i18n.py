@@ -45,4 +45,8 @@ build(None).save('languages/anoofy-woo.pot')
 po = build('ar')
 po.save('languages/anoofy-woo-ar.po')
 po.save_as_mofile('languages/anoofy-woo-ar.mo')
+for f in ['languages/anoofy-woo.pot', 'languages/anoofy-woo-ar.po']:
+    raw = open(f, 'rb').read().replace(b'\r\n', b'\n')
+    with open(f, 'wb') as fp:
+        fp.write(raw)
 print(f'{len(refs)} strings; wrote languages/anoofy-woo.pot, anoofy-woo-ar.po, anoofy-woo-ar.mo')

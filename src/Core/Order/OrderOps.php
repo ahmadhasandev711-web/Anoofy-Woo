@@ -17,7 +17,14 @@ final class OrderOps
         public readonly int $deliveryAttempts,
         public readonly ?string $courier,
         public readonly ?string $trackingNumber,
+        public readonly ?string $engazHandoverAt = null,
+        public readonly int $engazOutVersion = 0,
     ) {
+    }
+
+    public function isHandedOver(): bool
+    {
+        return $this->engazHandoverAt !== null && trim($this->engazHandoverAt) !== '';
     }
 
     /** @param array<string, mixed> $row values as returned by $wpdb (everything is a string or null) */
@@ -26,6 +33,7 @@ final class OrderOps
         $assigned = $row['assigned_to'] ?? null;
         $courier = isset($row['courier']) ? trim((string) $row['courier']) : '';
         $tracking = isset($row['tracking_number']) ? trim((string) $row['tracking_number']) : '';
+        $handover = isset($row['engaz_handover_at']) ? trim((string) $row['engaz_handover_at']) : '';
 
         return new self(
             (int) ($row['order_id'] ?? 0),
@@ -38,6 +46,8 @@ final class OrderOps
             (int) ($row['delivery_attempts'] ?? 0),
             $courier === '' ? null : $courier,
             $tracking === '' ? null : $tracking,
+            $handover === '' ? null : $handover,
+            (int) ($row['engaz_out_version'] ?? 0),
         );
     }
 

@@ -31,6 +31,7 @@ enum Action: string
     case ReturnApprove = 'return.approve';
     case ReportView = 'report.view';
     case AuditView = 'audit.view';
+    case IntegrationManage = 'integration.manage';
 
     /** The WordPress capability name, e.g. `order.logCall` -> `anoofy_order_log_call`. */
     public function capability(): string

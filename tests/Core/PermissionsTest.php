@@ -27,6 +27,17 @@ final class PermissionsTest extends TestCase
         }
     }
 
+    public function testOnlyOwnerCanManageIntegration(): void
+    {
+        self::assertTrue(Permissions::can(Role::Owner, Action::IntegrationManage));
+        foreach (Role::cases() as $role) {
+            if ($role === Role::Owner) {
+                continue;
+            }
+            self::assertFalse(Permissions::can($role, Action::IntegrationManage), $role->value);
+        }
+    }
+
     public function testCustomerServiceCanCallConfirmAndEditButNotAssignCancelOrAcceptStockWarning(): void
     {
         self::assertTrue(Permissions::can(Role::CustomerService, Action::OrderLogCall));

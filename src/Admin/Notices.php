@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Identity\Action;
+use Anoofy\Woo\Services\Services;
+
 /** Result banner after an action. Only whitelisted codes travel in the URL, never free text. */
 final class Notices
 {
@@ -22,6 +25,11 @@ final class Notices
 
     public static function render(): void
     {
+        if (Services::engazConnection()->isAuthFailed() && current_user_can(Action::IntegrationManage->capability())) {
+            $authMsg = __('The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).', 'anoofy-woo');
+            printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($authMsg));
+        }
+
         // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only banner, whitelisted codes only
         $raw = $_GET[self::KEY] ?? null;
         if (!is_string($raw)) {
