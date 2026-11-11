@@ -306,6 +306,26 @@ assert_c7($responseL2->get_status() === 200, "Re-sent event after DB recovery re
 $dataL2 = $responseL2->get_data();
 assert_c7(($dataL2['data']['result'] ?? '') === 'processed', "Re-sent event after DB recovery is 'processed'");
 
+// Case M: Unsupported event_type -> 200 ignored, not in inbox
+$eventIdM = wp_generate_uuid4();
+$bodyM = json_encode([
+    'schema_version' => 1,
+    'event_id' => $eventIdM,
+    'event_type' => 'order.confirmed',
+    'occurred_at' => gmdate('c'),
+    'order_version' => 11,
+    'data' => [
+        'wc_order_id' => $orderId,
+    ],
+]);
+
+$responseM = make_inbound_request($bodyM);
+assert_c7($responseM->get_status() === 200, "Unsupported event_type returns 200 (actual: " . $responseM->get_status() . ")");
+$dataM = $responseM->get_data();
+assert_c7(($dataM['data']['result'] ?? '') === 'ignored', "Result is 'ignored' for unsupported event_type");
+$inboxRowM = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}anoofy_inbox WHERE event_id = %s", $eventIdM));
+assert_c7((int)$inboxRowM === 0, "Unsupported event_type was NOT recorded in anoofy_inbox");
+
 if ($hasFailed) {
     if (class_exists('WP_CLI')) {
         WP_CLI::halt(1);

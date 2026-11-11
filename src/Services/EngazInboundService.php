@@ -66,6 +66,17 @@ final class EngazInboundService
             ], 422);
         }
 
+        // 4. Check event_type before parsing specific event: unsupported types are ignored per contract
+        if (!isset($envelope['event_type']) || $envelope['event_type'] !== EngazEventType::OrderStageChanged->value) {
+            return new \WP_REST_Response([
+                'success' => true,
+                'data' => [
+                    'result' => InboxResult::Ignored->value,
+                    'reason' => 'unsupported event type',
+                ],
+            ], 200);
+        }
+
         try {
             $event = StageChangedEvent::fromEnvelope($envelope);
         } catch (InvalidStageChangedEventException $e) {
@@ -74,17 +85,6 @@ final class EngazInboundService
                 'message' => 'بيانات غير صالحة',
                 'errors' => ['envelope' => $e->getMessage()],
             ], 422);
-        }
-
-        // 4. Check event_type (already validated by fromEnvelope, but explicit check)
-        if ($event->eventType !== EngazEventType::OrderStageChanged) {
-            return new \WP_REST_Response([
-                'success' => true,
-                'data' => [
-                    'result' => InboxResult::Ignored->value,
-                    'reason' => 'unsupported event type',
-                ],
-            ], 200);
         }
 
         // 5. Check order existence and handover state (DO NOT write to anoofy_inbox if ignored)
