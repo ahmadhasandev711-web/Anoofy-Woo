@@ -7,7 +7,7 @@
  *    - Verifies body: event_type = connection.verify, site_url, callback_url, plugin_version.
  *    - On 200: saves api, kid, secret, connected_at in options; Services::mode() is Connected.
  * 3. Disconnect clears options and reverts Services::mode() to Standalone.
- * 4. 401 response from EngazPRO wipes keys immediately and reverts mode to Standalone.
+ * 4. 401 response from EngazPRO preserves keys, sets auth_failed_at, and keeps mode as Connected.
  */
 defined('ABSPATH') || exit;
 
@@ -126,14 +126,15 @@ assert_c1(!Services::engazConnection()->isConnected(), "isConnected() is false a
 assert_c1(Services::mode() === OperatingMode::Standalone, "Services::mode() reverted to Standalone");
 assert_c1(get_option('anoofy_engaz_connection') === false, "anoofy_engaz_connection option removed from database");
 
-// 5. Reconnect then simulate 401 response: should immediately wipe keys and revert to Standalone
+// 5. Reconnect then simulate 401 response: keys preserved, auth_failed_at saved, mode remains Connected
 Services::engazConnection()->connect($validKey);
 assert_c1(Services::mode() === OperatingMode::Connected, "Reconnected for 401 test");
 
 // Simulate 401 handler
 Services::engazConnection()->handleHttpResponse(401);
-assert_c1(!Services::engazConnection()->isConnected(), "Keys wiped immediately upon receiving 401");
-assert_c1(Services::mode() === OperatingMode::Standalone, "Mode reverted to Standalone after 401");
+assert_c1(Services::engazConnection()->isConnected(), "Keys preserved upon receiving 401");
+assert_c1(Services::engazConnection()->isAuthFailed(), "auth_failed_at is set upon receiving 401");
+assert_c1(Services::mode() === OperatingMode::Connected, "Mode remains Connected after 401");
 
 if ($hasFailed) {
     if (class_exists('WP_CLI')) {

@@ -18,7 +18,11 @@ $tests = @(
     @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
     @{ Name = 'C-4 (Outbox Retry Backoff)'; File = 'test-c4-retry-backoff.php' },
     @{ Name = 'C-5 (Handed-over Orders Blocked)'; File = 'test-c5-handed-over-blocked.php' },
-    @{ Name = 'C-6 (Pre-connection Orders Standalone)'; File = 'test-c6-pre-connection-orders.php' }
+    @{ Name = 'C-6 (Pre-connection Orders Standalone)'; File = 'test-c6-pre-connection-orders.php' },
+    @{ Name = 'C-Review-1 (Caps Sync On Boot)'; File = 'test-c1-caps-sync.php' },
+    @{ Name = 'C-Review-2 (Atomic Handover Transaction)'; File = 'test-c2-atomic-handover.php' },
+    @{ Name = 'C-Review-3 (Worker CAS Claiming)'; File = 'test-c3-compare-and-set.php' },
+    @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' }
 )
 
 $results = @{}
