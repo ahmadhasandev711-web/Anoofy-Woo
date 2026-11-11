@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsTwo(): void
+    public function testSchemaVersionIsThree(): void
     {
-        self::assertSame('2', Schema::VERSION);
+        self::assertSame('3', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
     {
         $statements = Schema::statements('wp_', 'DEFAULT CHARACTER SET utf8mb4');
-        self::assertCount(4, $statements);
+        self::assertCount(5, $statements);
         foreach ($statements as $sql) {
             self::assertTrue(str_starts_with($sql, 'CREATE TABLE wp_anoofy_'), $sql);
             // dbDelta needs exactly two spaces after PRIMARY KEY and KEY (not INDEX).
@@ -33,12 +33,34 @@ final class SchemaTest extends TestCase
         }
     }
 
-    public function testOrderOpsContainsV2Columns(): void
+    public function testOrderOpsContainsV3Columns(): void
     {
         $orderOpsSql = Schema::statements('wp_', '')[0];
         self::assertTrue(str_contains($orderOpsSql, "ops_status varchar(32) NOT NULL DEFAULT 'NEW'"));
         self::assertTrue(str_contains($orderOpsSql, "engaz_handover_at datetime DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "engaz_out_version int(10) unsigned NOT NULL DEFAULT 0"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_stage varchar(32) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_stage_at datetime DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_version int(11) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_branch varchar(255) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_courier varchar(255) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "engaz_tracking varchar(255) DEFAULT NULL"));
+    }
+
+    public function testInboxStatementContainsRequiredColumnsAndKeys(): void
+    {
+        $statements = Schema::statements('wp_', '');
+        $inboxSql = $statements[4] ?? '';
+        self::assertTrue(str_contains($inboxSql, 'CREATE TABLE wp_anoofy_inbox ('));
+        self::assertTrue(str_contains($inboxSql, 'id bigint(20) unsigned NOT NULL AUTO_INCREMENT'));
+        self::assertTrue(str_contains($inboxSql, 'event_id varchar(36) NOT NULL'));
+        self::assertTrue(str_contains($inboxSql, 'event_type varchar(64) NOT NULL'));
+        self::assertTrue(str_contains($inboxSql, 'wc_order_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($inboxSql, 'result varchar(32) NOT NULL'));
+        self::assertTrue(str_contains($inboxSql, 'received_at datetime NOT NULL'));
+        self::assertTrue(str_contains($inboxSql, 'PRIMARY KEY  (id)'));
+        self::assertTrue(str_contains($inboxSql, 'UNIQUE KEY event_id (event_id)'));
+        self::assertTrue(str_contains($inboxSql, 'KEY wc_order_id (wc_order_id)'));
     }
 
     public function testOutboxStatementContainsRequiredColumnsAndKeys(): void

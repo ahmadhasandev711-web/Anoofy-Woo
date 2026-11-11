@@ -28,7 +28,7 @@ global $wpdb;
 \Anoofy\Woo\Database\Migrator::maybeUpgrade();
 
 $storedVersion = \Anoofy\Woo\Database\Migrator::currentVersion();
-assert_schema_v2($storedVersion === '2', "Schema version option is '2'", "actual: {$storedVersion}");
+assert_schema_v2((int)$storedVersion >= 2, "Schema version option is at least '2'", "actual: {$storedVersion}");
 
 // Check order_ops columns
 $orderOpsTable = $wpdb->prefix . 'anoofy_order_ops';
@@ -68,7 +68,7 @@ if ($outboxExists) {
 // Test Idempotency
 \Anoofy\Woo\Database\Migrator::maybeUpgrade();
 $versionAfterSecondRun = \Anoofy\Woo\Database\Migrator::currentVersion();
-assert_schema_v2($versionAfterSecondRun === '2', "Migrator::maybeUpgrade() is idempotent", "actual: {$versionAfterSecondRun}");
+assert_schema_v2((int)$versionAfterSecondRun >= 2, "Migrator::maybeUpgrade() is idempotent", "actual: {$versionAfterSecondRun}");
 
 if ($hasFailed) {
     if (class_exists('WP_CLI')) {
