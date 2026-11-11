@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Connection\EngazStage;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderStatus;
@@ -29,6 +30,25 @@ final class Labels
             OrderStatus::Delivered => __('Delivered', 'anoofy-woo'),
             OrderStatus::DeliveryFailed => __('Delivery failed', 'anoofy-woo'),
             OrderStatus::ReturnedToOrigin => __('Returned to origin', 'anoofy-woo'),
+        };
+    }
+
+    public static function engazStage(?EngazStage $stage): string
+    {
+        if ($stage === null) {
+            return __('Waiting for EngazPRO', 'anoofy-woo');
+        }
+
+        return match ($stage) {
+            EngazStage::PENDING_CONFIRMATION => __('Pending confirmation', 'anoofy-woo'),
+            EngazStage::CONFIRMED => __('Confirmed', 'anoofy-woo'),
+            EngazStage::PREPARING => __('Preparing in warehouse', 'anoofy-woo'),
+            EngazStage::DISPATCHED => __('Dispatched with courier', 'anoofy-woo'),
+            EngazStage::SHIPPED_VIA_COURIER => __('Shipped via courier', 'anoofy-woo'),
+            EngazStage::DELIVERED => __('Delivered and collected', 'anoofy-woo'),
+            EngazStage::PARTIALLY_DELIVERED => __('Partially delivered', 'anoofy-woo'),
+            EngazStage::RETURNED => __('Fully returned', 'anoofy-woo'),
+            EngazStage::CANCELLED => __('Cancelled', 'anoofy-woo'),
         };
     }
 

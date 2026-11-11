@@ -112,13 +112,28 @@ final class OrdersTable extends \WP_List_Table
     /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */
     public function column_ops_status($item): string
     {
-        $status = $item['ops']->status;
+        $ops = $item['ops'];
+        $status = $ops->status;
 
-        return sprintf(
+        $html = sprintf(
             '<span class="anoofy-badge anoofy-badge--%s">%s</span>',
             esc_attr(strtolower(str_replace('_', '-', $status->value))),
             esc_html(Labels::status($status)),
         );
+
+        if ($ops->isHandedOver()) {
+            $stage = $ops->engazStage;
+            $stageClass = $stage !== null
+                ? 'anoofy-stage--' . strtolower(str_replace('_', '-', $stage->value))
+                : 'anoofy-stage--waiting';
+            $html .= sprintf(
+                ' <span class="anoofy-badge anoofy-stage-badge %s">%s</span>',
+                esc_attr($stageClass),
+                esc_html(Labels::engazStage($stage))
+            );
+        }
+
+        return $html;
     }
 
     /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */

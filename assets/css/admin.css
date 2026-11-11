@@ -15,6 +15,19 @@
 .anoofy-badge--preparing, .anoofy-badge--ready-to-ship, .anoofy-badge--shipped, .anoofy-badge--cancellation-pending { background: #e9e0fb; color: #4b2a8f; }
 .anoofy-badge--handed-over { background: #007017; color: #fff; padding: 2px 8px; border-radius: 3px; margin-inline-start: 6px; }
 
+.anoofy-stage-badge { margin-inline-start: 4px; font-weight: 500; }
+.anoofy-stage--confirmed { background: #d4edda; color: #155724; }
+.anoofy-stage--preparing { background: #fff3cd; color: #856404; }
+.anoofy-stage--dispatched { background: #cce5ff; color: #004085; }
+.anoofy-stage--shipped-via-courier { background: #d1ecf1; color: #0c5460; }
+.anoofy-stage--delivered { background: #d4edda; color: #155724; }
+.anoofy-stage--partially-delivered { background: #e2e3e5; color: #383d41; }
+.anoofy-stage--returned { background: #f8d7da; color: #721c24; }
+.anoofy-stage--cancelled { background: #f8d7da; color: #721c24; }
+.anoofy-stage--waiting { background: #f0f0f1; color: #50575e; }
+.anoofy-engaz-details { background: #f6f7f7; padding: 12px; border-radius: 4px; border: 1px solid #c3c4c7; margin-block: 10px; }
+.anoofy-engaz-details p { margin-block: 4px; }
+
 .anoofy-box-alert { padding: 10px; margin-block: 5px 15px; margin-inline: 0; }
 .anoofy-box-info { padding: 10px; margin-block: 5px 0; margin-inline: 0; }
 .anoofy-settings-table { max-inline-size: 640px; margin-block-start: 15px; }

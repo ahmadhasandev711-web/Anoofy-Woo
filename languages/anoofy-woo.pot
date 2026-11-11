@@ -9,11 +9,11 @@ msgstr ""
 
 #: src\Admin\ActionsController.php:76 src\Admin\ActionsController.php:109
 #: src\Admin\ActionsController.php:130 src\Admin\ActionsController.php:147
-#: src\Admin\Labels.php:90 src\Admin\OrdersPage.php:20
+#: src\Admin\Labels.php:110 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src\Admin\ActionsController.php:105 src\Admin\Labels.php:103
+#: src\Admin\ActionsController.php:105 src\Admin\Labels.php:123
 msgid "Invalid request."
 msgstr ""
 
@@ -62,199 +62,231 @@ msgstr ""
 msgid "Disconnect from EngazPRO"
 msgstr ""
 
-#: src\Admin\Labels.php:20 src\Admin\Labels.php:38
+#: src\Admin\Labels.php:21 src\Admin\Labels.php:58
 msgid "New"
 msgstr ""
 
-#: src\Admin\Labels.php:21 src\Admin\Labels.php:39
+#: src\Admin\Labels.php:22 src\Admin\Labels.php:59
 msgid "Under review"
 msgstr ""
 
-#: src\Admin\Labels.php:22 src\Admin\Labels.php:40
+#: src\Admin\Labels.php:23 src\Admin\Labels.php:44 src\Admin\Labels.php:60
 msgid "Confirmed"
 msgstr ""
 
-#: src\Admin\Labels.php:23
+#: src\Admin\Labels.php:24
 msgid "Rejected"
 msgstr ""
 
-#: src\Admin\Labels.php:24
+#: src\Admin\Labels.php:25
 msgid "Preparing"
 msgstr ""
 
-#: src\Admin\Labels.php:25
+#: src\Admin\Labels.php:26
 msgid "Ready to ship"
 msgstr ""
 
-#: src\Admin\Labels.php:26
+#: src\Admin\Labels.php:27
 msgid "Cancellation pending"
 msgstr ""
 
-#: src\Admin\Labels.php:27
+#: src\Admin\Labels.php:28 src\Admin\Labels.php:51
 msgid "Cancelled"
 msgstr ""
 
-#: src\Admin\Labels.php:28
+#: src\Admin\Labels.php:29
 msgid "Shipped"
 msgstr ""
 
-#: src\Admin\Labels.php:29
+#: src\Admin\Labels.php:30
 msgid "Delivered"
 msgstr ""
 
-#: src\Admin\Labels.php:30
+#: src\Admin\Labels.php:31
 msgid "Delivery failed"
 msgstr ""
 
-#: src\Admin\Labels.php:31
+#: src\Admin\Labels.php:32
 msgid "Returned to origin"
 msgstr ""
 
-#: src\Admin\Labels.php:41
-msgid "In progress"
-msgstr ""
-
-#: src\Admin\Labels.php:42
-msgid "Finished"
+#: src\Admin\Labels.php:39
+msgid "Waiting for EngazPRO"
 msgstr ""
 
 #: src\Admin\Labels.php:43
-msgid "Rejected / cancelled"
+msgid "Pending confirmation"
 msgstr ""
 
-#: src\Admin\Labels.php:44
-msgid "All"
+#: src\Admin\Labels.php:45
+msgid "Preparing in warehouse"
 msgstr ""
 
-#: src\Admin\Labels.php:51
-msgid "Answered"
+#: src\Admin\Labels.php:46
+msgid "Dispatched with courier"
 msgstr ""
 
-#: src\Admin\Labels.php:52
-msgid "No answer"
+#: src\Admin\Labels.php:47
+msgid "Shipped via courier"
 msgstr ""
 
-#: src\Admin\Labels.php:53
-msgid "Busy"
+#: src\Admin\Labels.php:48
+msgid "Delivered and collected"
 msgstr ""
 
-#: src\Admin\Labels.php:54
-msgid "Wrong number"
+#: src\Admin\Labels.php:49
+msgid "Partially delivered"
 msgstr ""
 
-#: src\Admin\Labels.php:55
-msgid "Call back later"
+#: src\Admin\Labels.php:50
+msgid "Fully returned"
+msgstr ""
+
+#: src\Admin\Labels.php:61
+msgid "In progress"
 msgstr ""
 
 #: src\Admin\Labels.php:62
-msgid "Confirm order"
+msgid "Finished"
 msgstr ""
 
 #: src\Admin\Labels.php:63
-msgid "Reject order"
+msgid "Rejected / cancelled"
 msgstr ""
 
 #: src\Admin\Labels.php:64
-msgid "Cancel order"
+msgid "All"
+msgstr ""
+
+#: src\Admin\Labels.php:71
+msgid "Answered"
+msgstr ""
+
+#: src\Admin\Labels.php:72
+msgid "No answer"
 msgstr ""
 
 #: src\Admin\Labels.php:73
-msgid "Call logged."
+msgid "Busy"
 msgstr ""
 
 #: src\Admin\Labels.php:74
-msgid "Order confirmed."
+msgid "Wrong number"
 msgstr ""
 
 #: src\Admin\Labels.php:75
-msgid "Order rejected and cancelled in WooCommerce."
+msgid "Call back later"
 msgstr ""
 
-#: src\Admin\Labels.php:76
-msgid "Order cancelled."
+#: src\Admin\Labels.php:82
+msgid "Confirm order"
 msgstr ""
 
-#: src\Admin\Labels.php:77
-msgid "Assignment updated."
+#: src\Admin\Labels.php:83
+msgid "Reject order"
 msgstr ""
 
-#: src\Admin\Labels.php:78
-msgid "Selected orders assigned."
-msgstr ""
-
-#: src\Admin\Labels.php:79
-msgid "Connected to EngazPRO successfully."
-msgstr ""
-
-#: src\Admin\Labels.php:80
-msgid "Disconnected from EngazPRO."
-msgstr ""
-
-#: src\Admin\Labels.php:89
-msgid "This action is not available for the current status of the order."
-msgstr ""
-
-#: src\Admin\Labels.php:91
-msgid "A reason is required."
-msgstr ""
-
-#: src\Admin\Labels.php:92
-msgid "Log an answered call before confirming the order."
+#: src\Admin\Labels.php:84
+msgid "Cancel order"
 msgstr ""
 
 #: src\Admin\Labels.php:93
-msgid "This order has a stock warning. Accept it before confirming."
+msgid "Call logged."
 msgstr ""
 
 #: src\Admin\Labels.php:94
-msgid "This order has a stock warning. An order manager must accept it first."
+msgid "Order confirmed."
 msgstr ""
 
 #: src\Admin\Labels.php:95
-msgid "Assign the order to an employee first."
+msgid "Order rejected and cancelled in WooCommerce."
 msgstr ""
 
 #: src\Admin\Labels.php:96
-msgid "Not all items are prepared yet."
+msgid "Order cancelled."
 msgstr ""
 
 #: src\Admin\Labels.php:97
+msgid "Assignment updated."
+msgstr ""
+
+#: src\Admin\Labels.php:98
+msgid "Selected orders assigned."
+msgstr ""
+
+#: src\Admin\Labels.php:99
+msgid "Connected to EngazPRO successfully."
+msgstr ""
+
+#: src\Admin\Labels.php:100
+msgid "Disconnected from EngazPRO."
+msgstr ""
+
+#: src\Admin\Labels.php:109
+msgid "This action is not available for the current status of the order."
+msgstr ""
+
+#: src\Admin\Labels.php:111
+msgid "A reason is required."
+msgstr ""
+
+#: src\Admin\Labels.php:112
+msgid "Log an answered call before confirming the order."
+msgstr ""
+
+#: src\Admin\Labels.php:113
+msgid "This order has a stock warning. Accept it before confirming."
+msgstr ""
+
+#: src\Admin\Labels.php:114
+msgid "This order has a stock warning. An order manager must accept it first."
+msgstr ""
+
+#: src\Admin\Labels.php:115
+msgid "Assign the order to an employee first."
+msgstr ""
+
+#: src\Admin\Labels.php:116
+msgid "Not all items are prepared yet."
+msgstr ""
+
+#: src\Admin\Labels.php:117
 msgid ""
 "The order was edited after preparation started; confirm the re-preparation "
 "first."
 msgstr ""
 
-#: src\Admin\Labels.php:98
+#: src\Admin\Labels.php:118
 msgid "Enter the courier and tracking number first."
 msgstr ""
 
-#: src\Admin\Labels.php:99
+#: src\Admin\Labels.php:119
 msgid "The maximum number of delivery attempts was reached."
 msgstr ""
 
-#: src\Admin\Labels.php:100
+#: src\Admin\Labels.php:120
 msgid "Order not found."
 msgstr ""
 
-#: src\Admin\Labels.php:101
+#: src\Admin\Labels.php:121
 msgid ""
 "Someone else changed this order a moment ago. Reload the page and try again."
 msgstr ""
 
-#: src\Admin\Labels.php:102
+#: src\Admin\Labels.php:122
 msgid "That user cannot be assigned to orders."
 msgstr ""
 
-#: src\Admin\Labels.php:104
+#: src\Admin\Labels.php:124
 msgid ""
 "The status changed, but updating WooCommerce failed. Check the order notes."
 msgstr ""
 
-#: src\Admin\Labels.php:105
+#: src\Admin\Labels.php:125
 msgid "Failed to connect to EngazPRO. Please verify the connection key."
 msgstr ""
 
-#: src\Admin\Labels.php:106
+#: src\Admin\Labels.php:126
 msgid "Something went wrong."
 msgstr ""
 
@@ -347,102 +379,126 @@ msgid ""
 "This order is not tracked yet: it is still a draft or awaiting payment."
 msgstr ""
 
-#: src\Admin\OrderBox.php:103
+#: src\Admin\OrderBox.php:106
 msgid "Failed to send order to EngazPRO."
 msgstr ""
 
-#: src\Admin\OrderBox.php:112
+#: src\Admin\OrderBox.php:115
 msgid "Retry send to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:123
+#: src\Admin\OrderBox.php:126
 msgid "Failed to handover order to EngazPRO."
 msgstr ""
 
-#: src\Admin\OrderBox.php:129
+#: src\Admin\OrderBox.php:132
 msgid "Retry Handover to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:139
+#: src\Admin\OrderBox.php:142
 msgid "Operational status:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:146
+#: src\Admin\OrderBox.php:149
 msgid "Handed over to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:155 src\Admin\OrdersTable.php:40
-msgid "Assigned to"
-msgstr ""
-
-#: src\Admin\OrderBox.php:158 src\Admin\OrderBox.php:163
-#: src\Admin\OrdersPage.php:154 src\Admin\OrdersTable.php:158
-msgid "Unassigned"
+#: src\Admin\OrderBox.php:159
+msgid "EngazPRO status"
 msgstr ""
 
 #: src\Admin\OrderBox.php:167
-msgid "Save"
+msgid "Stage:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:178
-msgid "Log a call"
+#: src\Admin\OrderBox.php:171
+msgid "Branch:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:184
-msgid "Note (optional)"
+#: src\Admin\OrderBox.php:175
+msgid "Courier:"
+msgstr ""
+
+#: src\Admin\OrderBox.php:179
+msgid "Tracking number:"
 msgstr ""
 
 #: src\Admin\OrderBox.php:185
+msgid "Last stage update:"
+msgstr ""
+
+#: src\Admin\OrderBox.php:193 src\Admin\OrdersTable.php:40
+msgid "Assigned to"
+msgstr ""
+
+#: src\Admin\OrderBox.php:196 src\Admin\OrderBox.php:201
+#: src\Admin\OrdersPage.php:154 src\Admin\OrdersTable.php:173
+msgid "Unassigned"
+msgstr ""
+
+#: src\Admin\OrderBox.php:205
+msgid "Save"
+msgstr ""
+
+#: src\Admin\OrderBox.php:216
+msgid "Log a call"
+msgstr ""
+
+#: src\Admin\OrderBox.php:222
+msgid "Note (optional)"
+msgstr ""
+
+#: src\Admin\OrderBox.php:223
 msgid "Log call"
 msgstr ""
 
-#: src\Admin\OrderBox.php:191 src\Admin\OrderBox.php:209
+#: src\Admin\OrderBox.php:229 src\Admin\OrderBox.php:247
 msgid "Decision"
 msgstr ""
 
-#: src\Admin\OrderBox.php:193
+#: src\Admin\OrderBox.php:231
 msgid ""
 "The order is being processed in EngazPRO. Operational actions are managed "
 "there."
 msgstr ""
 
-#: src\Admin\OrderBox.php:211
+#: src\Admin\OrderBox.php:249
 msgid "Log an answered call before confirming."
 msgstr ""
 
-#: src\Admin\OrderBox.php:214
+#: src\Admin\OrderBox.php:252
 msgid "Reason (required to reject or cancel)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:231
+#: src\Admin\OrderBox.php:269
 msgid "Call log"
 msgstr ""
 
-#: src\Admin\OrderBox.php:233
+#: src\Admin\OrderBox.php:271
 msgid "No calls yet."
 msgstr ""
 
-#: src\Admin\OrderBox.php:237
+#: src\Admin\OrderBox.php:275
 msgid "When"
 msgstr ""
 
-#: src\Admin\OrderBox.php:238
+#: src\Admin\OrderBox.php:276
 msgid "Employee"
 msgstr ""
 
-#: src\Admin\OrderBox.php:238
+#: src\Admin\OrderBox.php:276
 msgid "Result"
 msgstr ""
 
-#: src\Admin\OrderBox.php:239
+#: src\Admin\OrderBox.php:277
 msgid "Note"
 msgstr ""
 
-#: src\Admin\OrderBox.php:261
+#: src\Admin\OrderBox.php:299
 msgid "History"
 msgstr ""
 
-#: src\Admin\OrderBox.php:269
+#: src\Admin\OrderBox.php:307
 msgid "System"
 msgstr ""
 
@@ -486,11 +542,11 @@ msgstr ""
 msgid "#%d (deleted)"
 msgstr ""
 
-#: src\Admin\OrdersTable.php:148
+#: src\Admin\OrdersTable.php:163
 msgid "No orders found."
 msgstr ""
 
-#: src\Admin\OrdersTable.php:162
+#: src\Admin\OrdersTable.php:177
 msgid "Assign selected"
 msgstr ""
 

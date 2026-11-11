@@ -82,6 +82,9 @@ final class OrderBox
         self::outboxAlert($orderId);
         self::retryHandoverAlert($orderId);
         self::summary($ops);
+        if ($ops->isHandedOver()) {
+            self::engazDetails($ops);
+        }
         self::assignment($ops, $orderId);
         if ($role !== null) {
             self::callForm($ops, $role, $orderId);
@@ -148,6 +151,41 @@ final class OrderBox
             );
         }
         echo '</p>';
+    }
+
+    private static function engazDetails(OrderOps $ops): void
+    {
+        echo '<div class="anoofy-section anoofy-engaz-details">';
+        echo '<h4>' . esc_html__('EngazPRO status', 'anoofy-woo') . '</h4>';
+
+        $stage = $ops->engazStage;
+        $stageClass = $stage !== null
+            ? 'anoofy-stage--' . strtolower(str_replace('_', '-', $stage->value))
+            : 'anoofy-stage--waiting';
+        $stageLabel = Labels::engazStage($stage);
+
+        echo '<p><strong>' . esc_html__('Stage:', 'anoofy-woo') . '</strong> ';
+        printf('<span class="anoofy-badge anoofy-stage-badge %s">%s</span></p>', esc_attr($stageClass), esc_html($stageLabel));
+
+        if ($ops->engazBranch) {
+            echo '<p><strong>' . esc_html__('Branch:', 'anoofy-woo') . '</strong> ' . esc_html($ops->engazBranch) . '</p>';
+        }
+
+        if ($ops->engazCourier) {
+            echo '<p><strong>' . esc_html__('Courier:', 'anoofy-woo') . '</strong> ' . esc_html($ops->engazCourier) . '</p>';
+        }
+
+        if ($ops->engazTracking) {
+            echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->engazTracking) . '</code></p>';
+        }
+
+        if ($ops->engazStageAt) {
+            $ts = strtotime($ops->engazStageAt);
+            $formattedDate = $ts !== false ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), $ts) : $ops->engazStageAt;
+            echo '<p><strong>' . esc_html__('Last stage update:', 'anoofy-woo') . '</strong> ' . esc_html($formattedDate) . '</p>';
+        }
+
+        echo '</div>';
     }
 
     private static function assignment(OrderOps $ops, int $orderId): void

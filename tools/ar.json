@@ -126,5 +126,19 @@
  "Handed over to EngazPRO": "مُسلّم لـ EngazPRO",
  "The order is being processed in EngazPRO. Operational actions are managed there.": "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك.",
  "Connection rejected — new key required": "الربط اترفض — محتاج مفتاح جديد",
- "The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).": "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
+ "The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).": "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)",
+ "Waiting for EngazPRO": "في انتظار EngazPRO",
+ "Pending confirmation": "بانتظار التأكيد",
+ "Preparing in warehouse": "قيد التجهيز بالمخزن",
+ "Dispatched with courier": "خرج للشحن مع المندوب",
+ "Shipped via courier": "تم الإسناد لشركة شحن",
+ "Delivered and collected": "تم التسليم والتحصيل",
+ "Partially delivered": "تسليم جزئي",
+ "Fully returned": "مرتجع بالكامل",
+ "EngazPRO status": "حالة EngazPRO",
+ "Stage:": "المرحلة:",
+ "Branch:": "الفرع:",
+ "Courier:": "شركة الشحن:",
+ "Tracking number:": "رقم التتبع:",
+ "Last stage update:": "آخر تحديث للمرحلة:"
 }
