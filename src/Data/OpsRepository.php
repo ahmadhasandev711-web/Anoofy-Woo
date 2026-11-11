@@ -183,6 +183,10 @@ final class OpsRepository
             $version
         ));
 
+        if ($res === false) {
+            throw new \RuntimeException('Failed to update anoofy_order_ops: ' . $wpdb->last_error);
+        }
+
         return $res > 0;
     }
 }

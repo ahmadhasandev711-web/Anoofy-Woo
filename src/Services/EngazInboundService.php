@@ -110,7 +110,15 @@ final class EngazInboundService
         }
 
         // 6. Claim in inbox and apply stage update atomically
-        $result = $this->inboxRepo->claimAndApply($event, $this->opsRepo);
+        try {
+            $result = $this->inboxRepo->claimAndApply($event, $this->opsRepo);
+        } catch (\Throwable $e) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => 'Internal server error while processing event',
+                'error_code' => 'INTERNAL',
+            ], 500);
+        }
 
         $responseData = ['result' => $result->value];
         if ($result === InboxResult::Duplicate) {

@@ -46,7 +46,12 @@ final class InboxRepository
                 $now
             ));
 
-            if ($claimed === 0 || $claimed === false) {
+            if ($claimed === false) {
+                $wpdb->query('ROLLBACK');
+                throw new \RuntimeException('Failed to insert into anoofy_inbox: ' . $wpdb->last_error);
+            }
+
+            if ($claimed === 0) {
                 $wpdb->query('COMMIT');
 
                 return InboxResult::Duplicate;

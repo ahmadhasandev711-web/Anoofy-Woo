@@ -260,6 +260,52 @@ update_option('anoofy_engaz_connection', [
     'connected_at' => gmdate('Y-m-d H:i:s'),
 ], false);
 
+// Case L: Database error on INSERT into inbox -> 500 INTERNAL, rollback, no inbox row, stage unchanged
+$eventIdL = wp_generate_uuid4();
+$bodyL = json_encode([
+    'schema_version' => 1,
+    'event_id' => $eventIdL,
+    'event_type' => 'order.stage_changed',
+    'occurred_at' => gmdate('c'),
+    'order_version' => 10,
+    'data' => [
+        'wc_order_id' => $orderId,
+        'stage' => 'DELIVERED',
+        'previous_stage' => 'SHIPPED_VIA_COURIER',
+        'changed_at' => gmdate('c'),
+        'branch_name' => 'فرع المعادي',
+        'courier_name' => 'أرامكس',
+        'tracking_number' => 'ARAMEX-TRK-7788',
+    ],
+]);
+
+$failInsertFilter = static function ($query) {
+    if (str_contains($query, 'anoofy_inbox') && str_starts_with(trim($query), 'INSERT')) {
+        return 'DO_SYNTAX_ERROR_TO_FAIL';
+    }
+    return $query;
+};
+
+add_filter('query', $failInsertFilter);
+$responseL = make_inbound_request($bodyL);
+remove_filter('query', $failInsertFilter);
+
+assert_c7($responseL->get_status() === 500, "Database error on INSERT returns 500 (not duplicate)", "actual: " . $responseL->get_status());
+$dataL = $responseL->get_data();
+assert_c7(($dataL['error_code'] ?? '') === 'INTERNAL', "Error code is INTERNAL on DB error");
+
+// Verify no row in inbox and stage not changed to DELIVERED
+$inboxRowL = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}anoofy_inbox WHERE event_id = %s", $eventIdL));
+assert_c7((int)$inboxRowL === 0, "No row in inbox after DB error rollback");
+$freshOpsL = $opsRepo->find($orderId);
+assert_c7($freshOpsL->engazStage !== EngazStage::DELIVERED, "Order stage was NOT updated after DB error rollback");
+
+// Re-send without the filter -> now succeeds with 200 processed!
+$responseL2 = make_inbound_request($bodyL);
+assert_c7($responseL2->get_status() === 200, "Re-sent event after DB recovery returns 200");
+$dataL2 = $responseL2->get_data();
+assert_c7(($dataL2['data']['result'] ?? '') === 'processed', "Re-sent event after DB recovery is 'processed'");
+
 if ($hasFailed) {
     if (class_exists('WP_CLI')) {
         WP_CLI::halt(1);
