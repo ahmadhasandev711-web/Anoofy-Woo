@@ -22,7 +22,8 @@ $tests = @(
     @{ Name = 'C-Review-1 (Caps Sync On Boot)'; File = 'test-c1-caps-sync.php' },
     @{ Name = 'C-Review-2 (Atomic Handover Transaction)'; File = 'test-c2-atomic-handover.php' },
     @{ Name = 'C-Review-3 (Worker CAS Claiming)'; File = 'test-c3-compare-and-set.php' },
-    @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' }
+    @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' },
+    @{ Name = 'C-7 (Inbound Stage Changed Callback)'; File = 'test-c7-stage-changed-callback.php' }
 )
 
 $results = @{}

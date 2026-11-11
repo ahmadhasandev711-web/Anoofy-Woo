@@ -18,8 +18,18 @@ final class Services
     private static ?CallLog $callLog = null;
     private static ?AuditLog $auditLog = null;
     private static ?EngazConnectionService $engazConnection = null;
+    private static ?EngazInboundService $engazInbound = null;
     private static ?OutboxRepository $outbox = null;
     private static ?InboxRepository $inbox = null;
+
+    public static function engazInbound(): EngazInboundService
+    {
+        return self::$engazInbound ??= new EngazInboundService(
+            self::engazConnection(),
+            self::repository(),
+            self::inbox()
+        );
+    }
 
     public static function inbox(): InboxRepository
     {
