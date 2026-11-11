@@ -22,8 +22,8 @@
         "quantity": 3,
         "name": "قميص قطني",
         "sku": "SHIRT-01",
-        "price": 100,
-        "total": 300
+        "price": "100.00",
+        "total": "300.00"
       },
       {
         "wc_product_id": 902,
@@ -31,8 +31,8 @@
         "quantity": 1,
         "name": "بنطلون جينز كحلي 32",
         "sku": "JEANS-NAVY-32",
-        "price": 150,
-        "total": 150
+        "price": "150.00",
+        "total": "150.00"
       }
     ]
   }

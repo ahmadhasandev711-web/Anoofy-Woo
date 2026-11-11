@@ -22,8 +22,8 @@
         "quantity": 2,
         "name": "قميص قطني",
         "sku": "SHIRT-01",
-        "price": 100,
-        "total": 200
+        "price": "100.00",
+        "total": "200.00"
       }
     ]
   }

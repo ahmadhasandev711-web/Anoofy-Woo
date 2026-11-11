@@ -5,6 +5,9 @@ namespace Anoofy\Woo\Services;
 
 use Anoofy\Woo\Core\Connection\EngazEventType;
 use Anoofy\Woo\Core\Connection\EnvelopeFactory;
+use Anoofy\Woo\Core\Connection\OrderConfirmedPayload;
+use Anoofy\Woo\Core\Connection\OrderHandoverData;
+use Anoofy\Woo\Core\Connection\OrderHandoverItem;
 use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
@@ -267,76 +270,18 @@ final class OrderOpsService
         global $wpdb;
 
         $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
-        $wpdb->query('START TRANSACTION');
+        $user = get_userdata($userId);
+        $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
 
+        $handoverData = $this->extractHandoverData($order, $now, $confirmedByName);
+        $payloadData = OrderConfirmedPayload::build($handoverData);
+
+        $wpdb->query('START TRANSACTION');
         try {
             $version = $this->ops->recordHandover($order->get_id(), $now);
-
-            $user = get_userdata($userId);
-            $confirmedByName = $user instanceof \WP_User ? $user->display_name : '';
-
-            $lineItems = [];
-            foreach ($order->get_items() as $item) {
-                if (!$item instanceof \WC_Order_Item_Product) {
-                    continue;
-                }
-                $product = $item->get_product();
-                $productId = $item->get_product_id();
-                $variationId = $item->get_variation_id();
-                $sku = $product ? $product->get_sku() : '';
-                $quantity = $item->get_quantity();
-                $subtotal = (float) $item->get_subtotal();
-                $total = (float) $item->get_total();
-                $price = $quantity > 0 ? (float) ($subtotal / $quantity) : 0.0;
-
-                $lineItems[] = [
-                    'wc_product_id' => $productId,
-                    'wc_variation_id' => $variationId > 0 ? $variationId : null,
-                    'quantity' => $quantity,
-                    'name' => $item->get_name(),
-                    'sku' => $sku !== '' ? $sku : null,
-                    'price' => (int) round($price) == $price ? (int) $price : $price,
-                    'total' => (int) round($total) == $total ? (int) $total : $total,
-                ];
-            }
-
-            $address1 = $order->get_shipping_address_1() ?: $order->get_billing_address_1();
-            $address2 = $order->get_shipping_address_2() ?: $order->get_billing_address_2();
-            $city = $order->get_shipping_city() ?: $order->get_billing_city();
-            $state = $order->get_shipping_state() ?: $order->get_billing_state();
-            $phone = $order->get_billing_phone();
-
-            $data = [
-                'wc_order_id' => $order->get_id(),
-                'confirmed_at' => $now,
-                'confirmed_by_name' => $confirmedByName,
-                'customer' => [
-                    'phone' => $phone,
-                    'address_1' => $address1,
-                    'address_2' => $address2,
-                    'city' => $city,
-                    'state' => $state,
-                ],
-                'line_items' => $lineItems,
-            ];
-
-            $envelope = EnvelopeFactory::build(
-                type: EngazEventType::OrderConfirmed,
-                orderVersion: $version,
-                data: $data,
-                occurredAt: new \DateTimeImmutable($now)
-            );
-
+            $envelope = EnvelopeFactory::build(EngazEventType::OrderConfirmed, $version, $payloadData, occurredAt: new \DateTimeImmutable($now));
             $payload = json_encode($envelope, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
-
-            $outboxId = Services::outbox()->create(
-                $envelope['event_id'],
-                $envelope['event_type'],
-                $order->get_id(),
-                $version,
-                $payload
-            );
-
+            $outboxId = Services::outbox()->create($envelope['event_id'], $envelope['event_type'], $order->get_id(), $version, $payload);
             $wpdb->query('COMMIT');
         } catch (\Throwable $e) {
             $wpdb->query('ROLLBACK');
@@ -349,6 +294,41 @@ final class OrderOpsService
         }
 
         return true;
+    }
+
+    private function extractHandoverData(\WC_Order $order, string $now, string $confirmedByName): OrderHandoverData
+    {
+        $items = [];
+        foreach ($order->get_items() as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $product = $item->get_product();
+            $variationId = $item->get_variation_id();
+            $sku = $product ? $product->get_sku() : '';
+
+            $items[] = OrderHandoverItem::fromMoney(
+                productId: $item->get_product_id(),
+                variationId: $variationId > 0 ? $variationId : null,
+                quantity: $item->get_quantity(),
+                name: $item->get_name(),
+                sku: $sku !== '' ? $sku : null,
+                subtotal: (string) $item->get_subtotal(),
+                total: (string) $item->get_total()
+            );
+        }
+
+        return new OrderHandoverData(
+            orderId: $order->get_id(),
+            confirmedAt: $now,
+            confirmedByName: $confirmedByName,
+            customerPhone: $order->get_billing_phone() ?: null,
+            address1: ($order->get_shipping_address_1() ?: $order->get_billing_address_1()) ?: null,
+            address2: ($order->get_shipping_address_2() ?: $order->get_billing_address_2()) ?: null,
+            city: ($order->get_shipping_city() ?: $order->get_billing_city()) ?: null,
+            state: ($order->get_shipping_state() ?: $order->get_billing_state()) ?: null,
+            items: $items
+        );
     }
 
     private function syncWooStatusEnabled(): bool
