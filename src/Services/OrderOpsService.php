@@ -176,7 +176,7 @@ final class OrderOpsService
             return;
         }
         $ops = $this->ops->find($orderId);
-        if ($ops === null) {
+        if ($ops === null || $ops->isHandedOver()) {
             return;
         }
 
