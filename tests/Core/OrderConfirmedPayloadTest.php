@@ -149,4 +149,12 @@ final class OrderConfirmedPayloadTest extends TestCase
         self::assertSame('0.00', $payload['line_items'][0]['price']);
         self::assertSame('5.00', $payload['line_items'][0]['total']);
     }
+
+    public function testToCentsRoundHalfUpOnThirdDecimal(): void
+    {
+        self::assertSame(3334, OrderHandoverItem::toCents('33.335'));
+        self::assertSame(3333, OrderHandoverItem::toCents('33.334'));
+        self::assertSame(-101, OrderHandoverItem::toCents('-1.005'));
+        self::assertSame(1000, OrderHandoverItem::toCents('10'));
+    }
 }

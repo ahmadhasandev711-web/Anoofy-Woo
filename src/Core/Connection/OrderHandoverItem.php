@@ -57,8 +57,16 @@ final class OrderHandoverItem
 
         $parts = explode('.', $str, 2);
         $major = (int) ($parts[0] !== '' ? $parts[0] : '0');
-        $minor = isset($parts[1]) ? substr(str_pad($parts[1], 2, '0'), 0, 2) : '00';
-        $cents = ($major * 100) + (int) $minor;
+
+        if (!isset($parts[1])) {
+            $cents = $major * 100;
+        } else {
+            $dec = str_pad($parts[1], 3, '0');
+            $cents2 = (int) substr($dec, 0, 2);
+            $digit3 = (int) $dec[2];
+            $roundUp = $digit3 >= 5 ? 1 : 0;
+            $cents = ($major * 100) + $cents2 + $roundUp;
+        }
 
         return $negative ? -$cents : $cents;
     }
