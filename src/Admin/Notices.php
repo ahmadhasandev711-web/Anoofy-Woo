@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Admin;
 
+use Anoofy\Woo\Core\Identity\Action;
+use Anoofy\Woo\Services\Services;
+
 /** Result banner after an action. Only whitelisted codes travel in the URL, never free text. */
 final class Notices
 {
@@ -22,7 +25,7 @@ final class Notices
 
     public static function render(): void
     {
-        if (\Anoofy\Woo\Services\Services::engazConnection()->isAuthFailed() && current_user_can(\Anoofy\Woo\Core\Identity\Action::IntegrationManage->capability())) {
+        if (Services::engazConnection()->isAuthFailed() && current_user_can(Action::IntegrationManage->capability())) {
             $authMsg = __('الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)', 'anoofy-woo');
             printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($authMsg));
         }

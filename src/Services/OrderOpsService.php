@@ -14,6 +14,7 @@ use Anoofy\Woo\Core\Identity\Permissions;
 use Anoofy\Woo\Core\Identity\Role;
 use Anoofy\Woo\Core\Identity\RoleResolver;
 use Anoofy\Woo\Core\Mode\ModePolicy;
+use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\Effect;
 use Anoofy\Woo\Core\Order\OrderEvent;
@@ -82,7 +83,7 @@ final class OrderOpsService
 
         $reason = $this->clean($reason);
         $ops = $this->ops->ensure($orderId);
-        if (!ModePolicy::allows($event, $ops->isHandedOver())) {
+        if (!ModePolicy::allows($ops->isHandedOver())) {
             return ActionResult::fail(ActionResult::FORBIDDEN);
         }
         $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason));
@@ -151,6 +152,10 @@ final class OrderOpsService
         }
         $role = $this->roleFor($actorId);
         if ($role === null || !Permissions::can($role, Action::OrderAssign)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
+        $ops = $this->ops->find($orderId);
+        if ($ops !== null && $ops->isHandedOver()) {
             return ActionResult::fail(ActionResult::FORBIDDEN);
         }
         if ($assigneeId !== null && $assigneeId > 0 && $this->roleFor($assigneeId) === null) {
@@ -227,7 +232,7 @@ final class OrderOpsService
 
     public function canRetryHandover(int $orderId): bool
     {
-        if (Services::mode() !== \Anoofy\Woo\Core\Mode\OperatingMode::Connected) {
+        if (Services::mode() !== OperatingMode::Connected) {
             return false;
         }
 

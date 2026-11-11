@@ -33,10 +33,10 @@ final class ConnectionSettings
             submit_button(__('Connect to EngazPRO', 'anoofy-woo'), 'primary');
             echo '</form>';
         } else {
-            echo '<table class="widefat striped" style="max-width:640px; margin-top:15px"><tbody>';
+            echo '<table class="widefat striped anoofy-settings-table"><tbody>';
             echo '<tr>';
             echo '<th scope="row">' . esc_html__('Status', 'anoofy-woo') . '</th>';
-            echo '<td><strong style="color:#007017">' . esc_html__('Connected to EngazPRO', 'anoofy-woo') . '</strong></td>';
+            echo '<td><strong class="anoofy-status-connected">' . esc_html__('Connected to EngazPRO', 'anoofy-woo') . '</strong></td>';
             echo '</tr>';
             echo '<tr>';
             echo '<th scope="row">' . esc_html__('Key ID (kid)', 'anoofy-woo') . '</th>';
@@ -48,7 +48,7 @@ final class ConnectionSettings
             echo '</tr>';
             echo '</tbody></table>';
 
-            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-top:20px">';
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="anoofy-settings-form">';
             wp_nonce_field('anoofy_disconnect', '_anoofy_nonce');
             echo '<input type="hidden" name="action" value="anoofy_disconnect" />';
             submit_button(__('Disconnect from EngazPRO', 'anoofy-woo'), 'delete');

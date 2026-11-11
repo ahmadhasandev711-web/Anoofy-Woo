@@ -11,24 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 final class ModePolicyTest extends TestCase
 {
-    public function testAllowsAllEventsWhenNotHandedOver(): void
+    public function testAllowsWhenNotHandedOver(): void
     {
-        foreach (OrderEvent::cases() as $event) {
-            self::assertTrue(
-                ModePolicy::allows($event, handedOver: false),
-                "Expected {$event->value} to be allowed when not handed over."
-            );
-        }
+        self::assertTrue(ModePolicy::allows(handedOver: false));
     }
 
-    public function testBlocksAllEventsWhenHandedOver(): void
+    public function testBlocksWhenHandedOver(): void
     {
-        foreach (OrderEvent::cases() as $event) {
-            self::assertFalse(
-                ModePolicy::allows($event, handedOver: true),
-                "Expected {$event->value} to be blocked when handed over."
-            );
-        }
+        self::assertFalse(ModePolicy::allows(handedOver: true));
     }
 
     public function testExtraEffectsInStandaloneModeIsEmptyForAllEvents(): void

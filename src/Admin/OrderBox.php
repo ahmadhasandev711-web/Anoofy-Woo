@@ -6,6 +6,7 @@ namespace Anoofy\Woo\Admin;
 use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Identity\Permissions;
+use Anoofy\Woo\Core\Identity\Role;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderOps;
@@ -98,7 +99,7 @@ final class OrderBox
             return;
         }
 
-        echo '<div class="notice notice-error" style="padding:10px;margin:5px 0 15px 0;">';
+        echo '<div class="notice notice-error anoofy-box-alert">';
         echo '<p><strong>' . esc_html__('Failed to send order to EngazPRO.', 'anoofy-woo') . '</strong></p>';
         if (!empty($latest['last_error'])) {
             echo '<p><code>' . esc_html((string) $latest['last_error']) . '</code></p>';
@@ -118,7 +119,7 @@ final class OrderBox
             return;
         }
 
-        echo '<div class="notice notice-error" style="padding:10px;margin:5px 0 15px 0;">';
+        echo '<div class="notice notice-error anoofy-box-alert">';
         echo '<p><strong>' . esc_html__('Failed to handover order to EngazPRO.', 'anoofy-woo') . '</strong></p>';
         if (current_user_can(Action::IntegrationManage->capability())) {
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
@@ -141,7 +142,7 @@ final class OrderBox
         );
         if ($ops->isHandedOver()) {
             printf(
-                ' <span class="anoofy-badge anoofy-badge--handed-over" style="background:#007017;color:#fff;padding:2px 8px;border-radius:3px;margin-left:6px;">%s%s</span>',
+                ' <span class="anoofy-badge anoofy-badge--handed-over">%s%s</span>',
                 esc_html__('Handed over to EngazPRO', 'anoofy-woo'),
                 $ops->engazHandoverAt ? ' (' . esc_html($ops->engazHandoverAt) . ')' : ''
             );
@@ -152,7 +153,7 @@ final class OrderBox
     private static function assignment(OrderOps $ops, int $orderId): void
     {
         echo '<div class="anoofy-section"><h4>' . esc_html__('Assigned to', 'anoofy-woo') . '</h4>';
-        if (!current_user_can(Action::OrderAssign->capability())) {
+        if ($ops->isHandedOver() || !current_user_can(Action::OrderAssign->capability())) {
             $name = Staff::name($ops->assignedTo);
             echo '<p>' . esc_html($name !== '' ? $name : __('Unassigned', 'anoofy-woo')) . '</p></div>';
 
@@ -166,7 +167,7 @@ final class OrderBox
         echo '</select> <button type="button" class="button" data-anoofy-submit>' . esc_html__('Save', 'anoofy-woo') . '</button></div></div>';
     }
 
-    private static function callForm(OrderOps $ops, \Anoofy\Woo\Core\Identity\Role $role, int $orderId): void
+    private static function callForm(OrderOps $ops, Role $role, int $orderId): void
     {
         $canLog = !$ops->isHandedOver()
             && Permissions::can($role, Action::OrderLogCall)
@@ -184,11 +185,11 @@ final class OrderBox
         echo '<button type="button" class="button button-primary" data-anoofy-submit>' . esc_html__('Log call', 'anoofy-woo') . '</button></div></div>';
     }
 
-    private static function decisions(OrderOps $ops, \Anoofy\Woo\Core\Identity\Role $role): void
+    private static function decisions(OrderOps $ops, Role $role): void
     {
         if ($ops->isHandedOver()) {
             echo '<div class="anoofy-section"><h4>' . esc_html__('Decision', 'anoofy-woo') . '</h4>';
-            echo '<p class="notice notice-info" style="padding:10px;margin:5px 0;">'
+            echo '<p class="notice notice-info anoofy-box-info">'
                 . esc_html__('The order is being processed in EngazPRO. Operational actions are managed there.', 'anoofy-woo')
                 . '</p></div>';
 

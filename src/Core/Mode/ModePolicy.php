@@ -8,13 +8,9 @@ use Anoofy\Woo\Core\Order\OrderEvent;
 
 final class ModePolicy
 {
-    public static function allows(OrderEvent $event, bool $handedOver): bool
+    public static function allows(bool $handedOver): bool
     {
-        if ($handedOver) {
-            return false;
-        }
-
-        return true;
+        return !$handedOver;
     }
 
     /**

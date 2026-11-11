@@ -70,6 +70,11 @@ foreach ($eventsToTest as $event) {
     assert_c5($result->code === ActionResult::FORBIDDEN, "Error code is FORBIDDEN for {$event->value}", "actual: {$result->code}");
 }
 
+// Try assign: must also be blocked on handed-over order!
+$assignResult = Services::orderOps()->assign($orderId, $adminId, $adminId);
+assert_c5(!$assignResult->ok, "Assignment was blocked on handed-over order");
+assert_c5($assignResult->code === ActionResult::FORBIDDEN, "Assignment error code is FORBIDDEN", "actual: {$assignResult->code}");
+
 // Verify WooCommerce order status did not change
 $freshOrder = wc_get_order($orderId);
 $wooStatusAfter = $freshOrder ? $freshOrder->get_status() : '';

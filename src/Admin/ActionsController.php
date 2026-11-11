@@ -7,6 +7,7 @@ use Anoofy\Woo\Core\Connection\OutboxStatus;
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
+use Anoofy\Woo\Core\Order\OrderStateMachine;
 use Anoofy\Woo\Services\ActionResult;
 use Anoofy\Woo\Services\Services;
 
@@ -52,7 +53,7 @@ final class ActionsController
         if ($event === null || !in_array($event, self::EVENTS, true)) {
             self::finish($orderId, ActionResult::fail(ActionResult::INVALID_INPUT), 'confirm');
         }
-        self::guard($orderId, \Anoofy\Woo\Core\Order\OrderStateMachine::actionFor($event));
+        self::guard($orderId, OrderStateMachine::actionFor($event));
 
         $result = Services::orderOps()->runEvent($orderId, $event, get_current_user_id(), self::text('anoofy_reason', true));
         self::finish($orderId, $result, strtolower($event->value));
