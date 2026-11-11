@@ -8,13 +8,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
-#: src\Admin\ActionsController.php:75 src\Admin\ActionsController.php:108
-#: src\Admin\ActionsController.php:129 src\Admin\ActionsController.php:146
+#: src\Admin\ActionsController.php:76 src\Admin\ActionsController.php:109
+#: src\Admin\ActionsController.php:130 src\Admin\ActionsController.php:147
 #: src\Admin\Labels.php:90 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr "غير مسموح لك بتنفيذ هذا الإجراء."
 
-#: src\Admin\ActionsController.php:104 src\Admin\Labels.php:103
+#: src\Admin\ActionsController.php:105 src\Admin\Labels.php:103
 msgid "Invalid request."
 msgstr "طلب غير صالح."
 
@@ -27,37 +27,41 @@ msgstr "ليس لديك الصلاحية للوصول إلى هذه الصفحة
 msgid "EngazPRO Integration"
 msgstr "الربط مع EngazPRO"
 
-#: src\Admin\ConnectionSettings.php:23
+#: src\Admin\ConnectionSettings.php:23 src\Admin\ConnectionSettings.php:57
 msgid "Paste your connection key from EngazPRO to enable connected mode."
 msgstr "الصق مفتاح الربط من EngazPRO لتفعيل الوضع المربوط."
 
-#: src\Admin\ConnectionSettings.php:29
+#: src\Admin\ConnectionSettings.php:29 src\Admin\ConnectionSettings.php:63
 msgid "Connection key"
 msgstr "مفتاح الربط"
 
-#: src\Admin\ConnectionSettings.php:33
+#: src\Admin\ConnectionSettings.php:33 src\Admin\ConnectionSettings.php:67
 msgid "Connect to EngazPRO"
 msgstr "ربط مع EngazPRO"
 
-#: src\Admin\ConnectionSettings.php:38
+#: src\Admin\ConnectionSettings.php:39
 msgid "Status"
 msgstr "الحالة"
 
-#: src\Admin\ConnectionSettings.php:39
+#: src\Admin\ConnectionSettings.php:41
+msgid "Connection rejected — new key required"
+msgstr "الربط اترفض — محتاج مفتاح جديد"
+
+#: src\Admin\ConnectionSettings.php:43
 msgid "Connected to EngazPRO"
 msgstr "مربوط بـ EngazPRO"
 
-#: src\Admin\ConnectionSettings.php:42
+#: src\Admin\ConnectionSettings.php:47
 msgid "Key ID (kid)"
 msgstr "معرف المفتاح (kid)"
 
-#: src\Admin\ConnectionSettings.php:46
+#: src\Admin\ConnectionSettings.php:51
 msgid "Connected at"
 msgstr "تاريخ الربط"
 
-#: src\Admin\ConnectionSettings.php:54
+#: src\Admin\ConnectionSettings.php:74
 msgid "Disconnect from EngazPRO"
-msgstr "فصل الربط مع EngazPRO"
+msgstr "قطع الربط"
 
 #: src\Admin\Labels.php:20 src\Admin\Labels.php:38
 msgid "New"
@@ -324,125 +328,126 @@ msgstr ""
 "عمليات الطلبات: تأكيد الكول سنتر، والتجهيز، والتسليم، وتسوية الدفع عند "
 "الاستلام، والمرتجعات."
 
-#: src\Admin\Notices.php:26
+#: src\Admin\Notices.php:29
 msgid ""
-"الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
+"The EngazPRO connection needs to be re-established (the key was rejected or "
+"the server clock is wrong)."
 msgstr ""
 "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
 
-#: src\Admin\OrderBox.php:41
+#: src\Admin\OrderBox.php:42
 msgid "Anoofy: order operations"
 msgstr "Anoofy: عمليات الطلب"
 
-#: src\Admin\OrderBox.php:55
+#: src\Admin\OrderBox.php:56
 msgid "Sending…"
 msgstr "جارٍ الإرسال…"
 
-#: src\Admin\OrderBox.php:56
+#: src\Admin\OrderBox.php:57
 msgid "The request failed. Check your connection and try again."
 msgstr "فشل الطلب. تحقق من الاتصال وحاول مرة أخرى."
 
-#: src\Admin\OrderBox.php:72
+#: src\Admin\OrderBox.php:73
 msgid ""
 "This order is not tracked yet: it is still a draft or awaiting payment."
 msgstr "هذا الطلب غير مُتابَع بعد: ما زال مسودة أو بانتظار الدفع."
 
-#: src\Admin\OrderBox.php:102
+#: src\Admin\OrderBox.php:103
 msgid "Failed to send order to EngazPRO."
 msgstr "فشل إرسال الطلب إلى EngazPRO."
 
-#: src\Admin\OrderBox.php:111
+#: src\Admin\OrderBox.php:112
 msgid "Retry send to EngazPRO"
 msgstr "إعادة محاولة الإرسال إلى EngazPRO"
 
-#: src\Admin\OrderBox.php:122
+#: src\Admin\OrderBox.php:123
 msgid "Failed to handover order to EngazPRO."
 msgstr "فشل تسليم الطلب إلى EngazPRO."
 
-#: src\Admin\OrderBox.php:128
+#: src\Admin\OrderBox.php:129
 msgid "Retry Handover to EngazPRO"
 msgstr "إعادة التسليم لـ EngazPRO"
 
-#: src\Admin\OrderBox.php:138
+#: src\Admin\OrderBox.php:139
 msgid "Operational status:"
 msgstr "الحالة التشغيلية:"
 
-#: src\Admin\OrderBox.php:145
+#: src\Admin\OrderBox.php:146
 msgid "Handed over to EngazPRO"
 msgstr "مُسلّم لـ EngazPRO"
 
-#: src\Admin\OrderBox.php:154 src\Admin\OrdersTable.php:40
+#: src\Admin\OrderBox.php:155 src\Admin\OrdersTable.php:40
 msgid "Assigned to"
 msgstr "معيّن إلى"
 
-#: src\Admin\OrderBox.php:157 src\Admin\OrderBox.php:162
+#: src\Admin\OrderBox.php:158 src\Admin\OrderBox.php:163
 #: src\Admin\OrdersPage.php:154 src\Admin\OrdersTable.php:158
 msgid "Unassigned"
 msgstr "غير معيّن"
 
-#: src\Admin\OrderBox.php:166
+#: src\Admin\OrderBox.php:167
 msgid "Save"
 msgstr "حفظ"
 
-#: src\Admin\OrderBox.php:177
+#: src\Admin\OrderBox.php:178
 msgid "Log a call"
 msgstr "تسجيل مكالمة"
 
-#: src\Admin\OrderBox.php:183
+#: src\Admin\OrderBox.php:184
 msgid "Note (optional)"
 msgstr "ملاحظة (اختياري)"
 
-#: src\Admin\OrderBox.php:184
+#: src\Admin\OrderBox.php:185
 msgid "Log call"
 msgstr "سجّل المكالمة"
 
-#: src\Admin\OrderBox.php:190 src\Admin\OrderBox.php:208
+#: src\Admin\OrderBox.php:191 src\Admin\OrderBox.php:209
 msgid "Decision"
 msgstr "القرار"
 
-#: src\Admin\OrderBox.php:192
+#: src\Admin\OrderBox.php:193
 msgid ""
 "The order is being processed in EngazPRO. Operational actions are managed "
 "there."
 msgstr "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك."
 
-#: src\Admin\OrderBox.php:210
+#: src\Admin\OrderBox.php:211
 msgid "Log an answered call before confirming."
 msgstr "سجّل مكالمة تم الرد فيها قبل التأكيد."
 
-#: src\Admin\OrderBox.php:213
+#: src\Admin\OrderBox.php:214
 msgid "Reason (required to reject or cancel)"
 msgstr "السبب (مطلوب عند الرفض أو الإلغاء)"
 
-#: src\Admin\OrderBox.php:230
+#: src\Admin\OrderBox.php:231
 msgid "Call log"
 msgstr "سجل المكالمات"
 
-#: src\Admin\OrderBox.php:232
+#: src\Admin\OrderBox.php:233
 msgid "No calls yet."
 msgstr "لا توجد مكالمات بعد."
 
-#: src\Admin\OrderBox.php:236
+#: src\Admin\OrderBox.php:237
 msgid "When"
 msgstr "الوقت"
 
-#: src\Admin\OrderBox.php:237
+#: src\Admin\OrderBox.php:238
 msgid "Employee"
 msgstr "الموظف"
 
-#: src\Admin\OrderBox.php:237
+#: src\Admin\OrderBox.php:238
 msgid "Result"
 msgstr "النتيجة"
 
-#: src\Admin\OrderBox.php:238
+#: src\Admin\OrderBox.php:239
 msgid "Note"
 msgstr "ملاحظة"
 
-#: src\Admin\OrderBox.php:260
+#: src\Admin\OrderBox.php:261
 msgid "History"
 msgstr "السجل"
 
-#: src\Admin\OrderBox.php:268
+#: src\Admin\OrderBox.php:269
 msgid "System"
 msgstr "النظام"
 
@@ -514,7 +519,7 @@ msgstr "Anoofy خدمة عملاء"
 msgid "is inactive:"
 msgstr "غير مفعّلة:"
 
-#: src\Services\OrderOpsService.php:182
+#: src\Services\OrderOpsService.php:190
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce while it was being prepared."
 " Make sure the items are put back on the shelf."
@@ -522,7 +527,7 @@ msgstr ""
 "Anoofy: تم إلغاء هذا الطلب في ووكومرس أثناء تجهيزه. تأكد من إرجاع الأصناف "
 "إلى الرف."
 
-#: src\Services\OrderOpsService.php:187
+#: src\Services\OrderOpsService.php:195
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its "
 "operational status was NOT changed; decide what to do with the shipment."
@@ -530,11 +535,11 @@ msgstr ""
 "Anoofy: تم إلغاء هذا الطلب في ووكومرس بعد شحنه. لم تتغير حالته التشغيلية؛ "
 "قرّر ما تفعله بالشحنة."
 
-#: src\Services\OrderOpsService.php:203
+#: src\Services\OrderOpsService.php:211
 msgid "Cancelled by Anoofy: %s"
 msgstr "تم الإلغاء بواسطة Anoofy: %s"
 
-#: src\Services\OrderOpsService.php:220
+#: src\Services\OrderOpsService.php:228
 msgid "Status updated by Anoofy."
 msgstr "تم تحديث الحالة بواسطة Anoofy."
 

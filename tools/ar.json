@@ -116,7 +116,7 @@
  "Connected to EngazPRO": "مربوط بـ EngazPRO",
  "Key ID (kid)": "معرف المفتاح (kid)",
  "Connected at": "تاريخ الربط",
- "Disconnect from EngazPRO": "فصل الربط مع EngazPRO",
+ "Disconnect from EngazPRO": "قطع الربط",
  "Status": "الحالة",
  "You do not have permission to access this page.": "ليس لديك الصلاحية للوصول إلى هذه الصفحة.",
  "Failed to send order to EngazPRO.": "فشل إرسال الطلب إلى EngazPRO.",
@@ -125,5 +125,6 @@
  "Retry Handover to EngazPRO": "إعادة التسليم لـ EngazPRO",
  "Handed over to EngazPRO": "مُسلّم لـ EngazPRO",
  "The order is being processed in EngazPRO. Operational actions are managed there.": "الطلب قيد المعالجة في EngazPRO. الإجراءات التشغيلية تتم من هناك.",
- "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)": "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
+ "Connection rejected — new key required": "الربط اترفض — محتاج مفتاح جديد",
+ "The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).": "الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
 }

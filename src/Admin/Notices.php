@@ -26,7 +26,7 @@ final class Notices
     public static function render(): void
     {
         if (Services::engazConnection()->isAuthFailed() && current_user_can(Action::IntegrationManage->capability())) {
-            $authMsg = __('الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)', 'anoofy-woo');
+            $authMsg = __('The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).', 'anoofy-woo');
             printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($authMsg));
         }
 

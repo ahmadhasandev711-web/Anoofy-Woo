@@ -52,7 +52,6 @@ $keyB64 = rtrim(strtr(base64_encode(json_encode([
     'secret' => $connData['secret'],
 ], JSON_THROW_ON_ERROR)), '+/', '-_'), '=');
 update_option('anoofy_engaz_connection', $connData, false);
-delete_option('anoofy_engaz_auth_failed_at');
 
 assert_c4(Services::mode() === OperatingMode::Connected, "Initial mode is Connected");
 $connBefore = Services::engazConnection()->getConnection();
@@ -134,8 +133,9 @@ ob_start();
 \Anoofy\Woo\Admin\Notices::render();
 $noticeOutput = ob_get_clean();
 
+$expectedEnglish = 'The EngazPRO connection needs to be re-established (the key was rejected or the server clock is wrong).';
 $expectedArabic = 'الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)';
-assert_c4(str_contains($noticeOutput, $expectedArabic), "Admin notice rendered with expected Arabic text for manager");
+assert_c4(str_contains($noticeOutput, $expectedEnglish) || str_contains($noticeOutput, $expectedArabic), "Admin notice rendered with expected text for manager");
 
 // Test notice hidden for non-manager
 $shopManager = get_users(['role' => 'shop_manager', 'number' => 1]);
@@ -144,12 +144,44 @@ if ($shopManager) {
     ob_start();
     \Anoofy\Woo\Admin\Notices::render();
     $noticeNonManager = ob_get_clean();
-    assert_c4(!str_contains($noticeNonManager, $expectedArabic), "Admin notice NOT rendered for non-manager");
+    assert_c4(!str_contains($noticeNonManager, $expectedEnglish) && !str_contains($noticeNonManager, $expectedArabic), "Admin notice NOT rendered for non-manager");
 }
 wp_set_current_user($adminUser ? $adminUser->ID : 1);
 
-// 6. Test Reconnect Recovery
-// Remove the 401 mock filter and mock 200 for verify
+// 6. Test Connection Settings page during auth_failed state
+ob_start();
+\Anoofy\Woo\Admin\ConnectionSettings::render();
+$settingsOutput = ob_get_clean();
+assert_c4(str_contains($settingsOutput, 'anoofy-status-bad'), "Settings page renders status with bad class when auth failed");
+assert_c4(str_contains($settingsOutput, 'name="anoofy_connection_key"'), "Settings page renders connection key textarea when auth failed");
+assert_c4(str_contains($settingsOutput, 'action" value="anoofy_disconnect"'), "Settings page renders disconnect form when auth failed");
+
+// 7. Test failed reconnect with invalid key: old connection remains intact
+$badKeyResult = Services::engazConnection()->connect('invalid-key-data');
+assert_c4(!$badKeyResult->ok, "Connect with invalid key failed");
+$connAfterBad = Services::engazConnection()->getConnection();
+assert_c4($connAfterBad !== null && $connAfterBad['kid'] === 'kid_live_c4_test', "Old connection is preserved after failed connect");
+assert_c4(Services::mode() === OperatingMode::Connected, "Mode remains Connected after failed connect");
+
+// Test failed reconnect with remote error: old connection remains intact
+remove_all_filters('pre_http_request');
+add_filter('pre_http_request', function ($pre, $args, $url) {
+    if (str_contains($url, 'app.engazpro.test')) {
+        return [
+            'response' => ['code' => 500, 'message' => 'Internal Server Error'],
+            'body' => json_encode(['error' => 'Server error']),
+        ];
+    }
+    return $pre;
+}, 10, 3);
+
+$failHttpResult = Services::engazConnection()->connect($keyB64);
+assert_c4(!$failHttpResult->ok, "Connect with failing endpoint failed");
+$connAfterHttpFail = Services::engazConnection()->getConnection();
+assert_c4($connAfterHttpFail !== null && $connAfterHttpFail['kid'] === 'kid_live_c4_test', "Old connection preserved after endpoint failure");
+assert_c4(Services::mode() === OperatingMode::Connected, "Mode remains Connected after endpoint failure");
+
+// 8. Test Reconnect Recovery with new valid key
 remove_all_filters('pre_http_request');
 add_filter('pre_http_request', function ($pre, $args, $url) {
     if (str_contains($url, 'app.engazpro.test')) {
@@ -161,10 +193,25 @@ add_filter('pre_http_request', function ($pre, $args, $url) {
     return $pre;
 }, 10, 3);
 
-$result = Services::engazConnection()->connect($keyB64);
-assert_c4($result->ok, "Reconnect succeeded");
+$newConnData = [
+    'v' => 1,
+    'api' => 'https://app.engazpro.test/api/v1/events',
+    'kid' => 'kid_live_c4_new_key',
+    'secret' => 'b1b2b3b4b5b6b7b8b9b0a1a2a3a4a5a6a7a8a9a0b1b2b3b4b5b6b7b8b9b0a1a2',
+];
+$newKeyB64 = rtrim(strtr(base64_encode(json_encode([
+    'v' => 1,
+    'api' => $newConnData['api'],
+    'kid' => $newConnData['kid'],
+    'secret' => $newConnData['secret'],
+], JSON_THROW_ON_ERROR)), '+/', '-_'), '=');
+
+$result = Services::engazConnection()->connect($newKeyB64);
+assert_c4($result->ok, "Reconnect with new key succeeded");
+assert_c4(Services::mode() === OperatingMode::Connected, "Mode is Connected");
 
 $connAfter = get_option('anoofy_engaz_connection');
+assert_c4(is_array($connAfter) && $connAfter['kid'] === 'kid_live_c4_new_key', "kid updated to new key");
 assert_c4(empty($connAfter['auth_failed_at']), "auth_failed_at was cleared after reconnect");
 assert_c4(!Services::engazConnection()->isAuthFailed(), "isAuthFailed() returns false after reconnect");
 

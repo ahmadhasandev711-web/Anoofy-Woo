@@ -42,17 +42,13 @@ final class EngazConnectionService
     public function disconnect(): void
     {
         delete_option(self::OPTION_NAME);
-        delete_option('anoofy_engaz_auth_failed_at');
     }
 
     public function isAuthFailed(): bool
     {
         $conn = get_option(self::OPTION_NAME, null);
-        if (is_array($conn) && !empty($conn['auth_failed_at'])) {
-            return true;
-        }
 
-        return !empty(get_option('anoofy_engaz_auth_failed_at'));
+        return is_array($conn) && !empty($conn['auth_failed_at']);
     }
 
     public function authFailedAt(): ?string
@@ -62,9 +58,7 @@ final class EngazConnectionService
             return (string) $conn['auth_failed_at'];
         }
 
-        $val = get_option('anoofy_engaz_auth_failed_at', null);
-
-        return is_string($val) && $val !== '' ? $val : null;
+        return null;
     }
 
     public function clearAuthFailed(): void
@@ -74,7 +68,6 @@ final class EngazConnectionService
             unset($conn['auth_failed_at']);
             update_option(self::OPTION_NAME, $conn, false);
         }
-        delete_option('anoofy_engaz_auth_failed_at');
     }
 
     public function handleHttpResponse(int $statusCode): void
@@ -86,7 +79,6 @@ final class EngazConnectionService
                 $conn['auth_failed_at'] = $now;
                 update_option(self::OPTION_NAME, $conn, false);
             }
-            update_option('anoofy_engaz_auth_failed_at', $now, false);
         }
     }
 
@@ -132,7 +124,6 @@ final class EngazConnectionService
 
         $code = (int) wp_remote_retrieve_response_code($response);
         if ($code !== 200) {
-            $this->handleHttpResponse($code);
             return ActionResult::fail(ActionResult::CONNECTION_FAILED);
         }
 

@@ -7,13 +7,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src\Admin\ActionsController.php:75 src\Admin\ActionsController.php:108
-#: src\Admin\ActionsController.php:129 src\Admin\ActionsController.php:146
+#: src\Admin\ActionsController.php:76 src\Admin\ActionsController.php:109
+#: src\Admin\ActionsController.php:130 src\Admin\ActionsController.php:147
 #: src\Admin\Labels.php:90 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src\Admin\ActionsController.php:104 src\Admin\Labels.php:103
+#: src\Admin\ActionsController.php:105 src\Admin\Labels.php:103
 msgid "Invalid request."
 msgstr ""
 
@@ -26,35 +26,39 @@ msgstr ""
 msgid "EngazPRO Integration"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:23
+#: src\Admin\ConnectionSettings.php:23 src\Admin\ConnectionSettings.php:57
 msgid "Paste your connection key from EngazPRO to enable connected mode."
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:29
+#: src\Admin\ConnectionSettings.php:29 src\Admin\ConnectionSettings.php:63
 msgid "Connection key"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:33
+#: src\Admin\ConnectionSettings.php:33 src\Admin\ConnectionSettings.php:67
 msgid "Connect to EngazPRO"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:38
+#: src\Admin\ConnectionSettings.php:39
 msgid "Status"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:39
+#: src\Admin\ConnectionSettings.php:41
+msgid "Connection rejected — new key required"
+msgstr ""
+
+#: src\Admin\ConnectionSettings.php:43
 msgid "Connected to EngazPRO"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:42
+#: src\Admin\ConnectionSettings.php:47
 msgid "Key ID (kid)"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:46
+#: src\Admin\ConnectionSettings.php:51
 msgid "Connected at"
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:54
+#: src\Admin\ConnectionSettings.php:74
 msgid "Disconnect from EngazPRO"
 msgstr ""
 
@@ -320,124 +324,125 @@ msgid ""
 "settlement and returns."
 msgstr ""
 
-#: src\Admin\Notices.php:26
+#: src\Admin\Notices.php:29
 msgid ""
-"الربط مع EngazPRO محتاج يتعمل تاني (المفتاح اترفض أو ساعة السيرفر مش مظبوطة)"
+"The EngazPRO connection needs to be re-established (the key was rejected or "
+"the server clock is wrong)."
 msgstr ""
 
-#: src\Admin\OrderBox.php:41
+#: src\Admin\OrderBox.php:42
 msgid "Anoofy: order operations"
 msgstr ""
 
-#: src\Admin\OrderBox.php:55
+#: src\Admin\OrderBox.php:56
 msgid "Sending…"
 msgstr ""
 
-#: src\Admin\OrderBox.php:56
+#: src\Admin\OrderBox.php:57
 msgid "The request failed. Check your connection and try again."
 msgstr ""
 
-#: src\Admin\OrderBox.php:72
+#: src\Admin\OrderBox.php:73
 msgid ""
 "This order is not tracked yet: it is still a draft or awaiting payment."
 msgstr ""
 
-#: src\Admin\OrderBox.php:102
+#: src\Admin\OrderBox.php:103
 msgid "Failed to send order to EngazPRO."
 msgstr ""
 
-#: src\Admin\OrderBox.php:111
+#: src\Admin\OrderBox.php:112
 msgid "Retry send to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:122
+#: src\Admin\OrderBox.php:123
 msgid "Failed to handover order to EngazPRO."
 msgstr ""
 
-#: src\Admin\OrderBox.php:128
+#: src\Admin\OrderBox.php:129
 msgid "Retry Handover to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:138
+#: src\Admin\OrderBox.php:139
 msgid "Operational status:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:145
+#: src\Admin\OrderBox.php:146
 msgid "Handed over to EngazPRO"
 msgstr ""
 
-#: src\Admin\OrderBox.php:154 src\Admin\OrdersTable.php:40
+#: src\Admin\OrderBox.php:155 src\Admin\OrdersTable.php:40
 msgid "Assigned to"
 msgstr ""
 
-#: src\Admin\OrderBox.php:157 src\Admin\OrderBox.php:162
+#: src\Admin\OrderBox.php:158 src\Admin\OrderBox.php:163
 #: src\Admin\OrdersPage.php:154 src\Admin\OrdersTable.php:158
 msgid "Unassigned"
 msgstr ""
 
-#: src\Admin\OrderBox.php:166
+#: src\Admin\OrderBox.php:167
 msgid "Save"
 msgstr ""
 
-#: src\Admin\OrderBox.php:177
+#: src\Admin\OrderBox.php:178
 msgid "Log a call"
 msgstr ""
 
-#: src\Admin\OrderBox.php:183
+#: src\Admin\OrderBox.php:184
 msgid "Note (optional)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:184
+#: src\Admin\OrderBox.php:185
 msgid "Log call"
 msgstr ""
 
-#: src\Admin\OrderBox.php:190 src\Admin\OrderBox.php:208
+#: src\Admin\OrderBox.php:191 src\Admin\OrderBox.php:209
 msgid "Decision"
 msgstr ""
 
-#: src\Admin\OrderBox.php:192
+#: src\Admin\OrderBox.php:193
 msgid ""
 "The order is being processed in EngazPRO. Operational actions are managed "
 "there."
 msgstr ""
 
-#: src\Admin\OrderBox.php:210
+#: src\Admin\OrderBox.php:211
 msgid "Log an answered call before confirming."
 msgstr ""
 
-#: src\Admin\OrderBox.php:213
+#: src\Admin\OrderBox.php:214
 msgid "Reason (required to reject or cancel)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:230
+#: src\Admin\OrderBox.php:231
 msgid "Call log"
 msgstr ""
 
-#: src\Admin\OrderBox.php:232
+#: src\Admin\OrderBox.php:233
 msgid "No calls yet."
 msgstr ""
 
-#: src\Admin\OrderBox.php:236
+#: src\Admin\OrderBox.php:237
 msgid "When"
 msgstr ""
 
-#: src\Admin\OrderBox.php:237
+#: src\Admin\OrderBox.php:238
 msgid "Employee"
 msgstr ""
 
-#: src\Admin\OrderBox.php:237
+#: src\Admin\OrderBox.php:238
 msgid "Result"
 msgstr ""
 
-#: src\Admin\OrderBox.php:238
+#: src\Admin\OrderBox.php:239
 msgid "Note"
 msgstr ""
 
-#: src\Admin\OrderBox.php:260
+#: src\Admin\OrderBox.php:261
 msgid "History"
 msgstr ""
 
-#: src\Admin\OrderBox.php:268
+#: src\Admin\OrderBox.php:269
 msgid "System"
 msgstr ""
 
@@ -509,23 +514,23 @@ msgstr ""
 msgid "is inactive:"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:182
+#: src\Services\OrderOpsService.php:190
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce while it was being prepared."
 " Make sure the items are put back on the shelf."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:187
+#: src\Services\OrderOpsService.php:195
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its "
 "operational status was NOT changed; decide what to do with the shipment."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:203
+#: src\Services\OrderOpsService.php:211
 msgid "Cancelled by Anoofy: %s"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:220
+#: src\Services\OrderOpsService.php:228
 msgid "Status updated by Anoofy."
 msgstr ""
 

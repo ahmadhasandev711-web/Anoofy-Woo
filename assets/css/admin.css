@@ -19,6 +19,7 @@
 .anoofy-box-info { padding: 10px; margin-block: 5px 0; margin-inline: 0; }
 .anoofy-settings-table { max-inline-size: 640px; margin-block-start: 15px; }
 .anoofy-status-connected { color: #007017; }
+.anoofy-status-bad { color: #d63638; }
 .anoofy-settings-form { margin-block-start: 20px; }
 
 .anoofy-views { margin-block: 4px 12px; }
