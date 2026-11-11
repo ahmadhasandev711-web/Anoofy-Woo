@@ -108,4 +108,12 @@ final class InboundVerifierTest extends TestCase
         $this->assertFalse(InboundVerifier::verify($this->kid, $this->secret, $this->kid, null, 'sig', $this->rawBody, $now));
         $this->assertFalse(InboundVerifier::verify($this->kid, $this->secret, $this->kid, (string) $this->timestamp, null, $this->rawBody, $now));
     }
+
+    public function testInboundVerifierDelegatesToSignatureVerifyWithoutDuplicatingHmac(): void
+    {
+        $file = file_get_contents(dirname(__DIR__, 2) . '/src/Core/Connection/InboundVerifier.php');
+        $this->assertStringNotContainsString('hash_hmac', $file, 'InboundVerifier must not duplicate HMAC calculation');
+        $this->assertStringNotContainsString('abs(', $file, 'InboundVerifier must not duplicate timestamp window calculation');
+        $this->assertStringContainsString('Signature::verify', $file, 'InboundVerifier must delegate to Signature::verify');
+    }
 }

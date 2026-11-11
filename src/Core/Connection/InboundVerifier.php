@@ -24,17 +24,17 @@ final class InboundVerifier
             return false;
         }
 
-        $ts = (int) $headerTs;
-        if (abs($now - $ts) > self::WINDOW_SECONDS) {
-            return false;
-        }
-
         if ($headerSig === null || $headerSig === '') {
             return false;
         }
 
-        $expectedSig = hash_hmac('sha256', $headerTs . '.' . $rawBody, $secret);
-
-        return hash_equals($expectedSig, strtolower(trim($headerSig)));
+        return Signature::verify(
+            secret: $secret,
+            timestamp: (int) $headerTs,
+            rawBody: $rawBody,
+            expectedSignature: $headerSig,
+            now: $now,
+            window: self::WINDOW_SECONDS
+        );
     }
 }
