@@ -24,7 +24,8 @@ $tests = @(
     @{ Name = 'C-Review-3 (Worker CAS Claiming)'; File = 'test-c3-compare-and-set.php' },
     @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' },
     @{ Name = 'C-7 (Inbound Stage Changed Callback)'; File = 'test-c7-stage-changed-callback.php' },
-    @{ Name = 'C-8 (Display EngazPRO Stage)'; File = 'test-c8-display-stage.php' }
+    @{ Name = 'C-8 (Display EngazPRO Stage)'; File = 'test-c8-display-stage.php' },
+    @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 
 $results = @{}

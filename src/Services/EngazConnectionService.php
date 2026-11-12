@@ -84,8 +84,13 @@ final class EngazConnectionService
 
     public function connect(string $rawKey): ActionResult
     {
+        $allowInsecure = function_exists('wp_get_environment_type')
+            && wp_get_environment_type() === 'local'
+            && defined('ANOOFY_ALLOW_INSECURE_DEV')
+            && ANOOFY_ALLOW_INSECURE_DEV === true;
+
         try {
-            $keyData = ConnectionKey::parse($rawKey);
+            $keyData = ConnectionKey::parse($rawKey, $allowInsecure);
         } catch (InvalidConnectionKeyException $e) {
             return ActionResult::fail(ActionResult::INVALID_INPUT, $e->getMessage());
         }

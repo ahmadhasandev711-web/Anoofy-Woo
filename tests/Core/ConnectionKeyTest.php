@@ -95,4 +95,47 @@ final class ConnectionKeyTest extends TestCase
         $this->expectException(InvalidConnectionKeyException::class);
         ConnectionKey::parse($this->encodeBase64Url($payload));
     }
+
+    public function testRejectsHttpWhenAllowInsecureIsExplicitlyFalse(): void
+    {
+        $payload = json_encode([
+            'v' => 1,
+            'api' => 'http://example.com/api',
+            'kid' => 'k1',
+            'secret' => 's1',
+        ], JSON_THROW_ON_ERROR);
+
+        $this->expectException(InvalidConnectionKeyException::class);
+        ConnectionKey::parse($this->encodeBase64Url($payload), false);
+    }
+
+    public function testAcceptsHttpWhenAllowInsecureIsTrue(): void
+    {
+        $payload = json_encode([
+            'v' => 1,
+            'api' => 'http://engazpro.test:28180/api/webhooks/anoofy/events',
+            'kid' => '01JCDEVKEYID12345678901234',
+            'secret' => 'secret_abcdef0123456789abcdef0123456789',
+        ], JSON_THROW_ON_ERROR);
+
+        $keyData = ConnectionKey::parse($this->encodeBase64Url($payload), true);
+        self::assertSame('http://engazpro.test:28180/api/webhooks/anoofy/events', $keyData->api);
+    }
+
+    public function testAcceptsHttpsRegardlessOfAllowInsecure(): void
+    {
+        $payload = json_encode([
+            'v' => 1,
+            'api' => 'https://example.com/api',
+            'kid' => 'k1',
+            'secret' => 's1',
+        ], JSON_THROW_ON_ERROR);
+
+        $encoded = $this->encodeBase64Url($payload);
+        $keyDataFalse = ConnectionKey::parse($encoded, false);
+        self::assertSame('https://example.com/api', $keyDataFalse->api);
+
+        $keyDataTrue = ConnectionKey::parse($encoded, true);
+        self::assertSame('https://example.com/api', $keyDataTrue->api);
+    }
 }

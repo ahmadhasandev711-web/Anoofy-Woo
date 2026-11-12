@@ -23,8 +23,10 @@ if (-not $installed) {
         --admin_password="password123" `
         --admin_email="admin@example.com" `
         --skip-email
+    docker compose run --rm wpcli wp config set WP_ENVIRONMENT_TYPE local --type=constant *> $null
 } else {
     Write-Host "WordPress core is already installed." -ForegroundColor Green
+    docker compose run --rm wpcli wp config set WP_ENVIRONMENT_TYPE local --type=constant *> $null
 }
 
 # 2. Install & Activate WooCommerce 11.2.1
