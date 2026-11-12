@@ -10,7 +10,7 @@ final class ConnectionKey
     /**
      * @throws InvalidConnectionKeyException
      */
-    public static function parse(string $raw): ConnectionKeyData
+    public static function parse(string $raw, bool $allowInsecureHttp = false): ConnectionKeyData
     {
         $trimmed = trim($raw);
         if ($trimmed === '') {
@@ -42,7 +42,14 @@ final class ConnectionKey
             throw new InvalidConnectionKeyException('Unsupported or missing connection key version (expected v=1).');
         }
 
-        if (!isset($data['api']) || !is_string($data['api']) || !str_starts_with($data['api'], 'https://') || filter_var($data['api'], FILTER_VALIDATE_URL) === false) {
+        if (!isset($data['api']) || !is_string($data['api']) || filter_var($data['api'], FILTER_VALIDATE_URL) === false) {
+            throw new InvalidConnectionKeyException('Invalid or non-HTTPS API endpoint URL.');
+        }
+
+        $isValidScheme = str_starts_with($data['api'], 'https://')
+            || ($allowInsecureHttp && str_starts_with($data['api'], 'http://'));
+
+        if (!$isValidScheme) {
             throw new InvalidConnectionKeyException('Invalid or non-HTTPS API endpoint URL.');
         }
 
