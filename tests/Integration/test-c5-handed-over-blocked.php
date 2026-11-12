@@ -53,6 +53,10 @@ $opsRepo->recordHandover($orderId, gmdate('Y-m-d H:i:s'));
 $freshOps = $opsRepo->find($orderId);
 assert_c5($freshOps !== null && $freshOps->isHandedOver(), "Order is confirmed as handed over");
 
+// Set operational status to Confirmed (the state when handover occurs)
+$opsRepo->compareAndSetStatus($orderId, $freshOps->status, \Anoofy\Woo\Core\Order\OrderStatus::Confirmed);
+$freshOps = $opsRepo->find($orderId);
+
 $wooStatusBefore = $order->get_status();
 
 // Try various operational events: all must be blocked!
@@ -75,10 +79,37 @@ $assignResult = Services::orderOps()->assign($orderId, $adminId, $adminId);
 assert_c5(!$assignResult->ok, "Assignment was blocked on handed-over order");
 assert_c5($assignResult->code === ActionResult::FORBIDDEN, "Assignment error code is FORBIDDEN", "actual: {$assignResult->code}");
 
-// Verify WooCommerce order status did not change
+// Verify WooCommerce order status did not change from events
 $freshOrder = wc_get_order($orderId);
 $wooStatusAfter = $freshOrder ? $freshOrder->get_status() : '';
-assert_c5($wooStatusBefore === $wooStatusAfter, "WooCommerce status remained unchanged", "status: {$wooStatusAfter}");
+assert_c5($wooStatusBefore === $wooStatusAfter, "WooCommerce status remained unchanged from events", "status: {$wooStatusAfter}");
+
+// Test: EngazPRO cancels order in WooCommerce via REST ($order->update_status('cancelled'))
+// onWooCancelled must ignore handed-over orders:
+// 1) Operational status in anoofy_order_ops does NOT change (stays CONFIRMED)
+// 2) No note about "put back on the shelf" added
+// 3) No audit restock / woo_cancelled logged
+$order->update_status('cancelled', 'Cancelled by EngazPRO sync');
+
+$opsAfterCancel = $opsRepo->find($orderId);
+assert_c5($opsAfterCancel->status === \Anoofy\Woo\Core\Order\OrderStatus::Confirmed, "Operational status remained CONFIRMED after WooCommerce cancellation", "status: {$opsAfterCancel->status->value}");
+
+$notes = wc_get_order_notes(['order_id' => $orderId]);
+$hasShelfNote = false;
+foreach ($notes as $note) {
+    if (str_contains($note->content, 'shelf') || str_contains($note->content, 'الرف')) {
+        $hasShelfNote = true;
+        break;
+    }
+}
+assert_c5(!$hasShelfNote, "No 'put back on the shelf' note added on handed-over order cancellation");
+
+$auditTable = \Anoofy\Woo\Database\Schema::table($wpdb->prefix, 'audit_log');
+$auditRows = $wpdb->get_results($wpdb->prepare(
+    "SELECT action FROM {$auditTable} WHERE order_id = %d AND action IN ('order.woo_cancelled', 'order.woo_cancelled_needs_decision', 'order.stock_restocked')",
+    $orderId
+));
+assert_c5(count($auditRows) === 0, "No cancellation/restock audit logged for handed-over order", "count: " . count($auditRows));
 
 if ($hasFailed) {
     if (class_exists('WP_CLI')) {

@@ -20,5 +20,6 @@ final class Hooks
             Services::orderOps()->onWooCancelled((int) $orderId);
         }, 20);
         add_action('anoofy_engaz_send', [EngazOutboxWorker::class, 'process']);
+        add_action('rest_api_init', [\Anoofy\Woo\Rest\CallbackController::class, 'registerRoutes']);
     }
 }

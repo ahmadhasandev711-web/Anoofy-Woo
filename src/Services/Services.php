@@ -6,6 +6,7 @@ namespace Anoofy\Woo\Services;
 use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
+use Anoofy\Woo\Data\InboxRepository;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\OutboxRepository;
 
@@ -17,7 +18,23 @@ final class Services
     private static ?CallLog $callLog = null;
     private static ?AuditLog $auditLog = null;
     private static ?EngazConnectionService $engazConnection = null;
+    private static ?EngazInboundService $engazInbound = null;
     private static ?OutboxRepository $outbox = null;
+    private static ?InboxRepository $inbox = null;
+
+    public static function engazInbound(): EngazInboundService
+    {
+        return self::$engazInbound ??= new EngazInboundService(
+            self::engazConnection(),
+            self::repository(),
+            self::inbox()
+        );
+    }
+
+    public static function inbox(): InboxRepository
+    {
+        return self::$inbox ??= new InboxRepository();
+    }
 
     public static function outbox(): OutboxRepository
     {

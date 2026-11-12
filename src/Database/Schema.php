@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '2';
+    public const VERSION = '3';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -38,6 +38,12 @@ final class Schema
   tracking_number varchar(100) DEFAULT NULL,
   engaz_handover_at datetime DEFAULT NULL,
   engaz_out_version int(10) unsigned NOT NULL DEFAULT 0,
+  engaz_stage varchar(32) DEFAULT NULL,
+  engaz_stage_at datetime DEFAULT NULL,
+  engaz_version int(11) DEFAULT NULL,
+  engaz_branch varchar(255) DEFAULT NULL,
+  engaz_courier varchar(255) DEFAULT NULL,
+  engaz_tracking varchar(255) DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (order_id),
@@ -92,6 +98,19 @@ final class Schema
   PRIMARY KEY  (id),
   UNIQUE KEY event_id (event_id),
   KEY status_retry (status, next_retry_at),
+  KEY wc_order_id (wc_order_id)
+) {$collate};",
+
+            // Deduplicated inbound events from EngazPRO.
+            "CREATE TABLE {$prefix}anoofy_inbox (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  event_id varchar(36) NOT NULL,
+  event_type varchar(64) NOT NULL,
+  wc_order_id bigint(20) unsigned NOT NULL,
+  result varchar(32) NOT NULL,
+  received_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY event_id (event_id),
   KEY wc_order_id (wc_order_id)
 ) {$collate};",
         ];

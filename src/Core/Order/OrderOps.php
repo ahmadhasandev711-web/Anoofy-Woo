@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Core\Order;
 
+use Anoofy\Woo\Core\Connection\EngazStage;
+
 /** One row of `anoofy_order_ops` as a value object. Pure: built from a plain array, no database access. */
 final class OrderOps
 {
@@ -19,6 +21,12 @@ final class OrderOps
         public readonly ?string $trackingNumber,
         public readonly ?string $engazHandoverAt = null,
         public readonly int $engazOutVersion = 0,
+        public readonly ?EngazStage $engazStage = null,
+        public readonly ?string $engazStageAt = null,
+        public readonly ?int $engazVersion = null,
+        public readonly ?string $engazBranch = null,
+        public readonly ?string $engazCourier = null,
+        public readonly ?string $engazTracking = null,
     ) {
     }
 
@@ -35,6 +43,14 @@ final class OrderOps
         $tracking = isset($row['tracking_number']) ? trim((string) $row['tracking_number']) : '';
         $handover = isset($row['engaz_handover_at']) ? trim((string) $row['engaz_handover_at']) : '';
 
+        $stageStr = isset($row['engaz_stage']) ? trim((string) $row['engaz_stage']) : '';
+        $stage = $stageStr !== '' ? EngazStage::tryFrom($stageStr) : null;
+        $stageAt = isset($row['engaz_stage_at']) ? trim((string) $row['engaz_stage_at']) : '';
+        $engazVersion = isset($row['engaz_version']) && $row['engaz_version'] !== null && $row['engaz_version'] !== '' ? (int) $row['engaz_version'] : null;
+        $branch = isset($row['engaz_branch']) ? trim((string) $row['engaz_branch']) : '';
+        $engazCourier = isset($row['engaz_courier']) ? trim((string) $row['engaz_courier']) : '';
+        $engazTracking = isset($row['engaz_tracking']) ? trim((string) $row['engaz_tracking']) : '';
+
         return new self(
             (int) ($row['order_id'] ?? 0),
             OrderStatus::from((string) ($row['ops_status'] ?? OrderStatus::New->value)),
@@ -48,6 +64,12 @@ final class OrderOps
             $tracking === '' ? null : $tracking,
             $handover === '' ? null : $handover,
             (int) ($row['engaz_out_version'] ?? 0),
+            $stage,
+            $stageAt === '' ? null : $stageAt,
+            $engazVersion,
+            $branch === '' ? null : $branch,
+            $engazCourier === '' ? null : $engazCourier,
+            $engazTracking === '' ? null : $engazTracking,
         );
     }
 

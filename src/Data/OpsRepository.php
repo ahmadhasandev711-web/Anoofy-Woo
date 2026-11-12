@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Anoofy\Woo\Data;
 
+use Anoofy\Woo\Core\Connection\EngazStage;
 use Anoofy\Woo\Core\Order\OrderOps;
 use Anoofy\Woo\Core\Order\OrderStatus;
 use Anoofy\Woo\Database\Schema;
@@ -145,5 +146,47 @@ final class OpsRepository
         }
 
         return $out;
+    }
+
+    /**
+     * Atomically updates EngazPRO stage details only if version is higher.
+     * Returns true if a row was updated, false if stale (version was <= existing version).
+     */
+    public function applyEngazStageChange(
+        int $orderId,
+        EngazStage $stage,
+        string $stageAt,
+        int $version,
+        ?string $branch,
+        ?string $courier,
+        ?string $tracking
+    ): bool {
+        global $wpdb;
+        $res = $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET 
+                engaz_stage = %s,
+                engaz_stage_at = %s,
+                engaz_version = %d,
+                engaz_branch = %s,
+                engaz_courier = %s,
+                engaz_tracking = %s,
+                updated_at = %s
+             WHERE order_id = %d AND (engaz_version IS NULL OR engaz_version < %d)",
+            $stage->value,
+            $stageAt,
+            $version,
+            $branch,
+            $courier,
+            $tracking,
+            self::now(),
+            $orderId,
+            $version
+        ));
+
+        if ($res === false) {
+            throw new \RuntimeException('Failed to update anoofy_order_ops: ' . $wpdb->last_error);
+        }
+
+        return $res > 0;
     }
 }

@@ -6,7 +6,7 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
-    @{ Name = 'Schema v2 (Migration)'; File = 'test-schema-v2.php' },
+    @{ Name = 'Schema v3 (Migration)'; File = 'test-schema-v3.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
@@ -22,7 +22,9 @@ $tests = @(
     @{ Name = 'C-Review-1 (Caps Sync On Boot)'; File = 'test-c1-caps-sync.php' },
     @{ Name = 'C-Review-2 (Atomic Handover Transaction)'; File = 'test-c2-atomic-handover.php' },
     @{ Name = 'C-Review-3 (Worker CAS Claiming)'; File = 'test-c3-compare-and-set.php' },
-    @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' }
+    @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' },
+    @{ Name = 'C-7 (Inbound Stage Changed Callback)'; File = 'test-c7-stage-changed-callback.php' },
+    @{ Name = 'C-8 (Display EngazPRO Stage)'; File = 'test-c8-display-stage.php' }
 )
 
 $results = @{}
