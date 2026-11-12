@@ -55,4 +55,11 @@ powershell -ExecutionPolicy Bypass -File tools/run-e2e-env.ps1
 3. إنشاء شبكة `engaz-e2e` إذا لم تكن موجودة.
 4. تشغيل ووردبريس مع ملف التخصيص `docker-compose.e2e.override.yml`.
 5. فحص استجابة المتجر بـ HTTP 200 من الجهاز المضيف ومن داخل كونتينر ووردبريس.
-6. التحقق من إمكانية الوصول إلى `engazpro.test` وطباعة تحذير في حال لم يكن كونتينر EngazPRO قيد التشغيل بعد.
+6. فحص وصول حاويات الشبكة الأخرى (عبر `curlimages/curl`) إلى `anoofy-wp.test` والتحقق من أن الـ IP يقع ضمن الـ subnet الخاص بشبكة `engaz-e2e`.
+7. التحقق من إمكانية الوصول إلى `engazpro.test` وأن الـ IP يقع ضمن الـ subnet الخاص بشبكة `engaz-e2e`، وطباعة تحذير (`WARN: EngazPRO مش على شبكة engaz-e2e`) في حال لم يكن كونتينر EngazPRO قيد التشغيل بعد أو كان يُرجع `127.0.0.1`.
+
+> [!IMPORTANT]
+> **ملاحظة حول دقة فحص النطاقات (DNS Resolution في Docker Desktop):**
+> يقوم Docker Desktop بتوجيه استعلامات DNS إلى ملف `hosts` الخاص بنظام Windows في حال عدم العثور على اسم النطاق داخل شبكة Docker الداخلية. يترتب على ذلك أن فحص مثل `getent hosts engazpro.test` سيعيد عنوان الـ loopback الخاص بالكونتينر (`127.0.0.1`) بدلاً من الفشل عندما لا يكون كونتينر EngazPRO قيد التشغيل بعد على الشبكة.
+> لذلك، يعتبر الفحص ناجحاً (`PASS`) فقط عندما يكون عنوان الـ IP المسترجع يقع فعلياً داخل الـ subnet الخاص بشبكة `engaz-e2e` (عبر `docker network inspect engaz-e2e`). وإذا كان العنوان `127.0.0.1` أو خارج الـ subnet، يُظهر السكربت تنبيهاً تحذيرياً (`WARN: EngazPRO مش على شبكة engaz-e2e`).
+
