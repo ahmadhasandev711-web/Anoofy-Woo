@@ -1,0 +1,29 @@
+services:
+  wordpress:
+    ports: !override
+      - '28080:28080'
+    environment:
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('WP_ENVIRONMENT_TYPE', 'local');
+        define('ANOOFY_ALLOW_INSECURE_DEV', true);
+        define('WP_HOME', 'http://anoofy-wp.test:28080');
+        define('WP_SITEURL', 'http://anoofy-wp.test:28080');
+    volumes:
+      - ./tools/e2e/anoofy-e2e-ports.conf:/etc/apache2/conf-enabled/anoofy-e2e-ports.conf:ro
+      - ./tools/e2e/anoofy-e2e-dev.mu.php:/var/www/html/wp-content/mu-plugins/anoofy-e2e-dev.php:ro
+    networks:
+      default:
+      engaz-e2e:
+        aliases:
+          - anoofy-wp.test
+
+  wpcli:
+    networks:
+      default:
+      engaz-e2e:
+
+networks:
+  engaz-e2e:
+    external: true
