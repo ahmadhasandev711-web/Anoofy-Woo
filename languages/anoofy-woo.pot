@@ -570,23 +570,29 @@ msgstr ""
 msgid "is inactive:"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:190
+#: src\Services\OrderOpsService.php:236
+msgid ""
+"Anoofy: order items were modified during preparation; re-preparation "
+"confirmation is required."
+msgstr ""
+
+#: src\Services\OrderOpsService.php:373
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce while it was being prepared."
 " Make sure the items are put back on the shelf."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:195
+#: src\Services\OrderOpsService.php:378
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its "
 "operational status was NOT changed; decide what to do with the shipment."
 msgstr ""
 
-#: src\Services\OrderOpsService.php:211
+#: src\Services\OrderOpsService.php:394
 msgid "Cancelled by Anoofy: %s"
 msgstr ""
 
-#: src\Services\OrderOpsService.php:228
+#: src\Services\OrderOpsService.php:411
 msgid "Status updated by Anoofy."
 msgstr ""
 

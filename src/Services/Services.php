@@ -9,6 +9,7 @@ use Anoofy\Woo\Data\CallLog;
 use Anoofy\Woo\Data\InboxRepository;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\OutboxRepository;
+use Anoofy\Woo\Data\PreparedItemsRepository;
 
 /** Tiny service locator (no container library on purpose). */
 final class Services
@@ -21,6 +22,7 @@ final class Services
     private static ?EngazInboundService $engazInbound = null;
     private static ?OutboxRepository $outbox = null;
     private static ?InboxRepository $inbox = null;
+    private static ?PreparedItemsRepository $preparedItems = null;
 
     public static function engazInbound(): EngazInboundService
     {
@@ -68,8 +70,13 @@ final class Services
         return self::$auditLog ??= new AuditLog();
     }
 
+    public static function preparedItems(): PreparedItemsRepository
+    {
+        return self::$preparedItems ??= new PreparedItemsRepository();
+    }
+
     public static function orderOps(): OrderOpsService
     {
-        return self::$orderOps ??= new OrderOpsService(self::repository(), self::callLog(), self::auditLog());
+        return self::$orderOps ??= new OrderOpsService(self::repository(), self::callLog(), self::auditLog(), self::preparedItems());
     }
 }

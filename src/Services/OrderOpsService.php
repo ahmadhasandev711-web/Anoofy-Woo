@@ -18,13 +18,16 @@ use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\Effect;
 use Anoofy\Woo\Core\Order\OrderEvent;
+use Anoofy\Woo\Core\Order\OrderOps;
 use Anoofy\Woo\Core\Order\OrderStateMachine;
 use Anoofy\Woo\Core\Order\OrderStatus;
+use Anoofy\Woo\Core\Order\PreparationChecker;
 use Anoofy\Woo\Core\Order\TransitionError;
 use Anoofy\Woo\Core\Order\WooStatusMap;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
 use Anoofy\Woo\Data\OpsRepository;
+use Anoofy\Woo\Data\PreparedItemsRepository;
 
 /**
  * The only place that changes an order's operational state: permission check -> state machine ->
@@ -39,11 +42,15 @@ final class OrderOpsService
     /** @var array<int, true> orders we are cancelling ourselves right now (to ignore our own Woo cancel hook) */
     private array $cancelling = [];
 
+    private readonly PreparedItemsRepository $preparedItems;
+
     public function __construct(
         private readonly OpsRepository $ops,
         private readonly CallLog $calls,
         private readonly AuditLog $audit,
+        ?PreparedItemsRepository $preparedItems = null,
     ) {
+        $this->preparedItems = $preparedItems ?? new PreparedItemsRepository();
     }
 
     public function roleFor(int $userId): ?Role
@@ -86,7 +93,12 @@ final class OrderOpsService
         if (!ModePolicy::allows($ops->isHandedOver())) {
             return ActionResult::fail(ActionResult::FORBIDDEN);
         }
-        $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason));
+
+        $allLinesPrepared = $event === OrderEvent::FinishPreparing
+            ? PreparationChecker::allPrepared($this->orderItemIds($order), $this->preparedItems->forOrder($orderId))
+            : false;
+
+        $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason, $allLinesPrepared));
         if (!$result->ok || $result->from === null || $result->to === null) {
             return ActionResult::fail($result->error?->value ?? TransitionError::InvalidState->value);
         }
@@ -96,6 +108,11 @@ final class OrderOpsService
             return ActionResult::fail(ActionResult::CONCURRENT_CHANGE);
         }
         $this->audit->record($orderId, $userId, 'order.' . strtolower($event->value), $result->from->value, $result->to->value, $reason);
+
+        if ($event === OrderEvent::StartPreparing) {
+            $this->preparedItems->clearOrder($orderId);
+            $this->ops->setPrepState($orderId, $this->itemsDigest($order), false);
+        }
 
         $extraEffects = ModePolicy::extraEffects(Services::mode(), $event);
         $allEffects = array_merge($result->effects, $extraEffects);
@@ -109,6 +126,172 @@ final class OrderOpsService
         }
 
         return ActionResult::ok();
+    }
+
+    /** @param list<int> $itemIds */
+    public function savePreparedItems(int $orderId, int $userId, array $itemIds): ActionResult
+    {
+        $checked = $this->guardStandaloneOrder($orderId, $userId, Action::OrderPrepare, [OrderStatus::Preparing]);
+        if ($checked instanceof ActionResult) {
+            return $checked;
+        }
+        [$order, $ops] = $checked;
+
+        $validLookup = array_flip($this->orderItemIds($order));
+        $filtered = [];
+        foreach ($itemIds as $id) {
+            $id = (int) $id;
+            if (isset($validLookup[$id])) {
+                $filtered[] = $id;
+            }
+        }
+        $filtered = array_values(array_unique($filtered));
+
+        $this->preparedItems->setPreparedItems($orderId, $filtered, $userId);
+        if ($ops->prepItemsHash === null) {
+            $this->ops->setPrepState($orderId, $this->itemsDigest($order), $ops->editedAfterPreparing);
+        }
+        $this->audit->record($orderId, $userId, 'order.prepared_items_saved', null, null, null, [
+            'prepared_count' => count($filtered),
+            'total_items' => count($validLookup),
+        ]);
+
+        return ActionResult::ok();
+    }
+
+    public function confirmRepreparation(int $orderId, int $userId): ActionResult
+    {
+        $checked = $this->guardStandaloneOrder($orderId, $userId, Action::OrderConfirmRepreparation, [OrderStatus::Preparing]);
+        if ($checked instanceof ActionResult) {
+            return $checked;
+        }
+        [$order] = $checked;
+
+        $this->ops->setPrepState($orderId, $this->itemsDigest($order), false);
+        $this->audit->record($orderId, $userId, 'order.confirm_repreparation');
+
+        return ActionResult::ok();
+    }
+
+    public function saveShipmentDetails(int $orderId, int $userId, string $courier, string $trackingNumber): ActionResult
+    {
+        $checked = $this->guardStandaloneOrder($orderId, $userId, Action::ShipmentCreate, [OrderStatus::ReadyToShip]);
+        if ($checked instanceof ActionResult) {
+            return $checked;
+        }
+
+        $courier = mb_substr(trim(sanitize_text_field($courier)), 0, 100);
+        $trackingNumber = mb_substr(trim(sanitize_text_field($trackingNumber)), 0, 100);
+        if ($courier === '' || $trackingNumber === '') {
+            return ActionResult::fail(TransitionError::ShipmentDetailsRequired->value);
+        }
+
+        $this->ops->setShipmentDetails($orderId, $courier, $trackingNumber);
+        $this->audit->record($orderId, $userId, 'order.shipment_details_saved', null, null, null, [
+            'courier' => $courier,
+            'tracking_number' => $trackingNumber,
+        ]);
+
+        return ActionResult::ok();
+    }
+
+    /** Hook for WooCommerce order/item edits: flags re-preparation and reopens READY_TO_SHIP if line items changed. */
+    public function onWooOrderEdited(int $orderId): void
+    {
+        $ops = $this->ops->find($orderId);
+        if ($ops === null || $ops->isHandedOver()) {
+            return;
+        }
+
+        $target = OrderStateMachine::onWooOrderEdited($ops->status);
+        if ($target === null) {
+            return;
+        }
+
+        if (function_exists('wp_cache_delete')) {
+            wp_cache_delete('order-items-' . $orderId, 'orders');
+        }
+        $order = wc_get_order($orderId);
+        if (!$order instanceof \WC_Order) {
+            return;
+        }
+
+        $newHash = $this->itemsDigest($order);
+        if ($ops->prepItemsHash !== null && hash_equals($ops->prepItemsHash, $newHash)) {
+            return;
+        }
+
+        $actor = get_current_user_id();
+        if ($ops->status === OrderStatus::ReadyToShip) {
+            if (!$this->ops->compareAndSetStatus($orderId, OrderStatus::ReadyToShip, OrderStatus::Preparing)) {
+                return;
+            }
+            $this->audit->record($orderId, $actor, 'order.reopened_for_repreparation', OrderStatus::ReadyToShip->value, OrderStatus::Preparing->value);
+        } elseif (!$ops->editedAfterPreparing) {
+            $this->audit->record($orderId, $actor, 'order.edited_after_preparing', $ops->status->value, OrderStatus::Preparing->value);
+        }
+
+        $this->ops->setPrepState($orderId, $newHash, true);
+        $this->preparedItems->clearOrder($orderId);
+        $order->add_order_note(__('Anoofy: order items were modified during preparation; re-preparation confirmation is required.', 'anoofy-woo'));
+    }
+
+    /**
+     * Shared validation for Phase 2 standalone mutations.
+     *
+     * @param list<OrderStatus> $allowedStatuses
+     * @return ActionResult|array{\WC_Order, OrderOps}
+     */
+    private function guardStandaloneOrder(int $orderId, int $userId, Action $action, array $allowedStatuses): ActionResult|array
+    {
+        $order = wc_get_order($orderId);
+        if (!$order instanceof \WC_Order) {
+            return ActionResult::fail(ActionResult::NOT_FOUND);
+        }
+        $role = $this->roleFor($userId);
+        if ($role === null || !Permissions::can($role, $action)) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
+        $ops = $this->ops->ensure($orderId);
+        if (!ModePolicy::allows($ops->isHandedOver())) {
+            return ActionResult::fail(ActionResult::FORBIDDEN);
+        }
+        if (!in_array($ops->status, $allowedStatuses, true)) {
+            return ActionResult::fail(TransitionError::InvalidState->value);
+        }
+
+        return [$order, $ops];
+    }
+
+    /** @return list<int> */
+    private function orderItemIds(\WC_Order $order): array
+    {
+        $ids = [];
+        foreach ($order->get_items('line_item') as $item) {
+            if ($item instanceof \WC_Order_Item_Product) {
+                $ids[] = $item->get_id();
+            }
+        }
+
+        return $ids;
+    }
+
+    private function itemsDigest(\WC_Order $order): string
+    {
+        $lines = [];
+        foreach ($order->get_items('line_item') as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $lines[] = [
+                'item_id' => $item->get_id(),
+                'product_id' => $item->get_product_id(),
+                'variation_id' => $item->get_variation_id(),
+                'qty' => $item->get_quantity(),
+            ];
+        }
+
+        return PreparationChecker::itemsHash($lines);
     }
 
     public function logCall(int $orderId, int $userId, CallOutcome $outcome, ?string $note): ActionResult

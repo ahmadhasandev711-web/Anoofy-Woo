@@ -575,7 +575,13 @@ msgstr "Anoofy خدمة عملاء"
 msgid "is inactive:"
 msgstr "غير مفعّلة:"
 
-#: src\Services\OrderOpsService.php:190
+#: src\Services\OrderOpsService.php:236
+msgid ""
+"Anoofy: order items were modified during preparation; re-preparation "
+"confirmation is required."
+msgstr "Anoofy: تم تعديل أصناف الطلب أثناء التجهيز؛ يلزم تأكيد إعادة التجهيز."
+
+#: src\Services\OrderOpsService.php:373
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce while it was being prepared."
 " Make sure the items are put back on the shelf."
@@ -583,7 +589,7 @@ msgstr ""
 "Anoofy: تم إلغاء هذا الطلب في ووكومرس أثناء تجهيزه. تأكد من إرجاع الأصناف "
 "إلى الرف."
 
-#: src\Services\OrderOpsService.php:195
+#: src\Services\OrderOpsService.php:378
 msgid ""
 "Anoofy: this order was cancelled in WooCommerce after it had shipped. Its "
 "operational status was NOT changed; decide what to do with the shipment."
@@ -591,11 +597,11 @@ msgstr ""
 "Anoofy: تم إلغاء هذا الطلب في ووكومرس بعد شحنه. لم تتغير حالته التشغيلية؛ "
 "قرّر ما تفعله بالشحنة."
 
-#: src\Services\OrderOpsService.php:211
+#: src\Services\OrderOpsService.php:394
 msgid "Cancelled by Anoofy: %s"
 msgstr "تم الإلغاء بواسطة Anoofy: %s"
 
-#: src\Services\OrderOpsService.php:228
+#: src\Services\OrderOpsService.php:411
 msgid "Status updated by Anoofy."
 msgstr "تم تحديث الحالة بواسطة Anoofy."
 
