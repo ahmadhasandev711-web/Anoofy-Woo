@@ -34,6 +34,8 @@ $tests = @(
     @{ Name = 'P3-2 (Phase 3 Roles & UI)'; File = 'test-p3-roles-and-ui.php' },
     @{ Name = 'P4-1 (COD Settlement Service)'; File = 'test-p4-cod-settlement.php' },
     @{ Name = 'P4-2 (COD Settlement UI)'; File = 'test-p4-cod-ui.php' },
+    @{ Name = 'P5-1 (Returns & RTO Service)'; File = 'test-p5-returns-rto.php' },
+    @{ Name = 'P5-2 (Returns & RTO UI)'; File = 'test-p5-returns-ui.php' },
     @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 
