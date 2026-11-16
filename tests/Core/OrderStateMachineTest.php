@@ -196,4 +196,25 @@ final class OrderStateMachineTest extends TestCase
             self::assertTrue($o->needsDecision, $s->value);
         }
     }
+
+    public function testExternalWooOrderEdit(): void
+    {
+        self::assertSame(S::Preparing, M::onWooOrderEdited(S::ReadyToShip));
+        self::assertSame(S::Preparing, M::onWooOrderEdited(S::Preparing));
+
+        foreach ([
+            S::New,
+            S::UnderReview,
+            S::Confirmed,
+            S::CancellationPending,
+            S::Cancelled,
+            S::Rejected,
+            S::Shipped,
+            S::Delivered,
+            S::DeliveryFailed,
+            S::ReturnedToOrigin,
+        ] as $status) {
+            self::assertNull(M::onWooOrderEdited($status), $status->value);
+        }
+    }
 }

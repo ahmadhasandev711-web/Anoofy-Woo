@@ -79,6 +79,15 @@ final class OrderStateMachine
         };
     }
 
+    /** What an order line-item edit in WooCommerce does to our operational status (Phase 2). */
+    public static function onWooOrderEdited(OrderStatus $status): ?OrderStatus
+    {
+        return match ($status) {
+            OrderStatus::Preparing, OrderStatus::ReadyToShip => OrderStatus::Preparing,
+            default => null,
+        };
+    }
+
     /** @return array<string, array{from: list<OrderStatus>, to: OrderStatus, action: Action, guard: ?Closure, effects: list<Effect>}> */
     private static function rules(): array
     {
