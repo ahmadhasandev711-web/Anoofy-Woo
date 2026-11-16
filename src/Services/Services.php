@@ -6,6 +6,7 @@ namespace Anoofy\Woo\Services;
 use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
+use Anoofy\Woo\Data\DeliveryAttemptLog;
 use Anoofy\Woo\Data\InboxRepository;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\OutboxRepository;
@@ -23,6 +24,7 @@ final class Services
     private static ?OutboxRepository $outbox = null;
     private static ?InboxRepository $inbox = null;
     private static ?PreparedItemsRepository $preparedItems = null;
+    private static ?DeliveryAttemptLog $deliveryLog = null;
 
     public static function engazInbound(): EngazInboundService
     {
@@ -75,8 +77,19 @@ final class Services
         return self::$preparedItems ??= new PreparedItemsRepository();
     }
 
+    public static function deliveryLog(): DeliveryAttemptLog
+    {
+        return self::$deliveryLog ??= new DeliveryAttemptLog();
+    }
+
     public static function orderOps(): OrderOpsService
     {
-        return self::$orderOps ??= new OrderOpsService(self::repository(), self::callLog(), self::auditLog(), self::preparedItems());
+        return self::$orderOps ??= new OrderOpsService(
+            self::repository(),
+            self::callLog(),
+            self::auditLog(),
+            self::preparedItems(),
+            self::deliveryLog()
+        );
     }
 }

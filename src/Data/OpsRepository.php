@@ -146,6 +146,21 @@ final class OpsRepository
         ));
     }
 
+    public function incrementDeliveryAttempts(int $orderId): int
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET delivery_attempts = delivery_attempts + 1, updated_at = %s WHERE order_id = %d",
+            self::now(),
+            $orderId,
+        ));
+
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT delivery_attempts FROM {$this->table()} WHERE order_id = %d",
+            $orderId,
+        ));
+    }
+
     /**
      * @param list<string>|null $statuses
      * @param list<int>|null    $orderIds

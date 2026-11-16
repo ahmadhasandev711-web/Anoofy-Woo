@@ -5,6 +5,7 @@ namespace Anoofy\Woo\Admin;
 
 use Anoofy\Woo\Core\Connection\EngazStage;
 use Anoofy\Woo\Core\Order\CallOutcome;
+use Anoofy\Woo\Core\Order\DeliveryOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderStatus;
 use Anoofy\Woo\Services\ActionResult;
@@ -76,6 +77,14 @@ final class Labels
         };
     }
 
+    public static function deliveryOutcome(DeliveryOutcome $outcome): string
+    {
+        return match ($outcome) {
+            DeliveryOutcome::Delivered => __('Delivered', 'anoofy-woo'),
+            DeliveryOutcome::Failed => __('Failed', 'anoofy-woo'),
+        };
+    }
+
     public static function event(OrderEvent $event): string
     {
         return match ($event) {
@@ -87,6 +96,10 @@ final class Labels
             OrderEvent::RequestCancel => __('Request cancel', 'anoofy-woo'),
             OrderEvent::ConfirmRestocked => __('Confirm restocked & cancel', 'anoofy-woo'),
             OrderEvent::Ship => __('Ship order', 'anoofy-woo'),
+            OrderEvent::MarkDelivered => __('Mark delivered', 'anoofy-woo'),
+            OrderEvent::MarkDeliveryFailed => __('Mark delivery failed', 'anoofy-woo'),
+            OrderEvent::RetryDelivery => __('Retry delivery', 'anoofy-woo'),
+            OrderEvent::ReceiveReturned => __('Receive returned (RTO)', 'anoofy-woo'),
             default => $event->value,
         };
     }
@@ -106,6 +119,10 @@ final class Labels
             'request_cancel' => __('Cancellation requested; waiting for warehouse restock confirmation.', 'anoofy-woo'),
             'shipment_saved' => __('Shipment details saved.', 'anoofy-woo'),
             'ship' => __('Order marked as shipped.', 'anoofy-woo'),
+            'mark_delivered' => __('Order marked as delivered.', 'anoofy-woo'),
+            'mark_delivery_failed' => __('Failed delivery attempt recorded.', 'anoofy-woo'),
+            'retry_delivery' => __('Delivery retry started.', 'anoofy-woo'),
+            'receive_returned' => __('Order marked as returned to origin.', 'anoofy-woo'),
             'assigned' => __('Assignment updated.', 'anoofy-woo'),
             'bulk_assigned' => __('Selected orders assigned.', 'anoofy-woo'),
             'connected' => __('Connected to EngazPRO successfully.', 'anoofy-woo'),

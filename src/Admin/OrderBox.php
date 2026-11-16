@@ -105,9 +105,13 @@ final class OrderBox
             if (!$ops->isHandedOver()) {
                 self::preparation($order, $ops, $role);
                 self::shipping($ops, $role);
+                self::delivery($ops, $role);
             }
         }
         self::callHistory($orderId);
+        if (!$ops->isHandedOver()) {
+            self::deliveryHistory($orderId);
+        }
         self::history($orderId);
         echo '</div>';
     }
@@ -403,6 +407,76 @@ final class OrderBox
             echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->trackingNumber ?? '—') . '</code></p>';
             echo '</div>';
         }
+    }
+
+    private static function delivery(OrderOps $ops, Role $role): void
+    {
+        if (!in_array($ops->status, [OrderStatus::Shipped, OrderStatus::DeliveryFailed], true)) {
+            return;
+        }
+
+        $maxAttempts = Services::orderOps()->maxDeliveryAttempts();
+        echo '<div class="anoofy-section"><h4>' . esc_html__('Delivery', 'anoofy-woo') . '</h4>';
+        echo '<p><strong>' . esc_html__('Failed delivery attempts:', 'anoofy-woo') . '</strong> '
+            . esc_html(sprintf('%d / %d', $ops->deliveryAttempts, $maxAttempts)) . '</p>';
+
+        if ($ops->status === OrderStatus::Shipped && Permissions::can($role, Action::DeliveryRecord)) {
+            echo '<div data-anoofy-form="anoofy_order_event">';
+            echo '<textarea name="anoofy_reason" rows="2" maxlength="1000" class="anoofy-reason" placeholder="' . esc_attr__('Reason (required if delivery failed)', 'anoofy-woo') . '"></textarea>';
+            echo '<div class="anoofy-ship-actions">';
+            echo '<button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::MarkDelivered->value) . '">'
+                . esc_html(Labels::event(OrderEvent::MarkDelivered)) . '</button>';
+            echo '<button type="button" class="button" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::MarkDeliveryFailed->value) . '">'
+                . esc_html(Labels::event(OrderEvent::MarkDeliveryFailed)) . '</button>';
+            echo '</div></div>';
+        } elseif ($ops->status === OrderStatus::DeliveryFailed) {
+            if ($ops->deliveryAttempts >= $maxAttempts) {
+                echo '<div class="notice notice-warning inline anoofy-box-alert"><p>'
+                    . esc_html__('Maximum delivery attempts reached. Receive the returned shipment back at the warehouse.', 'anoofy-woo')
+                    . '</p></div>';
+            }
+
+            $canRetry = $ops->deliveryAttempts < $maxAttempts && Permissions::can($role, Action::DeliveryRetry);
+            $canRto = Permissions::can($role, Action::ReturnReceiveAndInspect);
+
+            if ($canRetry || $canRto) {
+                echo '<div class="anoofy-ship-actions" data-anoofy-form="anoofy_order_event">';
+                if ($canRetry) {
+                    echo '<button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::RetryDelivery->value) . '">'
+                        . esc_html(Labels::event(OrderEvent::RetryDelivery)) . '</button>';
+                }
+                if ($canRto) {
+                    echo '<button type="button" class="button" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::ReceiveReturned->value) . '">'
+                        . esc_html(Labels::event(OrderEvent::ReceiveReturned)) . '</button>';
+                }
+                echo '</div>';
+            }
+        }
+        echo '</div>';
+    }
+
+    private static function deliveryHistory(int $orderId): void
+    {
+        $rows = Services::deliveryLog()->forOrder($orderId, 20);
+        if ($rows === []) {
+            return;
+        }
+
+        echo '<div class="anoofy-section"><h4>' . esc_html__('Delivery attempts', 'anoofy-woo') . '</h4>';
+        echo '<table class="widefat striped anoofy-table"><thead><tr><th>' . esc_html__('#', 'anoofy-woo') . '</th><th>'
+            . esc_html__('When', 'anoofy-woo') . '</th><th>' . esc_html__('Employee', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Result', 'anoofy-woo') . '</th><th>' . esc_html__('Reason', 'anoofy-woo') . '</th></tr></thead><tbody>';
+        foreach ($rows as $row) {
+            printf(
+                '<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                $row['attempt_no'],
+                esc_html(self::when($row['created_at'])),
+                esc_html(Staff::name($row['user_id'])),
+                esc_html(Labels::deliveryOutcome($row['outcome'])),
+                esc_html($row['reason'] ?? '—'),
+            );
+        }
+        echo '</tbody></table></div>';
     }
 
     private static function callHistory(int $orderId): void

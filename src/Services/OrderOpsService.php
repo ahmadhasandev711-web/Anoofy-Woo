@@ -16,6 +16,7 @@ use Anoofy\Woo\Core\Identity\RoleResolver;
 use Anoofy\Woo\Core\Mode\ModePolicy;
 use Anoofy\Woo\Core\Mode\OperatingMode;
 use Anoofy\Woo\Core\Order\CallOutcome;
+use Anoofy\Woo\Core\Order\DeliveryOutcome;
 use Anoofy\Woo\Core\Order\Effect;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderOps;
@@ -26,6 +27,7 @@ use Anoofy\Woo\Core\Order\TransitionError;
 use Anoofy\Woo\Core\Order\WooStatusMap;
 use Anoofy\Woo\Data\AuditLog;
 use Anoofy\Woo\Data\CallLog;
+use Anoofy\Woo\Data\DeliveryAttemptLog;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\PreparedItemsRepository;
 
@@ -43,14 +45,24 @@ final class OrderOpsService
     private array $cancelling = [];
 
     private readonly PreparedItemsRepository $preparedItems;
+    private readonly DeliveryAttemptLog $deliveryLog;
 
     public function __construct(
         private readonly OpsRepository $ops,
         private readonly CallLog $calls,
         private readonly AuditLog $audit,
         ?PreparedItemsRepository $preparedItems = null,
+        ?DeliveryAttemptLog $deliveryLog = null,
     ) {
         $this->preparedItems = $preparedItems ?? new PreparedItemsRepository();
+        $this->deliveryLog = $deliveryLog ?? new DeliveryAttemptLog();
+    }
+
+    public function maxDeliveryAttempts(): int
+    {
+        $max = (int) apply_filters('anoofy_max_delivery_attempts', (int) get_option('anoofy_max_delivery_attempts', 3));
+
+        return max(1, $max);
     }
 
     public function roleFor(int $userId): ?Role
@@ -98,7 +110,7 @@ final class OrderOpsService
             ? PreparationChecker::allPrepared($this->orderItemIds($order), $this->preparedItems->forOrder($orderId))
             : false;
 
-        $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason, $allLinesPrepared));
+        $result = OrderStateMachine::transition($ops->status, $event, $role, $ops->toContext($reason, $allLinesPrepared, $this->maxDeliveryAttempts()));
         if (!$result->ok || $result->from === null || $result->to === null) {
             return ActionResult::fail($result->error?->value ?? TransitionError::InvalidState->value);
         }
@@ -112,6 +124,11 @@ final class OrderOpsService
         if ($event === OrderEvent::StartPreparing) {
             $this->preparedItems->clearOrder($orderId);
             $this->ops->setPrepState($orderId, $this->itemsDigest($order), false);
+        } elseif ($event === OrderEvent::MarkDeliveryFailed) {
+            $attemptNo = $this->ops->incrementDeliveryAttempts($orderId);
+            $this->deliveryLog->record($orderId, $attemptNo, $userId, DeliveryOutcome::Failed, $reason);
+        } elseif ($event === OrderEvent::MarkDelivered) {
+            $this->deliveryLog->record($orderId, $ops->deliveryAttempts + 1, $userId, DeliveryOutcome::Delivered, null);
         }
 
         $extraEffects = ModePolicy::extraEffects(Services::mode(), $event);

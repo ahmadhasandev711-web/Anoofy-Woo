@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '4';
+    public const VERSION = '5';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -125,6 +125,20 @@ final class Schema
   PRIMARY KEY  (id),
   UNIQUE KEY order_item (order_id, item_id),
   KEY order_id (order_id)
+) {$collate};",
+
+            // Append-only log of courier delivery attempts and outcomes (Phase 3).
+            "CREATE TABLE {$prefix}anoofy_delivery_attempts (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  order_id bigint(20) unsigned NOT NULL,
+  attempt_no smallint(5) unsigned NOT NULL,
+  user_id bigint(20) unsigned NOT NULL,
+  outcome varchar(20) NOT NULL,
+  reason text DEFAULT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY order_id (order_id),
+  KEY created_at (created_at)
 ) {$collate};",
         ];
     }
