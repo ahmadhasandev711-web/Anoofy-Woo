@@ -8,6 +8,9 @@ use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\DeliveryOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderStatus;
+use Anoofy\Woo\Core\Returns\ReturnItemCondition;
+use Anoofy\Woo\Core\Returns\ReturnSource;
+use Anoofy\Woo\Core\Returns\ReturnStatus;
 use Anoofy\Woo\Core\Settlement\SettlementRowStatus;
 use Anoofy\Woo\Services\ActionResult;
 
@@ -118,6 +121,33 @@ final class Labels
         };
     }
 
+    public static function returnStatus(ReturnStatus $status): string
+    {
+        return match ($status) {
+            ReturnStatus::Open => __('Open return', 'anoofy-woo'),
+            ReturnStatus::Inspected => __('Inspected', 'anoofy-woo'),
+            ReturnStatus::Approved => __('Approved', 'anoofy-woo'),
+        };
+    }
+
+    public static function returnSource(ReturnSource $source): string
+    {
+        return match ($source) {
+            ReturnSource::Rto => __('RTO', 'anoofy-woo'),
+            ReturnSource::Customer => __('Customer return', 'anoofy-woo'),
+        };
+    }
+
+    public static function returnCondition(ReturnItemCondition $condition): string
+    {
+        return match ($condition) {
+            ReturnItemCondition::Uninspected => __('Awaiting inspection', 'anoofy-woo'),
+            ReturnItemCondition::Restock => __('Restockable', 'anoofy-woo'),
+            ReturnItemCondition::Damaged => __('Damaged', 'anoofy-woo'),
+            ReturnItemCondition::Partial => __('Partial', 'anoofy-woo'),
+        };
+    }
+
     /** Success messages, keyed by the code the controller passes in the redirect. */
     public static function success(string $code): ?string
     {
@@ -137,6 +167,9 @@ final class Labels
             'mark_delivery_failed' => __('Failed delivery attempt recorded.', 'anoofy-woo'),
             'retry_delivery' => __('Delivery retry started.', 'anoofy-woo'),
             'receive_returned' => __('Order marked as returned to origin.', 'anoofy-woo'),
+            'return_opened' => __('Return opened.', 'anoofy-woo'),
+            'return_inspected' => __('Return inspection saved.', 'anoofy-woo'),
+            'return_approved' => __('Return approved and healthy items restocked.', 'anoofy-woo'),
             'cod_settled' => __('Selected COD orders settled and marked paid in WooCommerce.', 'anoofy-woo'),
             'assigned' => __('Assignment updated.', 'anoofy-woo'),
             'bulk_assigned' => __('Selected orders assigned.', 'anoofy-woo'),
@@ -161,6 +194,12 @@ final class Labels
             'REPREPARATION_NOT_CONFIRMED' => __('The order was edited after preparation started; confirm the re-preparation first.', 'anoofy-woo'),
             'SHIPMENT_DETAILS_REQUIRED' => __('Enter the courier and tracking number first.', 'anoofy-woo'),
             'MAX_DELIVERY_ATTEMPTS_REACHED' => __('The maximum number of delivery attempts was reached.', 'anoofy-woo'),
+            'HANDED_OVER_TO_ENGAZ' => __('This order is managed in EngazPRO.', 'anoofy-woo'),
+            'WRONG_STATUS' => __('Customer returns can only be opened for delivered orders.', 'anoofy-woo'),
+            'INVALID_QUANTITY' => __('Enter valid return quantities.', 'anoofy-woo'),
+            'ALREADY_APPROVED' => __('This return has already been approved.', 'anoofy-woo'),
+            'INSPECTION_REQUIRED' => __('Save warehouse inspection before approving.', 'anoofy-woo'),
+            'INSPECTION_INCOMPLETE' => __('Every returned item must have all units accounted for (restock + damaged = returned qty) before approval.', 'anoofy-woo'),
             ActionResult::NOT_FOUND => __('Order not found.', 'anoofy-woo'),
             ActionResult::CONCURRENT_CHANGE => __('Someone else changed this order a moment ago. Reload the page and try again.', 'anoofy-woo'),
             ActionResult::INVALID_ASSIGNEE => __('That user cannot be assigned to orders.', 'anoofy-woo'),

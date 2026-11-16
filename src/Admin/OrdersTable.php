@@ -5,6 +5,7 @@ namespace Anoofy\Woo\Admin;
 
 use Anoofy\Woo\Core\Identity\Action;
 use Anoofy\Woo\Core\Order\OrderOps;
+use Anoofy\Woo\Core\Returns\ReturnStatus;
 use Anoofy\Woo\Services\Services;
 
 if (!class_exists(\WP_List_Table::class)) {
@@ -15,6 +16,9 @@ if (!class_exists(\WP_List_Table::class)) {
 final class OrdersTable extends \WP_List_Table
 {
     private const PER_PAGE = 20;
+
+    /** @var array<int, ReturnStatus> */
+    private array $returnStatuses = [];
 
     /**
      * @param list<string>|null $statuses
@@ -57,9 +61,12 @@ final class OrdersTable extends \WP_List_Table
         $this->_column_headers = [$this->get_columns(), [], []];
 
         $this->items = [];
+        $orderIds = [];
         foreach ($repo->search($this->statuses, $this->assigned, $this->orderIds, self::PER_PAGE, ($page - 1) * self::PER_PAGE) as $ops) {
             $this->items[] = ['ops' => $ops, 'order' => wc_get_order($ops->orderId)];
+            $orderIds[] = $ops->orderId;
         }
+        $this->returnStatuses = Services::returns()->latestStatusForOrders($orderIds);
     }
 
     /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */
@@ -112,6 +119,15 @@ final class OrdersTable extends \WP_List_Table
             }
         }
 
+        if (isset($this->returnStatuses[$ops->orderId])) {
+            $retStatus = $this->returnStatuses[$ops->orderId];
+            $html .= sprintf(
+                ' <span class="anoofy-badge anoofy-badge--return-%s">%s</span>',
+                esc_attr($retStatus->value),
+                esc_html(Labels::returnStatus($retStatus))
+            );
+        }
+
         return $html;
     }
 
@@ -142,6 +158,15 @@ final class OrdersTable extends \WP_List_Table
                 ' <span class="anoofy-badge anoofy-stage-badge %s">%s</span>',
                 esc_attr($stageClass),
                 esc_html(Labels::engazStage($stage))
+            );
+        }
+
+        if (isset($this->returnStatuses[$ops->orderId])) {
+            $retStatus = $this->returnStatuses[$ops->orderId];
+            $html .= sprintf(
+                ' <span class="anoofy-badge anoofy-badge--return-%s">%s</span>',
+                esc_attr($retStatus->value),
+                esc_html(Labels::returnStatus($retStatus))
             );
         }
 

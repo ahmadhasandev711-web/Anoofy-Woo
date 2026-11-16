@@ -40,6 +40,9 @@ final class ActionsController
         add_action('admin_post_anoofy_save_prepared_items', [self::class, 'savePreparedItems']);
         add_action('admin_post_anoofy_confirm_repreparation', [self::class, 'confirmRepreparation']);
         add_action('admin_post_anoofy_save_shipment', [self::class, 'saveShipment']);
+        add_action('admin_post_anoofy_open_return', [self::class, 'openReturn']);
+        add_action('admin_post_anoofy_inspect_return', [self::class, 'inspectReturn']);
+        add_action('admin_post_anoofy_approve_return', [self::class, 'approveReturn']);
         add_action('admin_post_anoofy_cod_settle', [self::class, 'codSettle']);
         add_action('admin_post_anoofy_assign', [self::class, 'assign']);
         add_action('admin_post_anoofy_bulk_assign', [self::class, 'bulkAssign']);
@@ -109,6 +112,69 @@ final class ActionsController
             self::text('anoofy_tracking')
         );
         self::finish($orderId, $result, 'shipment_saved');
+    }
+
+    public static function openReturn(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::ReturnOpen);
+
+        $rawQtys = isset($_POST['return_qty']) && is_array($_POST['return_qty']) ? wp_unslash($_POST['return_qty']) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard()
+        $qtyByItemId = [];
+        foreach ($rawQtys as $itemId => $qty) {
+            $id = absint($itemId);
+            if ($id > 0) {
+                $qtyByItemId[$id] = absint($qty);
+            }
+        }
+
+        $result = Services::returnService()->openCustomerReturn(
+            $orderId,
+            get_current_user_id(),
+            $qtyByItemId,
+            self::text('anoofy_reason', true)
+        );
+        self::finish($orderId, $result, 'return_opened');
+    }
+
+    public static function inspectReturn(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::ReturnReceiveAndInspect);
+
+        $returnId = isset($_POST['return_id']) ? absint(wp_unslash($_POST['return_id'])) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard()
+        $rawInspect = isset($_POST['inspect']) && is_array($_POST['inspect']) ? wp_unslash($_POST['inspect']) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard()
+        $lines = [];
+        foreach ($rawInspect as $itemId => $row) {
+            $id = absint($itemId);
+            if ($id <= 0 || !is_array($row)) {
+                continue;
+            }
+            $lines[$id] = [
+                'restock_qty' => isset($row['restock_qty']) ? (int) $row['restock_qty'] : 0,
+                'damaged_qty' => isset($row['damaged_qty']) ? (int) $row['damaged_qty'] : 0,
+                'note' => isset($row['note']) && is_string($row['note']) ? sanitize_text_field($row['note']) : '',
+            ];
+        }
+
+        $result = $returnId > 0
+            ? Services::returnService()->saveInspection($returnId, get_current_user_id(), $lines)
+            : ActionResult::fail(ActionResult::INVALID_INPUT);
+
+        self::finish($orderId, $result, 'return_inspected');
+    }
+
+    public static function approveReturn(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::ReturnApprove);
+
+        $returnId = isset($_POST['return_id']) ? absint(wp_unslash($_POST['return_id'])) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard()
+        $result = $returnId > 0
+            ? Services::returnService()->approveReturn($returnId, get_current_user_id())
+            : ActionResult::fail(ActionResult::INVALID_INPUT);
+
+        self::finish($orderId, $result, 'return_approved');
     }
 
     public static function codSettle(): void
