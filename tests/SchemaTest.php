@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsSeven(): void
+    public function testSchemaVersionIsEight(): void
     {
-        self::assertSame('7', Schema::VERSION);
+        self::assertSame('8', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
@@ -48,6 +48,12 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($orderOpsSql, "prep_items_hash varchar(64) DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "cod_settled_at datetime DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "cod_settlement_id bigint(20) unsigned DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, 'KEY status_created (ops_status, created_at)'));
+        self::assertTrue(str_contains($orderOpsSql, 'KEY tracking_number (tracking_number)'));
+        self::assertTrue(str_contains($orderOpsSql, 'KEY cod_settled_at (cod_settled_at)'));
+
+        $auditSql = Schema::statements('wp_', '')[2];
+        self::assertTrue(str_contains($auditSql, 'KEY action_created (action, created_at)'));
     }
 
     public function testPreparedItemsStatementContainsRequiredColumnsAndKeys(): void

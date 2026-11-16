@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '7';
+    public const VERSION = '8';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -51,7 +51,10 @@ final class Schema
   updated_at datetime NOT NULL,
   PRIMARY KEY  (order_id),
   KEY ops_status (ops_status),
-  KEY assigned_to (assigned_to)
+  KEY assigned_to (assigned_to),
+  KEY status_created (ops_status, created_at),
+  KEY tracking_number (tracking_number),
+  KEY cod_settled_at (cod_settled_at)
 ) {$collate};",
 
             "CREATE TABLE {$prefix}anoofy_call_attempts (
@@ -80,7 +83,8 @@ final class Schema
   PRIMARY KEY  (id),
   KEY order_id (order_id),
   KEY user_id (user_id),
-  KEY created_at (created_at)
+  KEY created_at (created_at),
+  KEY action_created (action, created_at)
 ) {$collate};",
 
             // Reliable async outbound events to EngazPRO.

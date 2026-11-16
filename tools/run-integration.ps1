@@ -6,7 +6,7 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
-    @{ Name = 'Schema v7 (Migration)'; File = 'test-schema-v7.php' },
+    @{ Name = 'Schema v8 (Migration)'; File = 'test-schema-v8.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
