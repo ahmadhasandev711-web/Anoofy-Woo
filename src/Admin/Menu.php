@@ -25,6 +25,8 @@ final class Menu
             add_submenu_page('anoofy', __('Orders', 'anoofy-woo'), __('Orders', 'anoofy-woo'), Action::OrderView->capability(), 'anoofy', [OrdersPage::class, 'render']);
             add_submenu_page('anoofy', __('COD Settlement', 'anoofy-woo'), __('COD Settlement', 'anoofy-woo'), Action::CodSettle->capability(), 'anoofy-cod-settlement', [CodSettlementPage::class, 'render']);
             add_submenu_page('anoofy', __('Returns & RTO', 'anoofy-woo'), __('Returns & RTO', 'anoofy-woo'), Action::OrderView->capability(), 'anoofy-returns', [ReturnsPage::class, 'render']);
+            add_submenu_page('anoofy', __('Reports', 'anoofy-woo'), __('Reports', 'anoofy-woo'), Action::ReportView->capability(), 'anoofy-reports', [ReportsPage::class, 'render']);
+            add_submenu_page('anoofy', __('Audit log', 'anoofy-woo'), __('Audit log', 'anoofy-woo'), Action::AuditView->capability(), 'anoofy-audit-log', [AuditLogPage::class, 'render']);
             add_submenu_page('anoofy', __('System status', 'anoofy-woo'), __('System status', 'anoofy-woo'), Action::PluginSettings->capability(), 'anoofy-status', [self::class, 'render']);
             add_submenu_page('anoofy', __('EngazPRO Integration', 'anoofy-woo'), __('EngazPRO Integration', 'anoofy-woo'), Action::IntegrationManage->capability(), 'anoofy-connection', [ConnectionSettings::class, 'render']);
         });
