@@ -36,6 +36,7 @@ final class OrdersTable extends \WP_List_Table
             'customer' => __('Customer', 'anoofy-woo'),
             'total' => __('Total', 'anoofy-woo'),
             'ops_status' => __('Operational status', 'anoofy-woo'),
+            'shipment' => __('Shipment', 'anoofy-woo'),
             'woo_status' => __('WooCommerce status', 'anoofy-woo'),
             'assigned' => __('Assigned to', 'anoofy-woo'),
             'date' => __('Date', 'anoofy-woo'),
@@ -77,7 +78,18 @@ final class OrdersTable extends \WP_List_Table
             return esc_html(sprintf(__('#%d (deleted)', 'anoofy-woo'), $id));
         }
 
-        return sprintf('<a href="%s"><strong>#%s</strong></a>', esc_url($order->get_edit_order_url()), esc_html($order->get_order_number()));
+        $opsUrl = add_query_arg(['page' => 'anoofy', 'order_id' => $id], admin_url('admin.php'));
+        if (!current_user_can('edit_shop_orders')) {
+            return sprintf('<a href="%s"><strong>#%s</strong></a>', esc_url($opsUrl), esc_html($order->get_order_number()));
+        }
+
+        return sprintf(
+            '<a href="%s"><strong>#%s</strong></a><br><a href="%s" class="description">%s</a>',
+            esc_url($order->get_edit_order_url()),
+            esc_html($order->get_order_number()),
+            esc_url($opsUrl),
+            esc_html__('Operations', 'anoofy-woo'),
+        );
     }
 
     /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */
@@ -134,6 +146,28 @@ final class OrdersTable extends \WP_List_Table
         }
 
         return $html;
+    }
+
+    /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */
+    public function column_shipment($item): string
+    {
+        $ops = $item['ops'];
+        $courier = $ops->isHandedOver() ? $ops->engazCourier : $ops->courier;
+        $tracking = $ops->isHandedOver() ? $ops->engazTracking : $ops->trackingNumber;
+
+        if (($courier === null || $courier === '') && ($tracking === null || $tracking === '')) {
+            return '<span class="description">—</span>';
+        }
+
+        $parts = [];
+        if ($courier !== null && $courier !== '') {
+            $parts[] = esc_html($courier);
+        }
+        if ($tracking !== null && $tracking !== '') {
+            $parts[] = '<code>' . esc_html($tracking) . '</code>';
+        }
+
+        return implode('<br>', $parts);
     }
 
     /** @param array{ops: OrderOps, order: \WC_Order|false|null} $item */

@@ -20,6 +20,14 @@ final class OrdersPage
             wp_die(esc_html__('You are not allowed to do this.', 'anoofy-woo'), '', ['response' => 403]);
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $viewOrderId = absint(self::query('order_id', '0'));
+        if ($viewOrderId > 0) {
+            self::renderOrderView($viewOrderId);
+
+            return;
+        }
+
         // Read-only filters from the query string; every value is validated against a whitelist or sanitised.
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
         $tab = sanitize_key(self::query('tab', StatusTabs::ALL));
@@ -159,5 +167,64 @@ final class OrdersPage
             printf('<a href="%s"%s>%s</a>', esc_url($url), $key === $current ? ' class="current"' : '', esc_html($label));
         }
         echo '</p>';
+    }
+
+    private static function renderOrderView(int $orderId): void
+    {
+        $backUrl = admin_url('admin.php?page=anoofy');
+        $order = wc_get_order($orderId);
+
+        echo '<div class="wrap">';
+        echo '<p><a href="' . esc_url($backUrl) . '" class="button">&larr; ' . esc_html__('Back to orders', 'anoofy-woo') . '</a></p>';
+
+        if (!$order instanceof \WC_Order) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('Order not found.', 'anoofy-woo') . '</p></div></div>';
+
+            return;
+        }
+
+        echo '<h1>' . esc_html(sprintf(
+            /* translators: %s: order number */
+            __('Order #%s', 'anoofy-woo'),
+            $order->get_order_number()
+        )) . '</h1>';
+
+        echo '<div class="anoofy-order-view-grid">';
+        echo '<div class="anoofy-card"><h3>' . esc_html__('Customer & delivery', 'anoofy-woo') . '</h3>';
+        echo '<p><strong>' . esc_html__('Customer:', 'anoofy-woo') . '</strong> ' . esc_html(trim($order->get_formatted_billing_full_name()) ?: '—') . '</p>';
+        if (current_user_can(Action::OrderViewCustomerContact->capability())) {
+            echo '<p><strong>' . esc_html__('Phone:', 'anoofy-woo') . '</strong> <span dir="ltr">' . esc_html($order->get_billing_phone() ?: '—') . '</span></p>';
+            $city = $order->get_shipping_city() ?: $order->get_billing_city();
+            $address = trim(($order->get_shipping_address_1() ?: $order->get_billing_address_1()) . ' ' . ($order->get_shipping_address_2() ?: $order->get_billing_address_2()));
+            echo '<p><strong>' . esc_html__('City:', 'anoofy-woo') . '</strong> ' . esc_html($city ?: '—') . '</p>';
+            echo '<p><strong>' . esc_html__('Address:', 'anoofy-woo') . '</strong> ' . esc_html($address ?: '—') . '</p>';
+        } else {
+            echo '<p class="description">' . esc_html__('Customer contact details are hidden for your role.', 'anoofy-woo') . '</p>';
+        }
+        echo '<p><strong>' . esc_html__('Total:', 'anoofy-woo') . '</strong> ' . wp_kses_post($order->get_formatted_order_total()) . '</p>';
+        echo '</div>';
+
+        echo '<div class="anoofy-card"><h3>' . esc_html__('Order items', 'anoofy-woo') . '</h3>';
+        echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Product', 'anoofy-woo') . '</th><th>'
+            . esc_html__('SKU', 'anoofy-woo') . '</th><th>' . esc_html__('Qty', 'anoofy-woo') . '</th></tr></thead><tbody>';
+        foreach ($order->get_items('line_item') as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $product = $item->get_product();
+            $sku = $product ? $product->get_sku() : '';
+            printf(
+                '<tr><td>%s</td><td>%s</td><td>%d</td></tr>',
+                esc_html($item->get_name()),
+                esc_html($sku !== '' ? $sku : '—'),
+                $item->get_quantity(),
+            );
+        }
+        echo '</tbody></table></div>';
+        echo '</div>';
+
+        echo '<div class="anoofy-card">';
+        OrderBox::renderOpsBox($order, 'ops');
+        echo '</div></div>';
     }
 }

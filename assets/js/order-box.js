@@ -16,7 +16,13 @@
     body.append('action', group.getAttribute('data-anoofy-form'));
     body.append('order_id', box.getAttribute('data-order-id'));
     body.append('_anoofy_nonce', box.getAttribute('data-nonce'));
+    if (box.hasAttribute('data-anoofy-return')) {
+      body.append('anoofy_return', box.getAttribute('data-anoofy-return'));
+    }
     group.querySelectorAll('input[name], select[name], textarea[name]').forEach(function (el) {
+      if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) {
+        return;
+      }
       body.append(el.name, el.value);
     });
     if (btn.hasAttribute('data-anoofy-event')) {
