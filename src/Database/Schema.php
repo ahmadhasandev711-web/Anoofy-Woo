@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '6';
+    public const VERSION = '7';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -167,6 +167,64 @@ final class Schema
   PRIMARY KEY  (id),
   UNIQUE KEY order_id (order_id),
   KEY settlement_id (settlement_id)
+) {$collate};",
+
+            // Return / RTO requests (Phase 5).
+            "CREATE TABLE {$prefix}anoofy_returns (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  order_id bigint(20) unsigned NOT NULL,
+  source varchar(20) NOT NULL,
+  status varchar(20) NOT NULL DEFAULT 'open',
+  reason text DEFAULT NULL,
+  opened_by bigint(20) unsigned NOT NULL,
+  inspected_by bigint(20) unsigned DEFAULT NULL,
+  inspected_at datetime DEFAULT NULL,
+  approved_by bigint(20) unsigned DEFAULT NULL,
+  approved_at datetime DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY order_id (order_id),
+  KEY status (status)
+) {$collate};",
+
+            // Returned line items and warehouse inspection breakdown (Phase 5).
+            "CREATE TABLE {$prefix}anoofy_return_items (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  return_id bigint(20) unsigned NOT NULL,
+  order_id bigint(20) unsigned NOT NULL,
+  order_item_id bigint(20) unsigned NOT NULL,
+  product_id bigint(20) unsigned NOT NULL,
+  variation_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  sku varchar(100) DEFAULT NULL,
+  name varchar(255) NOT NULL,
+  qty_returned int(10) unsigned NOT NULL,
+  restock_qty int(10) unsigned NOT NULL DEFAULT 0,
+  damaged_qty int(10) unsigned NOT NULL DEFAULT 0,
+  condition_status varchar(20) NOT NULL DEFAULT 'uninspected',
+  note text DEFAULT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY return_order_item (return_id, order_item_id),
+  KEY order_id (order_id)
+) {$collate};",
+
+            // Idempotent stock movement ledger for approved returns (UNIQUE idempotency_key prevents double restock).
+            "CREATE TABLE {$prefix}anoofy_stock_movements (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  order_id bigint(20) unsigned NOT NULL,
+  return_id bigint(20) unsigned NOT NULL,
+  return_item_id bigint(20) unsigned NOT NULL,
+  product_id bigint(20) unsigned NOT NULL,
+  variation_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  movement_type varchar(32) NOT NULL,
+  qty int(10) unsigned NOT NULL,
+  idempotency_key varchar(100) NOT NULL,
+  created_by bigint(20) unsigned NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY idempotency_key (idempotency_key),
+  KEY order_id (order_id),
+  KEY return_id (return_id)
 ) {$collate};",
         ];
     }

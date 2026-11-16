@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsSix(): void
+    public function testSchemaVersionIsSeven(): void
     {
-        self::assertSame('6', Schema::VERSION);
+        self::assertSame('7', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
     {
         $statements = Schema::statements('wp_', 'DEFAULT CHARACTER SET utf8mb4');
-        self::assertCount(9, $statements);
+        self::assertCount(12, $statements);
         foreach ($statements as $sql) {
             self::assertTrue(str_starts_with($sql, 'CREATE TABLE wp_anoofy_'), $sql);
             // dbDelta needs exactly two spaces after PRIMARY KEY and KEY (not INDEX).
@@ -143,10 +143,29 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($outboxSql, 'KEY wc_order_id (wc_order_id)'));
     }
 
+    public function testReturnsAndStockMovementsStatementsContainRequiredColumnsAndKeys(): void
+    {
+        $statements = Schema::statements('wp_', '');
+        $retSql = $statements[9] ?? '';
+        self::assertTrue(str_contains($retSql, 'CREATE TABLE wp_anoofy_returns ('));
+        self::assertTrue(str_contains($retSql, 'source varchar(20) NOT NULL'));
+        self::assertTrue(str_contains($retSql, "status varchar(20) NOT NULL DEFAULT 'open'"));
+        self::assertTrue(str_contains($retSql, 'PRIMARY KEY  (id)'));
+        self::assertTrue(str_contains($retSql, 'KEY order_id (order_id)'));
+
+        $retItemsSql = $statements[10] ?? '';
+        self::assertTrue(str_contains($retItemsSql, 'CREATE TABLE wp_anoofy_return_items ('));
+        self::assertTrue(str_contains($retItemsSql, 'UNIQUE KEY return_order_item (return_id, order_item_id)'));
+
+        $movSql = $statements[11] ?? '';
+        self::assertTrue(str_contains($movSql, 'CREATE TABLE wp_anoofy_stock_movements ('));
+        self::assertTrue(str_contains($movSql, 'UNIQUE KEY idempotency_key (idempotency_key)'));
+    }
+
     public function testTableHelperMatchesTheCreateStatements(): void
     {
         $names = Schema::statements('wp_', '');
-        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items', 'delivery_attempts', 'cod_settlements', 'cod_settlement_orders'] as $short) {
+        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items', 'delivery_attempts', 'cod_settlements', 'cod_settlement_orders', 'returns', 'return_items', 'stock_movements'] as $short) {
             $table = Schema::table('wp_', $short);
             $found = false;
             foreach ($names as $sql) {
