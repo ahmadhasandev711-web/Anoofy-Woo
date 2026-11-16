@@ -17,13 +17,25 @@ use Anoofy\Woo\Services\Services;
  */
 final class ActionsController
 {
-    /** Events the Phase 1 screens may trigger (later phases add more). */
-    private const EVENTS = [OrderEvent::Confirm, OrderEvent::Reject, OrderEvent::CancelDirect];
+    /** Events the Phase 1 and Phase 2 screens may trigger (later phases add more). */
+    private const EVENTS = [
+        OrderEvent::Confirm,
+        OrderEvent::Reject,
+        OrderEvent::CancelDirect,
+        OrderEvent::StartPreparing,
+        OrderEvent::FinishPreparing,
+        OrderEvent::RequestCancel,
+        OrderEvent::ConfirmRestocked,
+        OrderEvent::Ship,
+    ];
 
     public static function register(): void
     {
         add_action('admin_post_anoofy_log_call', [self::class, 'logCall']);
         add_action('admin_post_anoofy_order_event', [self::class, 'orderEvent']);
+        add_action('admin_post_anoofy_save_prepared_items', [self::class, 'savePreparedItems']);
+        add_action('admin_post_anoofy_confirm_repreparation', [self::class, 'confirmRepreparation']);
+        add_action('admin_post_anoofy_save_shipment', [self::class, 'saveShipment']);
         add_action('admin_post_anoofy_assign', [self::class, 'assign']);
         add_action('admin_post_anoofy_bulk_assign', [self::class, 'bulkAssign']);
         add_action('admin_post_anoofy_connect', [self::class, 'connect']);
@@ -57,6 +69,41 @@ final class ActionsController
 
         $result = Services::orderOps()->runEvent($orderId, $event, get_current_user_id(), self::text('anoofy_reason', true));
         self::finish($orderId, $result, strtolower($event->value));
+    }
+
+    public static function savePreparedItems(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::OrderPrepare);
+
+        $rawIds = isset($_POST['prepared_items']) && is_array($_POST['prepared_items']) ? wp_unslash($_POST['prepared_items']) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard()
+        $itemIds = array_values(array_filter(array_map('absint', $rawIds), static fn (int $id): bool => $id > 0));
+
+        $result = Services::orderOps()->savePreparedItems($orderId, get_current_user_id(), $itemIds);
+        self::finish($orderId, $result, 'prepared_items_saved');
+    }
+
+    public static function confirmRepreparation(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::OrderConfirmRepreparation);
+
+        $result = Services::orderOps()->confirmRepreparation($orderId, get_current_user_id());
+        self::finish($orderId, $result, 'repreparation_confirmed');
+    }
+
+    public static function saveShipment(): void
+    {
+        $orderId = self::orderId();
+        self::guard($orderId, Action::ShipmentCreate);
+
+        $result = Services::orderOps()->saveShipmentDetails(
+            $orderId,
+            get_current_user_id(),
+            self::text('anoofy_courier'),
+            self::text('anoofy_tracking')
+        );
+        self::finish($orderId, $result, 'shipment_saved');
     }
 
     public static function assign(): void
@@ -193,8 +240,13 @@ final class ActionsController
 
     private static function finish(int $orderId, ActionResult $result, string $successCode): never
     {
-        $order = wc_get_order($orderId);
-        $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
+        $returnToOps = self::text('anoofy_return') === 'ops' || !current_user_can('edit_shop_orders');
+        if ($returnToOps && $orderId > 0) {
+            $url = add_query_arg(['page' => 'anoofy', 'order_id' => $orderId], admin_url('admin.php'));
+        } else {
+            $order = wc_get_order($orderId);
+            $url = $order instanceof \WC_Order ? $order->get_edit_order_url() : admin_url('admin.php?page=anoofy');
+        }
         // A partial success (status changed, Woo update failed) is reported as an error so nobody misses it.
         $ok = $result->ok && $result->code === ActionResult::OK;
         Notices::redirect($url, $ok ? $successCode : $result->code, $ok);

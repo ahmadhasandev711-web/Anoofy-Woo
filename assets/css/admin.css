@@ -39,3 +39,10 @@
 .anoofy-views a { margin-inline-end: 12px; }
 .anoofy-views .current { font-weight: 600; }
 .anoofy-assign-bar select { margin-inline-end: 6px; }
+
+.anoofy-prep-actions, .anoofy-ship-actions { margin-block-start: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.anoofy-ship-fields { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.anoofy-ship-fields label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.anoofy-order-view-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-block: 16px; }
+.anoofy-card { background: #fff; border: 1px solid #c3c4c7; padding: 14px 16px; border-radius: 4px; }
+.anoofy-card h3 { margin-block: 0 10px; }

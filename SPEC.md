@@ -77,10 +77,13 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
 - **S-1** Where a new COD order lands (`processing` vs `on-hold`) and the cleanest hook to move it to `on-hold` without sending the customer the wrong email.
   - *Result (WooCommerce 11.2.1)*: `WC_Gateway_COD::process_payment()` places real COD orders into status `processing`.
 - **S-2** Which Woo customer emails fire on each status change; how to suppress/override them per transition.
+  - *Result (WooCommerce 11.2.1)*: Verified in `test-s2-s5-s6-spikes.php`. `pending` -> `on-hold` triggers admin New Order + customer On-Hold; `on-hold` -> `processing` triggers customer Processing email ("order has been received"); `processing` -> `completed` triggers customer Completed email. Keeping `anoofy_sync_woo_status` disabled by default prevents unwanted intermediate emails.
 - **S-3** Marking a COD order paid at settlement: `payment_complete()` vs setting `date_paid`, and its effect on stock and emails.
 - **S-4** RTO restock: Woo's cancel restores the full reduced quantity; per-item restock after inspection (damaged items) needs `wc_update_product_stock` or a zero-amount refund with restock. Confirm which works.
 - **S-5** Editing an order's items/address after confirmation: stock and totals recalculation behaviour.
+  - *Result (WooCommerce 11.2.1)*: Verified in `test-s2-s5-s6-spikes.php`. Admin edits via `wc_save_order_items()` fire `woocommerce_saved_order_items` and `woocommerce_update_order_item`; CRUD item edits fire `woocommerce_update_order_item` and `woocommerce_update_order`. Comparing a deterministic hash of `line_item` entries (`prep_items_hash`) avoids false-positive edit flags on simple note/status saves.
 - **S-6** A user with only `anoofy_*` capabilities: can the plugin read orders (`wc_get_orders`) and show the minimum customer data the role is allowed to see.
+  - *Result (WooCommerce 11.2.1)*: Verified in `test-s2-s5-s6-spikes.php`. `anoofy_warehouse` has `anoofy_order_view` + `anoofy_order_prepare` and lacks `edit_shop_orders` and `anoofy_order_view_customer_contact`. `wc_get_orders()` executes cleanly under `anoofy_warehouse`, so operational actions must live inside `Anoofy -> Orders` (not only on the Woo order edit page which rejects users without `edit_shop_orders`).
 - **S-7** Performance of the Orders screen with 50k orders (indexes on `anoofy_order_ops`).
 
 ## 7. Testing

@@ -27,6 +27,7 @@ final class OrderOps
         public readonly ?string $engazBranch = null,
         public readonly ?string $engazCourier = null,
         public readonly ?string $engazTracking = null,
+        public readonly ?string $prepItemsHash = null,
     ) {
     }
 
@@ -50,6 +51,7 @@ final class OrderOps
         $branch = isset($row['engaz_branch']) ? trim((string) $row['engaz_branch']) : '';
         $engazCourier = isset($row['engaz_courier']) ? trim((string) $row['engaz_courier']) : '';
         $engazTracking = isset($row['engaz_tracking']) ? trim((string) $row['engaz_tracking']) : '';
+        $prepItemsHash = isset($row['prep_items_hash']) ? trim((string) $row['prep_items_hash']) : '';
 
         return new self(
             (int) ($row['order_id'] ?? 0),
@@ -70,6 +72,7 @@ final class OrderOps
             $branch === '' ? null : $branch,
             $engazCourier === '' ? null : $engazCourier,
             $engazTracking === '' ? null : $engazTracking,
+            $prepItemsHash === '' ? null : $prepItemsHash,
         );
     }
 

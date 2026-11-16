@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '3';
+    public const VERSION = '4';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -44,6 +44,7 @@ final class Schema
   engaz_branch varchar(255) DEFAULT NULL,
   engaz_courier varchar(255) DEFAULT NULL,
   engaz_tracking varchar(255) DEFAULT NULL,
+  prep_items_hash varchar(64) DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (order_id),
@@ -112,6 +113,18 @@ final class Schema
   PRIMARY KEY  (id),
   UNIQUE KEY event_id (event_id),
   KEY wc_order_id (wc_order_id)
+) {$collate};",
+
+            // Per-line preparation checklist for Standalone Mode warehouse workflow.
+            "CREATE TABLE {$prefix}anoofy_order_prepared_items (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  order_id bigint(20) unsigned NOT NULL,
+  item_id bigint(20) unsigned NOT NULL,
+  prepared_by bigint(20) unsigned NOT NULL,
+  prepared_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY order_item (order_id, item_id),
+  KEY order_id (order_id)
 ) {$collate};",
         ];
     }

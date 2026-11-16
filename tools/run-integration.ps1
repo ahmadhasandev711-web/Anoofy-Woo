@@ -6,13 +6,14 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
-    @{ Name = 'Schema v3 (Migration)'; File = 'test-schema-v3.php' },
+    @{ Name = 'Schema v4 (Migration)'; File = 'test-schema-v4.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
     @{ Name = 'S-9 (Search Limit > 500)'; File = 'test-s9-search-limit.php' },
     @{ Name = 'S-11 (Reject & Cancel & Stock)'; File = 'test-s11-cancel.php' },
     @{ Name = 'S-12 (Legacy Order Auto-Track)'; File = 'test-s12-legacy-order.php' },
+    @{ Name = 'S-2/S-5/S-6 (Phase 2 Spikes)'; File = 'test-s2-s5-s6-spikes.php' },
     @{ Name = 'C-1 (Connection Verify)'; File = 'test-c1-connection-verify.php' },
     @{ Name = 'C-2 (Standalone Mode)'; File = 'test-c2-standalone.php' },
     @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
@@ -25,6 +26,8 @@ $tests = @(
     @{ Name = 'C-Review-4 (401 Auth Failure & Recovery)'; File = 'test-c4-auth-failure.php' },
     @{ Name = 'C-7 (Inbound Stage Changed Callback)'; File = 'test-c7-stage-changed-callback.php' },
     @{ Name = 'C-8 (Display EngazPRO Stage)'; File = 'test-c8-display-stage.php' },
+    @{ Name = 'P2-1/2/3 (Prep, Edit Guard, Ship)'; File = 'test-p2-services.php' },
+    @{ Name = 'P2-4 (Phase 2 Roles & HandedOver)'; File = 'test-p2-permissions-and-ui.php' },
     @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 

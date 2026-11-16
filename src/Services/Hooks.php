@@ -19,6 +19,40 @@ final class Hooks
         add_action('woocommerce_order_status_cancelled', static function ($orderId): void {
             Services::orderOps()->onWooCancelled((int) $orderId);
         }, 20);
+        add_action('woocommerce_update_order', static function ($orderId): void {
+            Services::orderOps()->onWooOrderEdited((int) $orderId);
+        }, 20);
+        add_action('woocommerce_saved_order_items', static function ($orderId): void {
+            Services::orderOps()->onWooOrderEdited((int) $orderId);
+        }, 20);
+        add_action('woocommerce_update_order_item', static function ($itemId, $item, $orderId = 0): void {
+            $id = (int) $orderId ?: ($item instanceof \WC_Order_Item ? $item->get_order_id() : 0);
+            if ($id > 0) {
+                Services::orderOps()->onWooOrderEdited($id);
+            }
+        }, 20, 3);
+        add_action('woocommerce_new_order_item', static function ($itemId, $item, $orderId = 0): void {
+            $id = (int) $orderId ?: ($item instanceof \WC_Order_Item ? $item->get_order_id() : 0);
+            if ($id > 0) {
+                Services::orderOps()->onWooOrderEdited($id);
+            }
+        }, 20, 3);
+        $deletingItemOrders = [];
+        add_action('woocommerce_before_delete_order_item', static function ($itemId) use (&$deletingItemOrders): void {
+            if (function_exists('wc_get_order_id_by_order_item_id')) {
+                $id = (int) wc_get_order_id_by_order_item_id((int) $itemId);
+                if ($id > 0) {
+                    $deletingItemOrders[(int) $itemId] = $id;
+                }
+            }
+        }, 20);
+        add_action('woocommerce_delete_order_item', static function ($itemId) use (&$deletingItemOrders): void {
+            $id = $deletingItemOrders[(int) $itemId] ?? 0;
+            unset($deletingItemOrders[(int) $itemId]);
+            if ($id > 0) {
+                Services::orderOps()->onWooOrderEdited($id);
+            }
+        }, 20);
         add_action('anoofy_engaz_send', [EngazOutboxWorker::class, 'process']);
         add_action('rest_api_init', [\Anoofy\Woo\Rest\CallbackController::class, 'registerRoutes']);
     }

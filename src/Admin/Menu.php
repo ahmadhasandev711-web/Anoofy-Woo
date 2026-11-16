@@ -28,7 +28,12 @@ final class Menu
         });
         add_action('admin_enqueue_scripts', static function (string $hook): void {
             if (str_contains($hook, 'anoofy')) {
-                wp_enqueue_style('anoofy-admin', plugin_dir_url(ANOOFY_WOO_FILE) . 'assets/css/admin.css', [], ANOOFY_WOO_VERSION);
+                $base = plugin_dir_url(ANOOFY_WOO_FILE);
+                wp_enqueue_style('anoofy-admin', $base . 'assets/css/admin.css', [], ANOOFY_WOO_VERSION);
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                if (isset($_GET['order_id']) && absint(wp_unslash($_GET['order_id'])) > 0) {
+                    OrderBox::enqueueScripts();
+                }
             }
         });
         Notices::register();

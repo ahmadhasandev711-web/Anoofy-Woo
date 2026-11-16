@@ -21,7 +21,7 @@ use Anoofy\Woo\Services\Services;
  */
 final class OrderBox
 {
-    private const EVENTS = [OrderEvent::Confirm, OrderEvent::Reject, OrderEvent::CancelDirect];
+    private const DECISION_EVENTS = [OrderEvent::Confirm, OrderEvent::Reject, OrderEvent::CancelDirect, OrderEvent::RequestCancel];
 
     public static function register(): void
     {
@@ -50,6 +50,12 @@ final class OrderBox
         }
         $base = plugin_dir_url(ANOOFY_WOO_FILE);
         wp_enqueue_style('anoofy-admin', $base . 'assets/css/admin.css', [], ANOOFY_WOO_VERSION);
+        self::enqueueScripts();
+    }
+
+    public static function enqueueScripts(): void
+    {
+        $base = plugin_dir_url(ANOOFY_WOO_FILE);
         wp_enqueue_script('anoofy-order-box', $base . 'assets/js/order-box.js', [], ANOOFY_WOO_VERSION, true);
         wp_localize_script('anoofy-order-box', 'anoofyOrderBox', [
             'endpoint' => admin_url('admin-post.php'),
@@ -65,6 +71,12 @@ final class OrderBox
         if (!$order instanceof \WC_Order) {
             return;
         }
+
+        self::renderOpsBox($order);
+    }
+
+    public static function renderOpsBox(\WC_Order $order, string $returnView = ''): void
+    {
         $orderId = $order->get_id();
         $service = Services::orderOps();
         $service->track($orderId); // orders that existed before the plugin get their row the first time they are opened
@@ -77,8 +89,9 @@ final class OrderBox
 
         $role = $service->roleFor(get_current_user_id());
         $nonce = wp_create_nonce('anoofy_order_' . $orderId);
+        $returnAttr = $returnView !== '' ? ' data-anoofy-return="' . esc_attr($returnView) . '"' : '';
 
-        echo '<div class="anoofy-box" data-anoofy-box data-order-id="' . esc_attr((string) $orderId) . '" data-nonce="' . esc_attr($nonce) . '">';
+        echo '<div class="anoofy-box" data-anoofy-box data-order-id="' . esc_attr((string) $orderId) . '" data-nonce="' . esc_attr($nonce) . '"' . $returnAttr . '>';
         self::outboxAlert($orderId);
         self::retryHandoverAlert($orderId);
         self::summary($ops);
@@ -89,6 +102,10 @@ final class OrderBox
         if ($role !== null) {
             self::callForm($ops, $role, $orderId);
             self::decisions($ops, $role);
+            if (!$ops->isHandedOver()) {
+                self::preparation($order, $ops, $role);
+                self::shipping($ops, $role);
+            }
         }
         self::callHistory($orderId);
         self::history($orderId);
@@ -236,7 +253,7 @@ final class OrderBox
 
         $events = [];
         foreach (OrderStateMachine::eventsFrom($ops->status) as $event) {
-            if (in_array($event, self::EVENTS, true) && Permissions::can($role, OrderStateMachine::actionFor($event))) {
+            if (in_array($event, self::DECISION_EVENTS, true) && Permissions::can($role, OrderStateMachine::actionFor($event))) {
                 $events[] = $event;
             }
         }
@@ -261,6 +278,131 @@ final class OrderBox
             );
         }
         echo '</p></div></div>';
+    }
+
+    private static function preparation(\WC_Order $order, OrderOps $ops, Role $role): void
+    {
+        if ($ops->status === OrderStatus::Confirmed && Permissions::can($role, Action::OrderPrepare)) {
+            echo '<div class="anoofy-section"><h4>' . esc_html__('Warehouse preparation', 'anoofy-woo') . '</h4>';
+            if ($ops->assignedTo === null) {
+                echo '<p class="description">' . esc_html__('Assign the order to an employee before starting preparation.', 'anoofy-woo') . '</p>';
+            }
+            echo '<div data-anoofy-form="anoofy_order_event"><button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::StartPreparing->value) . '">'
+                . esc_html(Labels::event(OrderEvent::StartPreparing)) . '</button></div></div>';
+
+            return;
+        }
+
+        if ($ops->status === OrderStatus::CancellationPending) {
+            echo '<div class="anoofy-section"><h4>' . esc_html__('Warehouse restock confirmation', 'anoofy-woo') . '</h4>';
+            echo '<div class="notice notice-warning inline anoofy-box-alert"><p>'
+                . esc_html__('Cancellation was requested while preparing. Confirm once the items are back on the shelf to cancel the WooCommerce order.', 'anoofy-woo')
+                . '</p></div>';
+            if (Permissions::can($role, Action::OrderConfirmRestock)) {
+                echo '<div data-anoofy-form="anoofy_order_event"><button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::ConfirmRestocked->value) . '">'
+                    . esc_html(Labels::event(OrderEvent::ConfirmRestocked)) . '</button></div>';
+            }
+            echo '</div>';
+
+            return;
+        }
+
+        if ($ops->status !== OrderStatus::Preparing) {
+            return;
+        }
+
+        echo '<div class="anoofy-section"><h4>' . esc_html__('Warehouse preparation', 'anoofy-woo') . '</h4>';
+        if ($ops->editedAfterPreparing) {
+            echo '<div class="notice notice-warning inline anoofy-box-alert"><p>'
+                . esc_html__('Order items were modified during preparation. Re-check the items and confirm re-preparation.', 'anoofy-woo')
+                . '</p>';
+            if (Permissions::can($role, Action::OrderConfirmRepreparation)) {
+                echo '<div data-anoofy-form="anoofy_confirm_repreparation"><button type="button" class="button button-secondary" data-anoofy-submit>'
+                    . esc_html__('Confirm re-preparation', 'anoofy-woo') . '</button></div>';
+            }
+            echo '</div>';
+        }
+
+        $canPrepare = Permissions::can($role, Action::OrderPrepare);
+        $preparedIds = Services::preparedItems()->forOrder($order->get_id());
+        $preparedLookup = array_flip($preparedIds);
+
+        echo '<div data-anoofy-form="anoofy_save_prepared_items">';
+        echo '<table class="widefat striped anoofy-table"><thead><tr><th>' . esc_html__('Prepared', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Product', 'anoofy-woo') . '</th><th>' . esc_html__('SKU', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Qty', 'anoofy-woo') . '</th></tr></thead><tbody>';
+
+        foreach ($order->get_items('line_item') as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $itemId = $item->get_id();
+            $product = $item->get_product();
+            $sku = $product ? $product->get_sku() : '';
+            $checked = isset($preparedLookup[$itemId]) ? ' checked' : '';
+            $disabled = $canPrepare ? '' : ' disabled';
+
+            printf(
+                '<tr><td><input type="checkbox" name="prepared_items[]" value="%d"%s%s /></td><td>%s</td><td>%s</td><td>%d</td></tr>',
+                $itemId,
+                $checked,
+                $disabled,
+                esc_html($item->get_name()),
+                esc_html($sku !== '' ? $sku : '—'),
+                $item->get_quantity(),
+            );
+        }
+        echo '</tbody></table>';
+
+        if ($canPrepare) {
+            echo '<div class="anoofy-prep-actions">';
+            echo '<button type="button" class="button" data-anoofy-submit>' . esc_html__('Save preparation checklist', 'anoofy-woo') . '</button>';
+            echo '</div>';
+        }
+        echo '</div>';
+
+        if ($canPrepare) {
+            echo '<div class="anoofy-prep-actions" data-anoofy-form="anoofy_order_event">';
+            echo '<button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::FinishPreparing->value) . '">'
+                . esc_html(Labels::event(OrderEvent::FinishPreparing)) . '</button>';
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    private static function shipping(OrderOps $ops, Role $role): void
+    {
+        if ($ops->status === OrderStatus::ReadyToShip) {
+            echo '<div class="anoofy-section"><h4>' . esc_html__('Shipping', 'anoofy-woo') . '</h4>';
+            if (Permissions::can($role, Action::ShipmentCreate)) {
+                echo '<div data-anoofy-form="anoofy_save_shipment"><div class="anoofy-ship-fields">';
+                echo '<label>' . esc_html__('Courier', 'anoofy-woo')
+                    . '<input type="text" name="anoofy_courier" maxlength="100" value="' . esc_attr($ops->courier ?? '') . '" placeholder="' . esc_attr__('e.g. Bosta, Aramex', 'anoofy-woo') . '" /></label>';
+                echo '<label>' . esc_html__('Tracking number', 'anoofy-woo')
+                    . '<input type="text" name="anoofy_tracking" maxlength="100" value="' . esc_attr($ops->trackingNumber ?? '') . '" /></label>';
+                echo '<button type="button" class="button" data-anoofy-submit>' . esc_html__('Save shipment details', 'anoofy-woo') . '</button>';
+                echo '</div></div>';
+                echo '<div class="anoofy-ship-actions" data-anoofy-form="anoofy_order_event">';
+                echo '<button type="button" class="button button-primary" data-anoofy-submit data-anoofy-event="' . esc_attr(OrderEvent::Ship->value) . '">'
+                    . esc_html(Labels::event(OrderEvent::Ship)) . '</button>';
+                echo '</div>';
+            } elseif ($ops->courier || $ops->trackingNumber) {
+                echo '<p><strong>' . esc_html__('Courier:', 'anoofy-woo') . '</strong> ' . esc_html($ops->courier ?? '—') . '</p>';
+                echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->trackingNumber ?? '—') . '</code></p>';
+            }
+            echo '</div>';
+
+            return;
+        }
+
+        if (in_array($ops->status, [OrderStatus::Shipped, OrderStatus::Delivered, OrderStatus::DeliveryFailed, OrderStatus::ReturnedToOrigin], true)
+            && ($ops->courier !== null || $ops->trackingNumber !== null)
+        ) {
+            echo '<div class="anoofy-section"><h4>' . esc_html__('Shipping', 'anoofy-woo') . '</h4>';
+            echo '<p><strong>' . esc_html__('Courier:', 'anoofy-woo') . '</strong> ' . esc_html($ops->courier ?? '—') . '</p>';
+            echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->trackingNumber ?? '—') . '</code></p>';
+            echo '</div>';
+        }
     }
 
     private static function callHistory(int $orderId): void
