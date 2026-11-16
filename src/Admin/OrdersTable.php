@@ -173,6 +173,9 @@ final class OrdersTable extends \WP_List_Table
                 $ops->deliveryAttempts
             )) . '</span>';
         }
+        if (!$ops->isHandedOver() && $ops->isCodSettled()) {
+            $parts[] = '<span class="anoofy-badge anoofy-badge--confirmed">' . esc_html__('COD settled', 'anoofy-woo') . '</span>';
+        }
 
         return implode('<br>', $parts);
     }

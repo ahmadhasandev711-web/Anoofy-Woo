@@ -40,6 +40,7 @@ final class ActionsController
         add_action('admin_post_anoofy_save_prepared_items', [self::class, 'savePreparedItems']);
         add_action('admin_post_anoofy_confirm_repreparation', [self::class, 'confirmRepreparation']);
         add_action('admin_post_anoofy_save_shipment', [self::class, 'saveShipment']);
+        add_action('admin_post_anoofy_cod_settle', [self::class, 'codSettle']);
         add_action('admin_post_anoofy_assign', [self::class, 'assign']);
         add_action('admin_post_anoofy_bulk_assign', [self::class, 'bulkAssign']);
         add_action('admin_post_anoofy_connect', [self::class, 'connect']);
@@ -108,6 +109,36 @@ final class ActionsController
             self::text('anoofy_tracking')
         );
         self::finish($orderId, $result, 'shipment_saved');
+    }
+
+    public static function codSettle(): void
+    {
+        if (!current_user_can(Action::CodSettle->capability())) {
+            wp_die(esc_html__('You are not allowed to do this.', 'anoofy-woo'), '', ['response' => 403]);
+        }
+        check_admin_referer('anoofy_cod_settle', '_anoofy_nonce');
+
+        $rawMap = isset($_POST['settle_orders']) && is_array($_POST['settle_orders']) ? wp_unslash($_POST['settle_orders']) : []; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        $amountsByOrderId = [];
+        foreach ($rawMap as $orderId => $cents) {
+            $id = absint($orderId);
+            if ($id > 0) {
+                $amountsByOrderId[$id] = (int) $cents;
+            }
+        }
+
+        $result = Services::codSettlement()->settle(
+            get_current_user_id(),
+            self::text('anoofy_courier'),
+            self::text('anoofy_reference'),
+            $amountsByOrderId
+        );
+
+        Notices::redirect(
+            admin_url('admin.php?page=anoofy-cod-settlement'),
+            $result->ok ? 'cod_settled' : $result->code,
+            $result->ok
+        );
     }
 
     public static function assign(): void

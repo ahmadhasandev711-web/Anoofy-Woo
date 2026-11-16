@@ -6,7 +6,7 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
-    @{ Name = 'Schema v5 (Migration)'; File = 'test-schema-v5.php' },
+    @{ Name = 'Schema v6 (Migration)'; File = 'test-schema-v6.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
@@ -14,6 +14,7 @@ $tests = @(
     @{ Name = 'S-11 (Reject & Cancel & Stock)'; File = 'test-s11-cancel.php' },
     @{ Name = 'S-12 (Legacy Order Auto-Track)'; File = 'test-s12-legacy-order.php' },
     @{ Name = 'S-2/S-5/S-6 (Phase 2 Spikes)'; File = 'test-s2-s5-s6-spikes.php' },
+    @{ Name = 'S-3 (COD Payment Spike)'; File = 'test-s3-cod-payment-spike.php' },
     @{ Name = 'C-1 (Connection Verify)'; File = 'test-c1-connection-verify.php' },
     @{ Name = 'C-2 (Standalone Mode)'; File = 'test-c2-standalone.php' },
     @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
@@ -30,6 +31,8 @@ $tests = @(
     @{ Name = 'P2-4 (Phase 2 Roles & HandedOver)'; File = 'test-p2-permissions-and-ui.php' },
     @{ Name = 'P3-1 (Delivery Attempts & RTO)'; File = 'test-p3-delivery-attempts.php' },
     @{ Name = 'P3-2 (Phase 3 Roles & UI)'; File = 'test-p3-roles-and-ui.php' },
+    @{ Name = 'P4-1 (COD Settlement Service)'; File = 'test-p4-cod-settlement.php' },
+    @{ Name = 'P4-2 (COD Settlement UI)'; File = 'test-p4-cod-ui.php' },
     @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 

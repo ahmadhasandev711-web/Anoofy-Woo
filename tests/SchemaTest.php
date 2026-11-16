@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsFive(): void
+    public function testSchemaVersionIsSix(): void
     {
-        self::assertSame('5', Schema::VERSION);
+        self::assertSame('6', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
     {
         $statements = Schema::statements('wp_', 'DEFAULT CHARACTER SET utf8mb4');
-        self::assertCount(7, $statements);
+        self::assertCount(9, $statements);
         foreach ($statements as $sql) {
             self::assertTrue(str_starts_with($sql, 'CREATE TABLE wp_anoofy_'), $sql);
             // dbDelta needs exactly two spaces after PRIMARY KEY and KEY (not INDEX).
@@ -46,6 +46,8 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($orderOpsSql, "engaz_courier varchar(255) DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "engaz_tracking varchar(255) DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "prep_items_hash varchar(64) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "cod_settled_at datetime DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "cod_settlement_id bigint(20) unsigned DEFAULT NULL"));
     }
 
     public function testPreparedItemsStatementContainsRequiredColumnsAndKeys(): void
@@ -78,6 +80,29 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($sql, 'PRIMARY KEY  (id)'));
         self::assertTrue(str_contains($sql, 'KEY order_id (order_id)'));
         self::assertTrue(str_contains($sql, 'KEY created_at (created_at)'));
+    }
+
+    public function testCodSettlementStatementsContainRequiredColumnsAndKeys(): void
+    {
+        $statements = Schema::statements('wp_', '');
+        $batchSql = $statements[7] ?? '';
+        self::assertTrue(str_contains($batchSql, 'CREATE TABLE wp_anoofy_cod_settlements ('));
+        self::assertTrue(str_contains($batchSql, 'courier varchar(100) NOT NULL'));
+        self::assertTrue(str_contains($batchSql, 'reference varchar(100) DEFAULT NULL'));
+        self::assertTrue(str_contains($batchSql, 'total_orders int(10) unsigned NOT NULL DEFAULT 0'));
+        self::assertTrue(str_contains($batchSql, 'total_cents bigint(20) unsigned NOT NULL DEFAULT 0'));
+        self::assertTrue(str_contains($batchSql, 'created_by bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($batchSql, 'PRIMARY KEY  (id)'));
+
+        $itemsSql = $statements[8] ?? '';
+        self::assertTrue(str_contains($itemsSql, 'CREATE TABLE wp_anoofy_cod_settlement_orders ('));
+        self::assertTrue(str_contains($itemsSql, 'settlement_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($itemsSql, 'order_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($itemsSql, 'tracking_number varchar(100) NOT NULL'));
+        self::assertTrue(str_contains($itemsSql, 'amount_cents bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($itemsSql, 'PRIMARY KEY  (id)'));
+        self::assertTrue(str_contains($itemsSql, 'UNIQUE KEY order_id (order_id)'));
+        self::assertTrue(str_contains($itemsSql, 'KEY settlement_id (settlement_id)'));
     }
 
     public function testInboxStatementContainsRequiredColumnsAndKeys(): void
@@ -121,7 +146,7 @@ final class SchemaTest extends TestCase
     public function testTableHelperMatchesTheCreateStatements(): void
     {
         $names = Schema::statements('wp_', '');
-        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items', 'delivery_attempts'] as $short) {
+        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items', 'delivery_attempts', 'cod_settlements', 'cod_settlement_orders'] as $short) {
             $table = Schema::table('wp_', $short);
             $found = false;
             foreach ($names as $sql) {

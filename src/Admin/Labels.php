@@ -8,6 +8,7 @@ use Anoofy\Woo\Core\Order\CallOutcome;
 use Anoofy\Woo\Core\Order\DeliveryOutcome;
 use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderStatus;
+use Anoofy\Woo\Core\Settlement\SettlementRowStatus;
 use Anoofy\Woo\Services\ActionResult;
 
 /**
@@ -85,6 +86,19 @@ final class Labels
         };
     }
 
+    public static function settlementRowStatus(SettlementRowStatus $status): string
+    {
+        return match ($status) {
+            SettlementRowStatus::Matched => __('Matched', 'anoofy-woo'),
+            SettlementRowStatus::NotFound => __('Tracking not found', 'anoofy-woo'),
+            SettlementRowStatus::NotDelivered => __('Not delivered yet', 'anoofy-woo'),
+            SettlementRowStatus::AlreadySettled => __('Already settled', 'anoofy-woo'),
+            SettlementRowStatus::AmountMismatch => __('Amount mismatch', 'anoofy-woo'),
+            SettlementRowStatus::HandedOverToEngaz => __('Managed in EngazPRO', 'anoofy-woo'),
+            SettlementRowStatus::DuplicateTracking => __('Duplicate in CSV', 'anoofy-woo'),
+        };
+    }
+
     public static function event(OrderEvent $event): string
     {
         return match ($event) {
@@ -123,6 +137,7 @@ final class Labels
             'mark_delivery_failed' => __('Failed delivery attempt recorded.', 'anoofy-woo'),
             'retry_delivery' => __('Delivery retry started.', 'anoofy-woo'),
             'receive_returned' => __('Order marked as returned to origin.', 'anoofy-woo'),
+            'cod_settled' => __('Selected COD orders settled and marked paid in WooCommerce.', 'anoofy-woo'),
             'assigned' => __('Assignment updated.', 'anoofy-woo'),
             'bulk_assigned' => __('Selected orders assigned.', 'anoofy-woo'),
             'connected' => __('Connected to EngazPRO successfully.', 'anoofy-woo'),

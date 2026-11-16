@@ -400,11 +400,19 @@ final class OrderBox
         }
 
         if (in_array($ops->status, [OrderStatus::Shipped, OrderStatus::Delivered, OrderStatus::DeliveryFailed, OrderStatus::ReturnedToOrigin], true)
-            && ($ops->courier !== null || $ops->trackingNumber !== null)
+            && ($ops->courier !== null || $ops->trackingNumber !== null || $ops->isCodSettled())
         ) {
             echo '<div class="anoofy-section"><h4>' . esc_html__('Shipping', 'anoofy-woo') . '</h4>';
-            echo '<p><strong>' . esc_html__('Courier:', 'anoofy-woo') . '</strong> ' . esc_html($ops->courier ?? '—') . '</p>';
-            echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->trackingNumber ?? '—') . '</code></p>';
+            if ($ops->courier !== null || $ops->trackingNumber !== null) {
+                echo '<p><strong>' . esc_html__('Courier:', 'anoofy-woo') . '</strong> ' . esc_html($ops->courier ?? '—') . '</p>';
+                echo '<p><strong>' . esc_html__('Tracking number:', 'anoofy-woo') . '</strong> <code>' . esc_html($ops->trackingNumber ?? '—') . '</code></p>';
+            }
+            if ($ops->isCodSettled()) {
+                echo '<p><strong>' . esc_html__('COD settled:', 'anoofy-woo') . '</strong> '
+                    . esc_html(self::when((string) $ops->codSettledAt))
+                    . ($ops->codSettlementId ? ' (#' . (int) $ops->codSettlementId . ')' : '')
+                    . '</p>';
+            }
             echo '</div>';
         }
     }

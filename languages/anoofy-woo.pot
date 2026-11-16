@@ -7,22 +7,140 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src\Admin\ActionsController.php:127 src\Admin\ActionsController.php:160
-#: src\Admin\ActionsController.php:181 src\Admin\ActionsController.php:198
-#: src\Admin\Labels.php:139 src\Admin\OrdersPage.php:20
+#: src\Admin\ActionsController.php:117 src\Admin\ActionsController.php:158
+#: src\Admin\ActionsController.php:191 src\Admin\ActionsController.php:212
+#: src\Admin\ActionsController.php:229 src\Admin\CodSettlementPage.php:18
+#: src\Admin\Labels.php:154 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src\Admin\ActionsController.php:156 src\Admin\Labels.php:152
+#: src\Admin\ActionsController.php:187 src\Admin\Labels.php:167
 msgid "Invalid request."
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:39 src\Admin\Menu.php:26
+#: src\Admin\Menu.php:26
+msgid "COD Settlement"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:42
+msgid "Delivered orders awaiting settlement:"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:44
+msgid "Total outstanding COD:"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:74
+msgid "Import courier statement (CSV)"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:79 src\Admin\CodSettlementPage.php:178
+#: src\Admin\OrderBox.php:383
+msgid "Courier"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:80 src\Admin\OrderBox.php:384
+msgid "e.g. Bosta, Aramex"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:81 src\Admin\CodSettlementPage.php:179
+msgid "Statement reference"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:83
+msgid "CSV file"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:85
+msgid "Or paste CSV lines"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:88
+msgid "Preview statement"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:94
+msgid "Reconciliation preview"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:97
+msgid "Skipped CSV lines:"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:105
+msgid "No valid rows found in CSV."
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:117
+msgid "Settle"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:118 src\Admin\OrderBox.php:385
+msgid "Tracking number"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:119 src\Admin\OrdersTable.php:35
+msgid "Order"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:120
+msgid "Collected"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:121
+msgid "Order total"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:122
+msgid "Match status"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:156
+msgid "Matched orders ready to settle:"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:162
+msgid "Settle selected orders"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:170
+msgid "Recent COD settlements"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:172
+msgid "No settlements recorded yet."
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:177 src\Admin\OrderBox.php:474
+msgid "#"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:178 src\Admin\OrderBox.php:475
+#: src\Admin\OrderBox.php:499
+msgid "When"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:179 src\Admin\Menu.php:25
+#: src\Admin\Menu.php:25 src\Admin\OrdersPage.php:53
+msgid "Orders"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:180 src\Admin\OrdersTable.php:37
+msgid "Total"
+msgstr ""
+
+#: src\Admin\CodSettlementPage.php:180 src\Admin\OrderBox.php:475
+#: src\Admin\OrderBox.php:500
+msgid "Employee"
 msgstr ""
 
 #: src\Admin\ConnectionSettings.php:14
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: src\Admin\ConnectionSettings.php:20 src\Admin\Menu.php:27
-#: src\Admin\Menu.php:27
+#: src\Admin\ConnectionSettings.php:20 src\Admin\Menu.php:28
+#: src\Admin\Menu.php:28
 msgid "EngazPRO Integration"
 msgstr ""
 
@@ -62,315 +180,347 @@ msgstr ""
 msgid "Disconnect from EngazPRO"
 msgstr ""
 
-#: src\Admin\Labels.php:22 src\Admin\Labels.php:59
+#: src\Admin\Labels.php:23 src\Admin\Labels.php:60
 msgid "New"
 msgstr ""
 
-#: src\Admin\Labels.php:23 src\Admin\Labels.php:60
+#: src\Admin\Labels.php:24 src\Admin\Labels.php:61
 msgid "Under review"
 msgstr ""
 
-#: src\Admin\Labels.php:24 src\Admin\Labels.php:45 src\Admin\Labels.php:61
+#: src\Admin\Labels.php:25 src\Admin\Labels.php:46 src\Admin\Labels.php:62
 msgid "Confirmed"
 msgstr ""
 
-#: src\Admin\Labels.php:25
+#: src\Admin\Labels.php:26
 msgid "Rejected"
 msgstr ""
 
-#: src\Admin\Labels.php:26
+#: src\Admin\Labels.php:27
 msgid "Preparing"
 msgstr ""
 
-#: src\Admin\Labels.php:27
+#: src\Admin\Labels.php:28
 msgid "Ready to ship"
 msgstr ""
 
-#: src\Admin\Labels.php:28
+#: src\Admin\Labels.php:29
 msgid "Cancellation pending"
 msgstr ""
 
-#: src\Admin\Labels.php:29 src\Admin\Labels.php:52
+#: src\Admin\Labels.php:30 src\Admin\Labels.php:53
 msgid "Cancelled"
 msgstr ""
 
-#: src\Admin\Labels.php:30
+#: src\Admin\Labels.php:31
 msgid "Shipped"
 msgstr ""
 
-#: src\Admin\Labels.php:31 src\Admin\Labels.php:83
+#: src\Admin\Labels.php:32 src\Admin\Labels.php:84
 msgid "Delivered"
 msgstr ""
 
-#: src\Admin\Labels.php:32
+#: src\Admin\Labels.php:33
 msgid "Delivery failed"
 msgstr ""
 
-#: src\Admin\Labels.php:33
+#: src\Admin\Labels.php:34
 msgid "Returned to origin"
 msgstr ""
 
-#: src\Admin\Labels.php:40
+#: src\Admin\Labels.php:41
 msgid "Waiting for EngazPRO"
 msgstr ""
 
-#: src\Admin\Labels.php:44
+#: src\Admin\Labels.php:45
 msgid "Pending confirmation"
 msgstr ""
 
-#: src\Admin\Labels.php:46
+#: src\Admin\Labels.php:47
 msgid "Preparing in warehouse"
 msgstr ""
 
-#: src\Admin\Labels.php:47
+#: src\Admin\Labels.php:48
 msgid "Dispatched with courier"
 msgstr ""
 
-#: src\Admin\Labels.php:48
+#: src\Admin\Labels.php:49
 msgid "Shipped via courier"
 msgstr ""
 
-#: src\Admin\Labels.php:49
+#: src\Admin\Labels.php:50
 msgid "Delivered and collected"
 msgstr ""
 
-#: src\Admin\Labels.php:50
+#: src\Admin\Labels.php:51
 msgid "Partially delivered"
 msgstr ""
 
-#: src\Admin\Labels.php:51
+#: src\Admin\Labels.php:52
 msgid "Fully returned"
 msgstr ""
 
-#: src\Admin\Labels.php:62
+#: src\Admin\Labels.php:63
 msgid "In progress"
 msgstr ""
 
-#: src\Admin\Labels.php:63
+#: src\Admin\Labels.php:64
 msgid "Finished"
 msgstr ""
 
-#: src\Admin\Labels.php:64
+#: src\Admin\Labels.php:65
 msgid "Rejected / cancelled"
 msgstr ""
 
-#: src\Admin\Labels.php:65
+#: src\Admin\Labels.php:66
 msgid "All"
 msgstr ""
 
-#: src\Admin\Labels.php:72
+#: src\Admin\Labels.php:73
 msgid "Answered"
 msgstr ""
 
-#: src\Admin\Labels.php:73
+#: src\Admin\Labels.php:74
 msgid "No answer"
 msgstr ""
 
-#: src\Admin\Labels.php:74
+#: src\Admin\Labels.php:75
 msgid "Busy"
 msgstr ""
 
-#: src\Admin\Labels.php:75
+#: src\Admin\Labels.php:76
 msgid "Wrong number"
 msgstr ""
 
-#: src\Admin\Labels.php:76
+#: src\Admin\Labels.php:77
 msgid "Call back later"
 msgstr ""
 
-#: src\Admin\Labels.php:84
+#: src\Admin\Labels.php:85
 msgid "Failed"
 msgstr ""
 
-#: src\Admin\Labels.php:91
-msgid "Confirm order"
-msgstr ""
-
 #: src\Admin\Labels.php:92
-msgid "Reject order"
+msgid "Matched"
 msgstr ""
 
 #: src\Admin\Labels.php:93
-msgid "Cancel order"
+msgid "Tracking not found"
 msgstr ""
 
 #: src\Admin\Labels.php:94
-msgid "Start preparing"
+msgid "Not delivered yet"
 msgstr ""
 
 #: src\Admin\Labels.php:95
-msgid "Finish preparing"
+msgid "Already settled"
 msgstr ""
 
 #: src\Admin\Labels.php:96
-msgid "Request cancel"
+msgid "Amount mismatch"
 msgstr ""
 
 #: src\Admin\Labels.php:97
-msgid "Confirm restocked & cancel"
+msgid "Managed in EngazPRO"
 msgstr ""
 
 #: src\Admin\Labels.php:98
-msgid "Ship order"
+msgid "Duplicate in CSV"
 msgstr ""
 
-#: src\Admin\Labels.php:99
-msgid "Mark delivered"
+#: src\Admin\Labels.php:105
+msgid "Confirm order"
 msgstr ""
 
-#: src\Admin\Labels.php:100
-msgid "Mark delivery failed"
+#: src\Admin\Labels.php:106
+msgid "Reject order"
 msgstr ""
 
-#: src\Admin\Labels.php:101
-msgid "Retry delivery"
+#: src\Admin\Labels.php:107
+msgid "Cancel order"
 msgstr ""
 
-#: src\Admin\Labels.php:102
-msgid "Receive returned (RTO)"
+#: src\Admin\Labels.php:108
+msgid "Start preparing"
+msgstr ""
+
+#: src\Admin\Labels.php:109
+msgid "Finish preparing"
+msgstr ""
+
+#: src\Admin\Labels.php:110
+msgid "Request cancel"
 msgstr ""
 
 #: src\Admin\Labels.php:111
-msgid "Call logged."
+msgid "Confirm restocked & cancel"
 msgstr ""
 
 #: src\Admin\Labels.php:112
-msgid "Order confirmed."
+msgid "Ship order"
 msgstr ""
 
 #: src\Admin\Labels.php:113
-msgid "Order rejected and cancelled in WooCommerce."
+msgid "Mark delivered"
 msgstr ""
 
 #: src\Admin\Labels.php:114
-msgid "Order cancelled."
+msgid "Mark delivery failed"
 msgstr ""
 
 #: src\Admin\Labels.php:115
-msgid "Preparation started."
+msgid "Retry delivery"
 msgstr ""
 
 #: src\Admin\Labels.php:116
-msgid "Prepared items saved."
-msgstr ""
-
-#: src\Admin\Labels.php:117
-msgid "Re-preparation confirmed."
-msgstr ""
-
-#: src\Admin\Labels.php:118
-msgid "Order marked as ready to ship."
-msgstr ""
-
-#: src\Admin\Labels.php:119
-msgid "Cancellation requested; waiting for warehouse restock confirmation."
-msgstr ""
-
-#: src\Admin\Labels.php:120
-msgid "Shipment details saved."
-msgstr ""
-
-#: src\Admin\Labels.php:121
-msgid "Order marked as shipped."
-msgstr ""
-
-#: src\Admin\Labels.php:122
-msgid "Order marked as delivered."
-msgstr ""
-
-#: src\Admin\Labels.php:123
-msgid "Failed delivery attempt recorded."
-msgstr ""
-
-#: src\Admin\Labels.php:124
-msgid "Delivery retry started."
+msgid "Receive returned (RTO)"
 msgstr ""
 
 #: src\Admin\Labels.php:125
-msgid "Order marked as returned to origin."
+msgid "Call logged."
 msgstr ""
 
 #: src\Admin\Labels.php:126
-msgid "Assignment updated."
+msgid "Order confirmed."
 msgstr ""
 
 #: src\Admin\Labels.php:127
-msgid "Selected orders assigned."
+msgid "Order rejected and cancelled in WooCommerce."
 msgstr ""
 
 #: src\Admin\Labels.php:128
-msgid "Connected to EngazPRO successfully."
+msgid "Order cancelled."
 msgstr ""
 
 #: src\Admin\Labels.php:129
-msgid "Disconnected from EngazPRO."
+msgid "Preparation started."
+msgstr ""
+
+#: src\Admin\Labels.php:130
+msgid "Prepared items saved."
+msgstr ""
+
+#: src\Admin\Labels.php:131
+msgid "Re-preparation confirmed."
+msgstr ""
+
+#: src\Admin\Labels.php:132
+msgid "Order marked as ready to ship."
+msgstr ""
+
+#: src\Admin\Labels.php:133
+msgid "Cancellation requested; waiting for warehouse restock confirmation."
+msgstr ""
+
+#: src\Admin\Labels.php:134
+msgid "Shipment details saved."
+msgstr ""
+
+#: src\Admin\Labels.php:135
+msgid "Order marked as shipped."
+msgstr ""
+
+#: src\Admin\Labels.php:136
+msgid "Order marked as delivered."
+msgstr ""
+
+#: src\Admin\Labels.php:137
+msgid "Failed delivery attempt recorded."
 msgstr ""
 
 #: src\Admin\Labels.php:138
-msgid "This action is not available for the current status of the order."
+msgid "Delivery retry started."
+msgstr ""
+
+#: src\Admin\Labels.php:139
+msgid "Order marked as returned to origin."
 msgstr ""
 
 #: src\Admin\Labels.php:140
-msgid "A reason is required."
+msgid "Selected COD orders settled and marked paid in WooCommerce."
 msgstr ""
 
 #: src\Admin\Labels.php:141
-msgid "Log an answered call before confirming the order."
+msgid "Assignment updated."
 msgstr ""
 
 #: src\Admin\Labels.php:142
-msgid "This order has a stock warning. Accept it before confirming."
+msgid "Selected orders assigned."
 msgstr ""
 
 #: src\Admin\Labels.php:143
-msgid "This order has a stock warning. An order manager must accept it first."
+msgid "Connected to EngazPRO successfully."
 msgstr ""
 
 #: src\Admin\Labels.php:144
+msgid "Disconnected from EngazPRO."
+msgstr ""
+
+#: src\Admin\Labels.php:153
+msgid "This action is not available for the current status of the order."
+msgstr ""
+
+#: src\Admin\Labels.php:155
+msgid "A reason is required."
+msgstr ""
+
+#: src\Admin\Labels.php:156
+msgid "Log an answered call before confirming the order."
+msgstr ""
+
+#: src\Admin\Labels.php:157
+msgid "This order has a stock warning. Accept it before confirming."
+msgstr ""
+
+#: src\Admin\Labels.php:158
+msgid "This order has a stock warning. An order manager must accept it first."
+msgstr ""
+
+#: src\Admin\Labels.php:159
 msgid "Assign the order to an employee first."
 msgstr ""
 
-#: src\Admin\Labels.php:145
+#: src\Admin\Labels.php:160
 msgid "Not all items are prepared yet."
 msgstr ""
 
-#: src\Admin\Labels.php:146
+#: src\Admin\Labels.php:161
 msgid ""
 "The order was edited after preparation started; confirm the re-preparation "
 "first."
 msgstr ""
 
-#: src\Admin\Labels.php:147
+#: src\Admin\Labels.php:162
 msgid "Enter the courier and tracking number first."
 msgstr ""
 
-#: src\Admin\Labels.php:148
+#: src\Admin\Labels.php:163
 msgid "The maximum number of delivery attempts was reached."
 msgstr ""
 
-#: src\Admin\Labels.php:149 src\Admin\OrdersPage.php:181
+#: src\Admin\Labels.php:164 src\Admin\OrdersPage.php:181
 msgid "Order not found."
 msgstr ""
 
-#: src\Admin\Labels.php:150
+#: src\Admin\Labels.php:165
 msgid ""
 "Someone else changed this order a moment ago. Reload the page and try again."
 msgstr ""
 
-#: src\Admin\Labels.php:151
+#: src\Admin\Labels.php:166
 msgid "That user cannot be assigned to orders."
 msgstr ""
 
-#: src\Admin\Labels.php:153
+#: src\Admin\Labels.php:168
 msgid ""
 "The status changed, but updating WooCommerce failed. Check the order notes."
 msgstr ""
 
-#: src\Admin\Labels.php:154
+#: src\Admin\Labels.php:169
 msgid "Failed to connect to EngazPRO. Please verify the connection key."
 msgstr ""
 
-#: src\Admin\Labels.php:155
+#: src\Admin\Labels.php:170
 msgid "Something went wrong."
 msgstr ""
 
@@ -378,63 +528,59 @@ msgstr ""
 msgid "Anoofy"
 msgstr ""
 
-#: src\Admin\Menu.php:25 src\Admin\Menu.php:25 src\Admin\OrdersPage.php:53
-msgid "Orders"
-msgstr ""
-
-#: src\Admin\Menu.php:26 src\Admin\Menu.php:26
+#: src\Admin\Menu.php:27 src\Admin\Menu.php:27
 msgid "System status"
 msgstr ""
 
-#: src\Admin\Menu.php:49
+#: src\Admin\Menu.php:50
 msgid "Plugin version"
 msgstr ""
 
-#: src\Admin\Menu.php:50
+#: src\Admin\Menu.php:51
 msgid "PHP"
 msgstr ""
 
-#: src\Admin\Menu.php:51
+#: src\Admin\Menu.php:52
 msgid "WordPress"
 msgstr ""
 
-#: src\Admin\Menu.php:52
+#: src\Admin\Menu.php:53
 msgid "WooCommerce"
 msgstr ""
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "Order storage"
 msgstr ""
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "HPOS (custom order tables)"
 msgstr ""
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "Legacy (posts)"
 msgstr ""
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Background jobs (Action Scheduler)"
 msgstr ""
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Available"
 msgstr ""
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Missing"
 msgstr ""
 
-#: src\Admin\Menu.php:55
+#: src\Admin\Menu.php:56
 msgid "Database schema version"
 msgstr ""
 
-#: src\Admin\Menu.php:58 src\Plugin.php:34 anoofy-woo.php:33
+#: src\Admin\Menu.php:59 src\Plugin.php:34 anoofy-woo.php:33
 msgid "Anoofy for WooCommerce"
 msgstr ""
 
-#: src\Admin\Menu.php:59
+#: src\Admin\Menu.php:60
 msgid ""
 "Order operations: call-center confirmation, preparation, delivery, COD "
 "settlement and returns."
@@ -500,12 +646,12 @@ msgid "Branch:"
 msgstr ""
 
 #: src\Admin\OrderBox.php:196 src\Admin\OrderBox.php:394
-#: src\Admin\OrderBox.php:406
+#: src\Admin\OrderBox.php:407
 msgid "Courier:"
 msgstr ""
 
 #: src\Admin\OrderBox.php:200 src\Admin\OrderBox.php:395
-#: src\Admin\OrderBox.php:407
+#: src\Admin\OrderBox.php:408
 msgid "Tracking number:"
 msgstr ""
 
@@ -518,7 +664,7 @@ msgid "Assigned to"
 msgstr ""
 
 #: src\Admin\OrderBox.php:217 src\Admin\OrderBox.php:222
-#: src\Admin\OrdersPage.php:162 src\Admin\OrdersTable.php:214
+#: src\Admin\OrdersPage.php:162 src\Admin\OrdersTable.php:217
 msgid "Unassigned"
 msgstr ""
 
@@ -608,81 +754,61 @@ msgstr ""
 msgid "Shipping"
 msgstr ""
 
-#: src\Admin\OrderBox.php:383
-msgid "Courier"
-msgstr ""
-
-#: src\Admin\OrderBox.php:384
-msgid "e.g. Bosta, Aramex"
-msgstr ""
-
-#: src\Admin\OrderBox.php:385
-msgid "Tracking number"
-msgstr ""
-
 #: src\Admin\OrderBox.php:387
 msgid "Save shipment details"
 msgstr ""
 
-#: src\Admin\OrderBox.php:419
+#: src\Admin\OrderBox.php:411
+msgid "COD settled:"
+msgstr ""
+
+#: src\Admin\OrderBox.php:427
 msgid "Delivery"
 msgstr ""
 
-#: src\Admin\OrderBox.php:420
+#: src\Admin\OrderBox.php:428
 msgid "Failed delivery attempts:"
 msgstr ""
 
-#: src\Admin\OrderBox.php:425
+#: src\Admin\OrderBox.php:433
 msgid "Reason (required if delivery failed)"
 msgstr ""
 
-#: src\Admin\OrderBox.php:435
+#: src\Admin\OrderBox.php:443
 msgid ""
 "Maximum delivery attempts reached. Receive the returned shipment back at the"
 " warehouse."
 msgstr ""
 
-#: src\Admin\OrderBox.php:465
+#: src\Admin\OrderBox.php:473
 msgid "Delivery attempts"
 msgstr ""
 
-#: src\Admin\OrderBox.php:466
-msgid "#"
-msgstr ""
-
-#: src\Admin\OrderBox.php:467 src\Admin\OrderBox.php:491
-msgid "When"
-msgstr ""
-
-#: src\Admin\OrderBox.php:467 src\Admin\OrderBox.php:492
-msgid "Employee"
-msgstr ""
-
-#: src\Admin\OrderBox.php:468 src\Admin\OrderBox.php:492
+#: src\Admin\OrderBox.php:476 src\Admin\OrderBox.php:500
 msgid "Result"
 msgstr ""
 
-#: src\Admin\OrderBox.php:468
+#: src\Admin\OrderBox.php:476
 msgid "Reason"
 msgstr ""
 
-#: src\Admin\OrderBox.php:485
+#: src\Admin\OrderBox.php:493
 msgid "Call log"
 msgstr ""
 
-#: src\Admin\OrderBox.php:487
+#: src\Admin\OrderBox.php:495
 msgid "No calls yet."
 msgstr ""
 
-#: src\Admin\OrderBox.php:493
+#: src\Admin\OrderBox.php:501
 msgid "Note"
 msgstr ""
 
-#: src\Admin\OrderBox.php:515
+#: src\Admin\OrderBox.php:523
 msgid "History"
 msgstr ""
 
-#: src\Admin\OrderBox.php:523
+#: src\Admin\OrderBox.php:531
 msgid "System"
 msgstr ""
 
@@ -738,16 +864,8 @@ msgstr ""
 msgid "Order items"
 msgstr ""
 
-#: src\Admin\OrdersTable.php:35
-msgid "Order"
-msgstr ""
-
 #: src\Admin\OrdersTable.php:36
 msgid "Customer"
-msgstr ""
-
-#: src\Admin\OrdersTable.php:37
-msgid "Total"
 msgstr ""
 
 #: src\Admin\OrdersTable.php:38
@@ -778,11 +896,15 @@ msgstr ""
 msgid "Failed attempts: %d"
 msgstr ""
 
-#: src\Admin\OrdersTable.php:204
+#: src\Admin\OrdersTable.php:177
+msgid "COD settled"
+msgstr ""
+
+#: src\Admin\OrdersTable.php:207
 msgid "No orders found."
 msgstr ""
 
-#: src\Admin\OrdersTable.php:218
+#: src\Admin\OrdersTable.php:221
 msgid "Assign selected"
 msgstr ""
 
@@ -804,6 +926,10 @@ msgstr ""
 
 #: src\Plugin.php:35
 msgid "is inactive:"
+msgstr ""
+
+#: src\Services\CodSettlementService.php:148
+msgid "Anoofy: COD settled via %1$s (settlement #%2$d)."
 msgstr ""
 
 #: src\Services\OrderOpsService.php:253
