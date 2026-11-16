@@ -28,6 +28,8 @@ $tests = @(
     @{ Name = 'C-8 (Display EngazPRO Stage)'; File = 'test-c8-display-stage.php' },
     @{ Name = 'P2-1/2/3 (Prep, Edit Guard, Ship)'; File = 'test-p2-services.php' },
     @{ Name = 'P2-4 (Phase 2 Roles & HandedOver)'; File = 'test-p2-permissions-and-ui.php' },
+    @{ Name = 'P3-1 (Delivery Attempts & RTO)'; File = 'test-p3-delivery-attempts.php' },
+    @{ Name = 'P3-2 (Phase 3 Roles & UI)'; File = 'test-p3-roles-and-ui.php' },
     @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 
