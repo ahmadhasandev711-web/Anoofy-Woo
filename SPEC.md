@@ -47,7 +47,7 @@ Out of scope for the MVP: outbound courier APIs, WhatsApp/SMS, multi-store dashb
 | SHIPPED, DELIVERY_FAILED | `processing` | tracking/courier stored in our table; optional custom status later |
 | DELIVERED | `completed` | payment still unpaid until settlement (COD) |
 | REJECTED, CANCELLED | `cancelled` | Woo restores stock |
-| RETURNED_TO_ORIGIN | open question | restock happens per item after inspection; avoid Woo's automatic full restock (S-4) |
+| RETURNED_TO_ORIGIN | unchanged (`processing`) | restock happens per item after inspection via `wc_update_product_stock` (S-4) |
 
 Settings (planned): require confirmation for COD only / all orders; max delivery attempts (default 3);
 suppress or customise the Woo customer emails for ops transitions.
@@ -81,6 +81,7 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
 - **S-3** Marking a COD order paid at settlement: `payment_complete()` vs setting `date_paid`, and its effect on stock and emails.
   - *Result (WooCommerce 11.2.1)*: Verified in `test-s3-cod-payment-spike.php`. Because `anoofy_sync_woo_status` defaults to off, COD orders remain in `processing` with `date_paid === null`. Calling `WC_Order::payment_complete()` on `processing` does **not** set `date_paid` (since `PAYMENT_COMPLETE_STATUSES` excludes `processing`). Using `$order->set_date_paid(time())` + `$order->set_transaction_id($ref)` + `$order->save()` persists `date_paid` cleanly in both HPOS and Legacy with zero stock changes and zero unwanted emails.
 - **S-4** RTO restock: Woo's cancel restores the full reduced quantity; per-item restock after inspection (damaged items) needs `wc_update_product_stock` or a zero-amount refund with restock. Confirm which works.
+  - *Result (WooCommerce 11.2.1)*: Verified in `test-s4-rto-restock-spike.php`. `$order->update_status('cancelled')` restores the full reduced quantity (4 -> 4), and zero-amount `wc_create_refund(['restock_items' => true])` triggers customer refund email notifications. Calling `wc_update_product_stock($product, $restockQty, 'increase')` accurately restores only the inspected healthy units (e.g. 3 of 4, leaving 1 damaged un-restocked), keeps Woo order status intact, works on HPOS on/off, and fires zero customer emails (paired with `anoofy_stock_movements` uniqueness for idempotency).
 - **S-5** Editing an order's items/address after confirmation: stock and totals recalculation behaviour.
   - *Result (WooCommerce 11.2.1)*: Verified in `test-s2-s5-s6-spikes.php`. Admin edits via `wc_save_order_items()` fire `woocommerce_saved_order_items` and `woocommerce_update_order_item`; CRUD item edits fire `woocommerce_update_order_item` and `woocommerce_update_order`. Comparing a deterministic hash of `line_item` entries (`prep_items_hash`) avoids false-positive edit flags on simple note/status saves.
 - **S-6** A user with only `anoofy_*` capabilities: can the plugin read orders (`wc_get_orders`) and show the minimum customer data the role is allowed to see.
