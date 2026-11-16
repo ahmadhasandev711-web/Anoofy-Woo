@@ -12,6 +12,7 @@ use Anoofy\Woo\Core\Order\OrderEvent;
 use Anoofy\Woo\Core\Order\OrderOps;
 use Anoofy\Woo\Core\Order\OrderStateMachine;
 use Anoofy\Woo\Core\Order\OrderStatus;
+use Anoofy\Woo\Core\Returns\ReturnStatus;
 use Anoofy\Woo\Services\Services;
 
 /**
@@ -106,6 +107,7 @@ final class OrderBox
                 self::preparation($order, $ops, $role);
                 self::shipping($ops, $role);
                 self::delivery($ops, $role);
+                self::returns($order, $ops, $role);
             }
         }
         self::callHistory($orderId);
@@ -461,6 +463,162 @@ final class OrderBox
             }
         }
         echo '</div>';
+    }
+
+    private static function returns(\WC_Order $order, OrderOps $ops, Role $role): void
+    {
+        $orderId = $order->get_id();
+        $returns = Services::returns()->forOrder($orderId);
+        $canOpen = $ops->status === OrderStatus::Delivered && Permissions::can($role, Action::ReturnOpen);
+        if (!$canOpen && $returns === []) {
+            return;
+        }
+
+        echo '<div class="anoofy-section"><h4>' . esc_html__('Returns & RTO', 'anoofy-woo') . '</h4>';
+
+        foreach ($returns as $ret) {
+            self::renderSingleReturn($ret, $role);
+        }
+
+        if ($canOpen) {
+            self::renderOpenReturnForm($order);
+        }
+
+        self::stockMovementsHistory($orderId);
+        echo '</div>';
+    }
+
+    /** @param array<string, mixed> $ret */
+    private static function renderSingleReturn(array $ret, Role $role): void
+    {
+        /** @var ReturnStatus $status */
+        $status = $ret['status'];
+        $canInspect = $status !== ReturnStatus::Approved && Permissions::can($role, Action::ReturnReceiveAndInspect);
+        $canApprove = $status === ReturnStatus::Inspected && Permissions::can($role, Action::ReturnApprove);
+
+        echo '<div class="anoofy-return-card">';
+        printf(
+            '<p><strong>#%d — %s</strong> <span class="anoofy-badge">%s</span>%s</p>',
+            (int) $ret['id'],
+            esc_html(Labels::returnSource($ret['source'])),
+            esc_html(Labels::returnStatus($status)),
+            $ret['reason'] ? ' — ' . esc_html((string) $ret['reason']) : ''
+        );
+
+        if ($canInspect) {
+            echo '<div data-anoofy-form="anoofy_inspect_return">';
+            echo '<input type="hidden" name="return_id" value="' . esc_attr((string) (int) $ret['id']) . '" />';
+        }
+
+        echo '<table class="widefat striped anoofy-table"><thead><tr><th>'
+            . esc_html__('Item', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Returned', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Restock qty', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Damaged qty', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Condition', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Note', 'anoofy-woo') . '</th></tr></thead><tbody>';
+
+        foreach ($ret['items'] as $item) {
+            $itemId = (int) $item['order_item_id'];
+            $qtyReturned = (int) $item['qty_returned'];
+            $restockQty = (int) $item['restock_qty'];
+            $damagedQty = (int) $item['damaged_qty'];
+            $note = (string) ($item['note'] ?? '');
+
+            echo '<tr>';
+            echo '<td>' . esc_html((string) $item['name']) . ($item['sku'] ? ' <code>' . esc_html((string) $item['sku']) . '</code>' : '') . '</td>';
+            echo '<td>' . esc_html((string) $qtyReturned) . '</td>';
+            if ($canInspect) {
+                echo '<td><input type="number" min="0" max="' . esc_attr((string) $qtyReturned) . '" name="inspect[' . esc_attr((string) $itemId) . '][restock_qty]" value="' . esc_attr((string) $restockQty) . '" class="small-text" /></td>';
+                echo '<td><input type="number" min="0" max="' . esc_attr((string) $qtyReturned) . '" name="inspect[' . esc_attr((string) $itemId) . '][damaged_qty]" value="' . esc_attr((string) $damagedQty) . '" class="small-text" /></td>';
+                echo '<td>' . esc_html(Labels::returnCondition($item['condition_status'])) . '</td>';
+                echo '<td><input type="text" name="inspect[' . esc_attr((string) $itemId) . '][note]" value="' . esc_attr($note) . '" maxlength="500" /></td>';
+            } else {
+                echo '<td>' . esc_html((string) $restockQty) . '</td>';
+                echo '<td>' . esc_html((string) $damagedQty) . '</td>';
+                echo '<td>' . esc_html(Labels::returnCondition($item['condition_status'])) . '</td>';
+                echo '<td>' . esc_html($note !== '' ? $note : '—') . '</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+
+        if ($canInspect) {
+            echo '<p><button type="button" class="button" data-anoofy-submit>'
+                . esc_html__('Save inspection', 'anoofy-woo') . '</button></p></div>';
+        }
+
+        if ($canApprove) {
+            echo '<div class="anoofy-ship-actions" data-anoofy-form="anoofy_approve_return">';
+            echo '<input type="hidden" name="return_id" value="' . esc_attr((string) (int) $ret['id']) . '" />';
+            echo '<button type="button" class="button button-primary" data-anoofy-submit>'
+                . esc_html__('Approve return & restock', 'anoofy-woo') . '</button>';
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    private static function renderOpenReturnForm(\WC_Order $order): void
+    {
+        $alreadyReturned = Services::returns()->alreadyReturnedQuantities($order->get_id());
+        $returnable = [];
+        foreach ($order->get_items('line_item') as $item) {
+            if (!$item instanceof \WC_Order_Item_Product) {
+                continue;
+            }
+            $ordered = max(0, (int) $item->get_quantity());
+            $prev = (int) ($alreadyReturned[$item->get_id()] ?? 0);
+            $remaining = $ordered - $prev;
+            if ($remaining > 0) {
+                $returnable[] = ['item' => $item, 'remaining' => $remaining];
+            }
+        }
+        if ($returnable === []) {
+            return;
+        }
+
+        echo '<div data-anoofy-form="anoofy_open_return">';
+        echo '<p><strong>' . esc_html__('Open customer return', 'anoofy-woo') . '</strong></p>';
+        echo '<table class="widefat striped anoofy-table"><thead><tr><th>'
+            . esc_html__('Item', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Available to return', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Return qty', 'anoofy-woo') . '</th></tr></thead><tbody>';
+        foreach ($returnable as $row) {
+            $item = $row['item'];
+            echo '<tr><td>' . esc_html($item->get_name()) . '</td><td>' . esc_html((string) $row['remaining']) . '</td>'
+                . '<td><input type="number" min="0" max="' . esc_attr((string) $row['remaining']) . '" name="return_qty[' . esc_attr((string) $item->get_id()) . ']" value="0" class="small-text" /></td></tr>';
+        }
+        echo '</tbody></table>';
+        echo '<textarea name="anoofy_reason" rows="2" maxlength="1000" class="anoofy-reason" placeholder="' . esc_attr__('Reason for customer return (required)', 'anoofy-woo') . '"></textarea>';
+        echo '<button type="button" class="button" data-anoofy-submit>' . esc_html__('Open return', 'anoofy-woo') . '</button>';
+        echo '</div>';
+    }
+
+    private static function stockMovementsHistory(int $orderId): void
+    {
+        $movements = Services::stockMovements()->forOrder($orderId);
+        if ($movements === []) {
+            return;
+        }
+        echo '<p><strong>' . esc_html__('Stock movements', 'anoofy-woo') . '</strong></p>';
+        echo '<table class="widefat striped anoofy-table"><thead><tr><th>'
+            . esc_html__('Return', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Movement', 'anoofy-woo') . '</th><th>'
+            . esc_html__('Qty', 'anoofy-woo') . '</th><th>'
+            . esc_html__('When', 'anoofy-woo') . '</th></tr></thead><tbody>';
+        foreach ($movements as $m) {
+            $typeLabel = $m['movement_type'] === 'return_restock'
+                ? __('Restocked', 'anoofy-woo')
+                : __('Damaged (not restocked)', 'anoofy-woo');
+            printf(
+                '<tr><td>#%d</td><td>%s</td><td>%d</td><td>%s</td></tr>',
+                $m['return_id'],
+                esc_html($typeLabel),
+                $m['qty'],
+                esc_html(self::when($m['created_at']))
+            );
+        }
+        echo '</tbody></table>';
     }
 
     private static function deliveryHistory(int $orderId): void

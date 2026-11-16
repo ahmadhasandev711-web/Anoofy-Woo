@@ -46,3 +46,7 @@
 .anoofy-order-view-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-block: 16px; }
 .anoofy-card { background: #fff; border: 1px solid #c3c4c7; padding: 14px 16px; border-radius: 4px; }
 .anoofy-card h3 { margin-block: 0 10px; }
+.anoofy-return-card { border: 1px solid #dcdcde; border-radius: 4px; padding: 10px 12px; margin-block: 8px 12px; background: #fcfcfd; }
+.anoofy-badge--returned-to-origin, .anoofy-badge--return-open { background: #fff1c2; color: #6b4e00; }
+.anoofy-badge--return-inspected { background: #dbe7ff; color: #1d3a8a; }
+.anoofy-badge--return-approved { background: #d3f0dd; color: #0b5a2b; }
