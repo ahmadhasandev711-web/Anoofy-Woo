@@ -80,7 +80,7 @@ final class OrderOps
      * Facts for the state machine. Phase 1 has no preparation screen yet, so `allLinesPrepared` stays false;
      * Phase 2 will pass the real value in.
      */
-    public function toContext(?string $reason = null, bool $allLinesPrepared = false): OrderContext
+    public function toContext(?string $reason = null, bool $allLinesPrepared = false, int $maxDeliveryAttempts = 3): OrderContext
     {
         return new OrderContext(
             hasLoggedCall: $this->hasLoggedCall,
@@ -91,6 +91,7 @@ final class OrderOps
             editedAfterPreparingUnconfirmed: $this->editedAfterPreparing,
             hasShipmentDetails: $this->courier !== null && $this->trackingNumber !== null,
             deliveryAttempts: $this->deliveryAttempts,
+            maxDeliveryAttempts: max(1, $maxDeliveryAttempts),
             reason: $reason,
         );
     }
