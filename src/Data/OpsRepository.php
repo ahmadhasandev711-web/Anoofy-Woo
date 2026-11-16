@@ -111,6 +111,41 @@ final class OpsRepository
         ));
     }
 
+    public function setPrepState(int $orderId, ?string $prepItemsHash, bool $editedAfterPreparing): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET prep_items_hash = %s, edited_after_preparing = %d, updated_at = %s WHERE order_id = %d",
+            $prepItemsHash,
+            $editedAfterPreparing ? 1 : 0,
+            self::now(),
+            $orderId,
+        ));
+    }
+
+    public function setEditedAfterPreparing(int $orderId, bool $edited): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET edited_after_preparing = %d, updated_at = %s WHERE order_id = %d",
+            $edited ? 1 : 0,
+            self::now(),
+            $orderId,
+        ));
+    }
+
+    public function setShipmentDetails(int $orderId, string $courier, string $trackingNumber): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET courier = %s, tracking_number = %s, updated_at = %s WHERE order_id = %d",
+            $courier,
+            $trackingNumber,
+            self::now(),
+            $orderId,
+        ));
+    }
+
     /**
      * @param list<string>|null $statuses
      * @param list<int>|null    $orderIds

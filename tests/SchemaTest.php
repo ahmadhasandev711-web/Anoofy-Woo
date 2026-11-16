@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsThree(): void
+    public function testSchemaVersionIsFour(): void
     {
-        self::assertSame('3', Schema::VERSION);
+        self::assertSame('4', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
     {
         $statements = Schema::statements('wp_', 'DEFAULT CHARACTER SET utf8mb4');
-        self::assertCount(5, $statements);
+        self::assertCount(6, $statements);
         foreach ($statements as $sql) {
             self::assertTrue(str_starts_with($sql, 'CREATE TABLE wp_anoofy_'), $sql);
             // dbDelta needs exactly two spaces after PRIMARY KEY and KEY (not INDEX).
@@ -45,6 +45,22 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($orderOpsSql, "engaz_branch varchar(255) DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "engaz_courier varchar(255) DEFAULT NULL"));
         self::assertTrue(str_contains($orderOpsSql, "engaz_tracking varchar(255) DEFAULT NULL"));
+        self::assertTrue(str_contains($orderOpsSql, "prep_items_hash varchar(64) DEFAULT NULL"));
+    }
+
+    public function testPreparedItemsStatementContainsRequiredColumnsAndKeys(): void
+    {
+        $statements = Schema::statements('wp_', '');
+        $prepSql = $statements[5] ?? '';
+        self::assertTrue(str_contains($prepSql, 'CREATE TABLE wp_anoofy_order_prepared_items ('));
+        self::assertTrue(str_contains($prepSql, 'id bigint(20) unsigned NOT NULL AUTO_INCREMENT'));
+        self::assertTrue(str_contains($prepSql, 'order_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($prepSql, 'item_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($prepSql, 'prepared_by bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($prepSql, 'prepared_at datetime NOT NULL'));
+        self::assertTrue(str_contains($prepSql, 'PRIMARY KEY  (id)'));
+        self::assertTrue(str_contains($prepSql, 'UNIQUE KEY order_item (order_id, item_id)'));
+        self::assertTrue(str_contains($prepSql, 'KEY order_id (order_id)'));
     }
 
     public function testInboxStatementContainsRequiredColumnsAndKeys(): void
@@ -88,7 +104,7 @@ final class SchemaTest extends TestCase
     public function testTableHelperMatchesTheCreateStatements(): void
     {
         $names = Schema::statements('wp_', '');
-        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox'] as $short) {
+        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items'] as $short) {
             $table = Schema::table('wp_', $short);
             $found = false;
             foreach ($names as $sql) {
