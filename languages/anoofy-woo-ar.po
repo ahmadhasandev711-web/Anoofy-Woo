@@ -8,22 +8,140 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
-#: src\Admin\ActionsController.php:127 src\Admin\ActionsController.php:160
-#: src\Admin\ActionsController.php:181 src\Admin\ActionsController.php:198
-#: src\Admin\Labels.php:139 src\Admin\OrdersPage.php:20
+#: src\Admin\ActionsController.php:117 src\Admin\ActionsController.php:158
+#: src\Admin\ActionsController.php:191 src\Admin\ActionsController.php:212
+#: src\Admin\ActionsController.php:229 src\Admin\CodSettlementPage.php:18
+#: src\Admin\Labels.php:154 src\Admin\OrdersPage.php:20
 msgid "You are not allowed to do this."
 msgstr "غير مسموح لك بتنفيذ هذا الإجراء."
 
-#: src\Admin\ActionsController.php:156 src\Admin\Labels.php:152
+#: src\Admin\ActionsController.php:187 src\Admin\Labels.php:167
 msgid "Invalid request."
 msgstr "طلب غير صالح."
+
+#: src\Admin\CodSettlementPage.php:39 src\Admin\Menu.php:26
+#: src\Admin\Menu.php:26
+msgid "COD Settlement"
+msgstr "تسوية الدفع عند الاستلام (COD)"
+
+#: src\Admin\CodSettlementPage.php:42
+msgid "Delivered orders awaiting settlement:"
+msgstr "طلبات مُسلّمة بانتظار التسوية:"
+
+#: src\Admin\CodSettlementPage.php:44
+msgid "Total outstanding COD:"
+msgstr "إجمالي مبالغ الـ COD المعلقة:"
+
+#: src\Admin\CodSettlementPage.php:74
+msgid "Import courier statement (CSV)"
+msgstr "استيراد كشف حساب شركة الشحن (CSV)"
+
+#: src\Admin\CodSettlementPage.php:79 src\Admin\CodSettlementPage.php:178
+#: src\Admin\OrderBox.php:383
+msgid "Courier"
+msgstr "شركة الشحن"
+
+#: src\Admin\CodSettlementPage.php:80 src\Admin\OrderBox.php:384
+msgid "e.g. Bosta, Aramex"
+msgstr "مثال: Bosta, Aramex"
+
+#: src\Admin\CodSettlementPage.php:81 src\Admin\CodSettlementPage.php:179
+msgid "Statement reference"
+msgstr "مرجع الكشف"
+
+#: src\Admin\CodSettlementPage.php:83
+msgid "CSV file"
+msgstr "ملف CSV"
+
+#: src\Admin\CodSettlementPage.php:85
+msgid "Or paste CSV lines"
+msgstr "أو الصق سطور CSV"
+
+#: src\Admin\CodSettlementPage.php:88
+msgid "Preview statement"
+msgstr "معاينة الكشف"
+
+#: src\Admin\CodSettlementPage.php:94
+msgid "Reconciliation preview"
+msgstr "معاينة المطابقة"
+
+#: src\Admin\CodSettlementPage.php:97
+msgid "Skipped CSV lines:"
+msgstr "سطور CSV تم تخطيها:"
+
+#: src\Admin\CodSettlementPage.php:105
+msgid "No valid rows found in CSV."
+msgstr "لم يتم العثور على سطور صالحة في ملف CSV."
+
+#: src\Admin\CodSettlementPage.php:117
+msgid "Settle"
+msgstr "تسوية"
+
+#: src\Admin\CodSettlementPage.php:118 src\Admin\OrderBox.php:385
+msgid "Tracking number"
+msgstr "رقم التتبع"
+
+#: src\Admin\CodSettlementPage.php:119 src\Admin\OrdersTable.php:35
+msgid "Order"
+msgstr "الطلب"
+
+#: src\Admin\CodSettlementPage.php:120
+msgid "Collected"
+msgstr "المبلغ المحصّل"
+
+#: src\Admin\CodSettlementPage.php:121
+msgid "Order total"
+msgstr "إجمالي الطلب"
+
+#: src\Admin\CodSettlementPage.php:122
+msgid "Match status"
+msgstr "حالة المطابقة"
+
+#: src\Admin\CodSettlementPage.php:156
+msgid "Matched orders ready to settle:"
+msgstr "الطلبات المتطابقة الجاهزة للتسوية:"
+
+#: src\Admin\CodSettlementPage.php:162
+msgid "Settle selected orders"
+msgstr "تسوية الطلبات المحددة"
+
+#: src\Admin\CodSettlementPage.php:170
+msgid "Recent COD settlements"
+msgstr "أحدث تسويات الـ COD"
+
+#: src\Admin\CodSettlementPage.php:172
+msgid "No settlements recorded yet."
+msgstr "لا توجد تسويات مسجلة بعد."
+
+#: src\Admin\CodSettlementPage.php:177 src\Admin\OrderBox.php:474
+msgid "#"
+msgstr "#"
+
+#: src\Admin\CodSettlementPage.php:178 src\Admin\OrderBox.php:475
+#: src\Admin\OrderBox.php:499
+msgid "When"
+msgstr "الوقت"
+
+#: src\Admin\CodSettlementPage.php:179 src\Admin\Menu.php:25
+#: src\Admin\Menu.php:25 src\Admin\OrdersPage.php:53
+msgid "Orders"
+msgstr "الطلبات"
+
+#: src\Admin\CodSettlementPage.php:180 src\Admin\OrdersTable.php:37
+msgid "Total"
+msgstr "الإجمالي"
+
+#: src\Admin\CodSettlementPage.php:180 src\Admin\OrderBox.php:475
+#: src\Admin\OrderBox.php:500
+msgid "Employee"
+msgstr "الموظف"
 
 #: src\Admin\ConnectionSettings.php:14
 msgid "You do not have permission to access this page."
 msgstr "ليس لديك الصلاحية للوصول إلى هذه الصفحة."
 
-#: src\Admin\ConnectionSettings.php:20 src\Admin\Menu.php:27
-#: src\Admin\Menu.php:27
+#: src\Admin\ConnectionSettings.php:20 src\Admin\Menu.php:28
+#: src\Admin\Menu.php:28
 msgid "EngazPRO Integration"
 msgstr "الربط مع EngazPRO"
 
@@ -63,316 +181,348 @@ msgstr "تاريخ الربط"
 msgid "Disconnect from EngazPRO"
 msgstr "قطع الربط"
 
-#: src\Admin\Labels.php:22 src\Admin\Labels.php:59
+#: src\Admin\Labels.php:23 src\Admin\Labels.php:60
 msgid "New"
 msgstr "جديد"
 
-#: src\Admin\Labels.php:23 src\Admin\Labels.php:60
+#: src\Admin\Labels.php:24 src\Admin\Labels.php:61
 msgid "Under review"
 msgstr "قيد المراجعة"
 
-#: src\Admin\Labels.php:24 src\Admin\Labels.php:45 src\Admin\Labels.php:61
+#: src\Admin\Labels.php:25 src\Admin\Labels.php:46 src\Admin\Labels.php:62
 msgid "Confirmed"
 msgstr "مؤكد"
 
-#: src\Admin\Labels.php:25
+#: src\Admin\Labels.php:26
 msgid "Rejected"
 msgstr "مرفوض"
 
-#: src\Admin\Labels.php:26
+#: src\Admin\Labels.php:27
 msgid "Preparing"
 msgstr "قيد التجهيز"
 
-#: src\Admin\Labels.php:27
+#: src\Admin\Labels.php:28
 msgid "Ready to ship"
 msgstr "جاهز للشحن"
 
-#: src\Admin\Labels.php:28
+#: src\Admin\Labels.php:29
 msgid "Cancellation pending"
 msgstr "إلغاء بانتظار المخزن"
 
-#: src\Admin\Labels.php:29 src\Admin\Labels.php:52
+#: src\Admin\Labels.php:30 src\Admin\Labels.php:53
 msgid "Cancelled"
 msgstr "ملغي"
 
-#: src\Admin\Labels.php:30
+#: src\Admin\Labels.php:31
 msgid "Shipped"
 msgstr "تم الشحن"
 
-#: src\Admin\Labels.php:31 src\Admin\Labels.php:83
+#: src\Admin\Labels.php:32 src\Admin\Labels.php:84
 msgid "Delivered"
 msgstr "تم التسليم"
 
-#: src\Admin\Labels.php:32
+#: src\Admin\Labels.php:33
 msgid "Delivery failed"
 msgstr "فشل التسليم"
 
-#: src\Admin\Labels.php:33
+#: src\Admin\Labels.php:34
 msgid "Returned to origin"
 msgstr "مرتجع للمخزن"
 
-#: src\Admin\Labels.php:40
+#: src\Admin\Labels.php:41
 msgid "Waiting for EngazPRO"
 msgstr "في انتظار EngazPRO"
 
-#: src\Admin\Labels.php:44
+#: src\Admin\Labels.php:45
 msgid "Pending confirmation"
 msgstr "بانتظار التأكيد"
 
-#: src\Admin\Labels.php:46
+#: src\Admin\Labels.php:47
 msgid "Preparing in warehouse"
 msgstr "قيد التجهيز بالمخزن"
 
-#: src\Admin\Labels.php:47
+#: src\Admin\Labels.php:48
 msgid "Dispatched with courier"
 msgstr "خرج للشحن مع المندوب"
 
-#: src\Admin\Labels.php:48
+#: src\Admin\Labels.php:49
 msgid "Shipped via courier"
 msgstr "تم الإسناد لشركة شحن"
 
-#: src\Admin\Labels.php:49
+#: src\Admin\Labels.php:50
 msgid "Delivered and collected"
 msgstr "تم التسليم والتحصيل"
 
-#: src\Admin\Labels.php:50
+#: src\Admin\Labels.php:51
 msgid "Partially delivered"
 msgstr "تسليم جزئي"
 
-#: src\Admin\Labels.php:51
+#: src\Admin\Labels.php:52
 msgid "Fully returned"
 msgstr "مرتجع بالكامل"
 
-#: src\Admin\Labels.php:62
+#: src\Admin\Labels.php:63
 msgid "In progress"
 msgstr "قيد التنفيذ"
 
-#: src\Admin\Labels.php:63
+#: src\Admin\Labels.php:64
 msgid "Finished"
 msgstr "منتهي"
 
-#: src\Admin\Labels.php:64
+#: src\Admin\Labels.php:65
 msgid "Rejected / cancelled"
 msgstr "مرفوض / ملغي"
 
-#: src\Admin\Labels.php:65
+#: src\Admin\Labels.php:66
 msgid "All"
 msgstr "الكل"
 
-#: src\Admin\Labels.php:72
+#: src\Admin\Labels.php:73
 msgid "Answered"
 msgstr "رد"
 
-#: src\Admin\Labels.php:73
+#: src\Admin\Labels.php:74
 msgid "No answer"
 msgstr "لم يرد"
 
-#: src\Admin\Labels.php:74
+#: src\Admin\Labels.php:75
 msgid "Busy"
 msgstr "مشغول"
 
-#: src\Admin\Labels.php:75
+#: src\Admin\Labels.php:76
 msgid "Wrong number"
 msgstr "رقم خطأ"
 
-#: src\Admin\Labels.php:76
+#: src\Admin\Labels.php:77
 msgid "Call back later"
 msgstr "اتصل لاحقًا"
 
-#: src\Admin\Labels.php:84
+#: src\Admin\Labels.php:85
 msgid "Failed"
 msgstr "فشل"
 
-#: src\Admin\Labels.php:91
+#: src\Admin\Labels.php:92
+msgid "Matched"
+msgstr "متطابق"
+
+#: src\Admin\Labels.php:93
+msgid "Tracking not found"
+msgstr "رقم التتبع غير موجود"
+
+#: src\Admin\Labels.php:94
+msgid "Not delivered yet"
+msgstr "لم يتم التسليم بعد"
+
+#: src\Admin\Labels.php:95
+msgid "Already settled"
+msgstr "تمت تسويته مسبقاً"
+
+#: src\Admin\Labels.php:96
+msgid "Amount mismatch"
+msgstr "فرق في المبلغ"
+
+#: src\Admin\Labels.php:97
+msgid "Managed in EngazPRO"
+msgstr "يُدار في EngazPRO"
+
+#: src\Admin\Labels.php:98
+msgid "Duplicate in CSV"
+msgstr "مكرر في الكشف"
+
+#: src\Admin\Labels.php:105
 msgid "Confirm order"
 msgstr "تأكيد الطلب"
 
-#: src\Admin\Labels.php:92
+#: src\Admin\Labels.php:106
 msgid "Reject order"
 msgstr "رفض الطلب"
 
-#: src\Admin\Labels.php:93
+#: src\Admin\Labels.php:107
 msgid "Cancel order"
 msgstr "إلغاء الطلب"
 
-#: src\Admin\Labels.php:94
+#: src\Admin\Labels.php:108
 msgid "Start preparing"
 msgstr "بدء التجهيز"
 
-#: src\Admin\Labels.php:95
+#: src\Admin\Labels.php:109
 msgid "Finish preparing"
 msgstr "إنهاء التجهيز"
 
-#: src\Admin\Labels.php:96
+#: src\Admin\Labels.php:110
 msgid "Request cancel"
 msgstr "طلب إلغاء"
 
-#: src\Admin\Labels.php:97
+#: src\Admin\Labels.php:111
 msgid "Confirm restocked & cancel"
 msgstr "تأكيد إرجاع المخزون وإلغاء الطلب"
 
-#: src\Admin\Labels.php:98
+#: src\Admin\Labels.php:112
 msgid "Ship order"
 msgstr "شحن الطلب"
 
-#: src\Admin\Labels.php:99
+#: src\Admin\Labels.php:113
 msgid "Mark delivered"
 msgstr "تأكيد التسليم"
 
-#: src\Admin\Labels.php:100
+#: src\Admin\Labels.php:114
 msgid "Mark delivery failed"
 msgstr "تسجيل فشل التسليم"
 
-#: src\Admin\Labels.php:101
+#: src\Admin\Labels.php:115
 msgid "Retry delivery"
 msgstr "إعادة محاولة التسليم"
 
-#: src\Admin\Labels.php:102
+#: src\Admin\Labels.php:116
 msgid "Receive returned (RTO)"
 msgstr "استلام مرتجع (RTO)"
 
-#: src\Admin\Labels.php:111
+#: src\Admin\Labels.php:125
 msgid "Call logged."
 msgstr "تم تسجيل المكالمة."
 
-#: src\Admin\Labels.php:112
+#: src\Admin\Labels.php:126
 msgid "Order confirmed."
 msgstr "تم تأكيد الطلب."
 
-#: src\Admin\Labels.php:113
+#: src\Admin\Labels.php:127
 msgid "Order rejected and cancelled in WooCommerce."
 msgstr "تم رفض الطلب وإلغاؤه في ووكومرس."
 
-#: src\Admin\Labels.php:114
+#: src\Admin\Labels.php:128
 msgid "Order cancelled."
 msgstr "تم إلغاء الطلب."
 
-#: src\Admin\Labels.php:115
+#: src\Admin\Labels.php:129
 msgid "Preparation started."
 msgstr "تم بدء التجهيز."
 
-#: src\Admin\Labels.php:116
+#: src\Admin\Labels.php:130
 msgid "Prepared items saved."
 msgstr "تم حفظ الأصناف المجهزة."
 
-#: src\Admin\Labels.php:117
+#: src\Admin\Labels.php:131
 msgid "Re-preparation confirmed."
 msgstr "تم تأكيد إعادة التجهيز."
 
-#: src\Admin\Labels.php:118
+#: src\Admin\Labels.php:132
 msgid "Order marked as ready to ship."
 msgstr "أصبح الطلب جاهزاً للشحن."
 
-#: src\Admin\Labels.php:119
+#: src\Admin\Labels.php:133
 msgid "Cancellation requested; waiting for warehouse restock confirmation."
 msgstr "تم طلب الإلغاء؛ في انتظار تأكيد المخزن لإرجاع الأصناف."
 
-#: src\Admin\Labels.php:120
+#: src\Admin\Labels.php:134
 msgid "Shipment details saved."
 msgstr "تم حفظ بيانات الشحن."
 
-#: src\Admin\Labels.php:121
+#: src\Admin\Labels.php:135
 msgid "Order marked as shipped."
 msgstr "تم شحن الطلب."
 
-#: src\Admin\Labels.php:122
+#: src\Admin\Labels.php:136
 msgid "Order marked as delivered."
 msgstr "تم تسليم الطلب."
 
-#: src\Admin\Labels.php:123
+#: src\Admin\Labels.php:137
 msgid "Failed delivery attempt recorded."
 msgstr "تم تسجيل محاولة تسليم فاشلة."
 
-#: src\Admin\Labels.php:124
+#: src\Admin\Labels.php:138
 msgid "Delivery retry started."
 msgstr "تم بدء إعادة محاولة التسليم."
 
-#: src\Admin\Labels.php:125
+#: src\Admin\Labels.php:139
 msgid "Order marked as returned to origin."
 msgstr "تم تسجيل الطلب كمرتجع للمخزن."
 
-#: src\Admin\Labels.php:126
+#: src\Admin\Labels.php:140
+msgid "Selected COD orders settled and marked paid in WooCommerce."
+msgstr "تمت تسوية طلبات الـ COD المحددة وتسجيلها كمدفوعة في ووكومرس."
+
+#: src\Admin\Labels.php:141
 msgid "Assignment updated."
 msgstr "تم تحديث التعيين."
 
-#: src\Admin\Labels.php:127
+#: src\Admin\Labels.php:142
 msgid "Selected orders assigned."
 msgstr "تم تعيين الطلبات المحددة."
 
-#: src\Admin\Labels.php:128
+#: src\Admin\Labels.php:143
 msgid "Connected to EngazPRO successfully."
 msgstr "تم الربط مع EngazPRO بنجاح."
 
-#: src\Admin\Labels.php:129
+#: src\Admin\Labels.php:144
 msgid "Disconnected from EngazPRO."
 msgstr "تم فصل الربط مع EngazPRO."
 
-#: src\Admin\Labels.php:138
+#: src\Admin\Labels.php:153
 msgid "This action is not available for the current status of the order."
 msgstr "هذا الإجراء غير متاح لحالة الطلب الحالية."
 
-#: src\Admin\Labels.php:140
+#: src\Admin\Labels.php:155
 msgid "A reason is required."
 msgstr "السبب مطلوب."
 
-#: src\Admin\Labels.php:141
+#: src\Admin\Labels.php:156
 msgid "Log an answered call before confirming the order."
 msgstr "سجّل مكالمة تم الرد فيها قبل تأكيد الطلب."
 
-#: src\Admin\Labels.php:142
+#: src\Admin\Labels.php:157
 msgid "This order has a stock warning. Accept it before confirming."
 msgstr "هذا الطلب عليه تحذير مخزون. اقبله قبل التأكيد."
 
-#: src\Admin\Labels.php:143
+#: src\Admin\Labels.php:158
 msgid "This order has a stock warning. An order manager must accept it first."
 msgstr "هذا الطلب عليه تحذير مخزون. يجب أن يقبله مدير الطلبات أولًا."
 
-#: src\Admin\Labels.php:144
+#: src\Admin\Labels.php:159
 msgid "Assign the order to an employee first."
 msgstr "عيّن الطلب لموظف أولًا."
 
-#: src\Admin\Labels.php:145
+#: src\Admin\Labels.php:160
 msgid "Not all items are prepared yet."
 msgstr "لم يتم تجهيز كل الأصناف بعد."
 
-#: src\Admin\Labels.php:146
+#: src\Admin\Labels.php:161
 msgid ""
 "The order was edited after preparation started; confirm the re-preparation "
 "first."
 msgstr "تم تعديل الطلب بعد بدء التجهيز؛ أكّد إعادة التجهيز أولًا."
 
-#: src\Admin\Labels.php:147
+#: src\Admin\Labels.php:162
 msgid "Enter the courier and tracking number first."
 msgstr "أدخل شركة الشحن ورقم التتبع أولًا."
 
-#: src\Admin\Labels.php:148
+#: src\Admin\Labels.php:163
 msgid "The maximum number of delivery attempts was reached."
 msgstr "تم الوصول للحد الأقصى لمحاولات التسليم."
 
-#: src\Admin\Labels.php:149 src\Admin\OrdersPage.php:181
+#: src\Admin\Labels.php:164 src\Admin\OrdersPage.php:181
 msgid "Order not found."
 msgstr "الطلب غير موجود."
 
-#: src\Admin\Labels.php:150
+#: src\Admin\Labels.php:165
 msgid ""
 "Someone else changed this order a moment ago. Reload the page and try again."
 msgstr ""
 "قام شخص آخر بتغيير هذا الطلب منذ لحظات. أعد تحميل الصفحة وحاول مرة أخرى."
 
-#: src\Admin\Labels.php:151
+#: src\Admin\Labels.php:166
 msgid "That user cannot be assigned to orders."
 msgstr "لا يمكن تعيين هذا المستخدم على الطلبات."
 
-#: src\Admin\Labels.php:153
+#: src\Admin\Labels.php:168
 msgid ""
 "The status changed, but updating WooCommerce failed. Check the order notes."
 msgstr "تغيرت الحالة، لكن تحديث ووكومرس فشل. راجع ملاحظات الطلب."
 
-#: src\Admin\Labels.php:154
+#: src\Admin\Labels.php:169
 msgid "Failed to connect to EngazPRO. Please verify the connection key."
 msgstr "فشل الربط مع EngazPRO. يرجى التحقق من مفتاح الربط."
 
-#: src\Admin\Labels.php:155
+#: src\Admin\Labels.php:170
 msgid "Something went wrong."
 msgstr "حدث خطأ ما."
 
@@ -380,63 +530,59 @@ msgstr "حدث خطأ ما."
 msgid "Anoofy"
 msgstr "Anoofy"
 
-#: src\Admin\Menu.php:25 src\Admin\Menu.php:25 src\Admin\OrdersPage.php:53
-msgid "Orders"
-msgstr "الطلبات"
-
-#: src\Admin\Menu.php:26 src\Admin\Menu.php:26
+#: src\Admin\Menu.php:27 src\Admin\Menu.php:27
 msgid "System status"
 msgstr "حالة النظام"
 
-#: src\Admin\Menu.php:49
+#: src\Admin\Menu.php:50
 msgid "Plugin version"
 msgstr "إصدار الإضافة"
 
-#: src\Admin\Menu.php:50
+#: src\Admin\Menu.php:51
 msgid "PHP"
 msgstr "PHP"
 
-#: src\Admin\Menu.php:51
+#: src\Admin\Menu.php:52
 msgid "WordPress"
 msgstr "WordPress"
 
-#: src\Admin\Menu.php:52
+#: src\Admin\Menu.php:53
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "Order storage"
 msgstr "تخزين الطلبات"
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "HPOS (custom order tables)"
 msgstr "HPOS (جداول الطلبات المخصصة)"
 
-#: src\Admin\Menu.php:53
+#: src\Admin\Menu.php:54
 msgid "Legacy (posts)"
 msgstr "القديم (المقالات)"
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Background jobs (Action Scheduler)"
 msgstr "المهام الخلفية (Action Scheduler)"
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Available"
 msgstr "متاح"
 
-#: src\Admin\Menu.php:54
+#: src\Admin\Menu.php:55
 msgid "Missing"
 msgstr "غير موجود"
 
-#: src\Admin\Menu.php:55
+#: src\Admin\Menu.php:56
 msgid "Database schema version"
 msgstr "إصدار بنية قاعدة البيانات"
 
-#: src\Admin\Menu.php:58 src\Plugin.php:34 anoofy-woo.php:33
+#: src\Admin\Menu.php:59 src\Plugin.php:34 anoofy-woo.php:33
 msgid "Anoofy for WooCommerce"
 msgstr "Anoofy لـ WooCommerce"
 
-#: src\Admin\Menu.php:59
+#: src\Admin\Menu.php:60
 msgid ""
 "Order operations: call-center confirmation, preparation, delivery, COD "
 "settlement and returns."
@@ -505,12 +651,12 @@ msgid "Branch:"
 msgstr "الفرع:"
 
 #: src\Admin\OrderBox.php:196 src\Admin\OrderBox.php:394
-#: src\Admin\OrderBox.php:406
+#: src\Admin\OrderBox.php:407
 msgid "Courier:"
 msgstr "شركة الشحن:"
 
 #: src\Admin\OrderBox.php:200 src\Admin\OrderBox.php:395
-#: src\Admin\OrderBox.php:407
+#: src\Admin\OrderBox.php:408
 msgid "Tracking number:"
 msgstr "رقم التتبع:"
 
@@ -523,7 +669,7 @@ msgid "Assigned to"
 msgstr "معيّن إلى"
 
 #: src\Admin\OrderBox.php:217 src\Admin\OrderBox.php:222
-#: src\Admin\OrdersPage.php:162 src\Admin\OrdersTable.php:214
+#: src\Admin\OrdersPage.php:162 src\Admin\OrdersTable.php:217
 msgid "Unassigned"
 msgstr "غير معيّن"
 
@@ -616,82 +762,62 @@ msgstr "حفظ قائمة التجهيز"
 msgid "Shipping"
 msgstr "الشحن"
 
-#: src\Admin\OrderBox.php:383
-msgid "Courier"
-msgstr "شركة الشحن"
-
-#: src\Admin\OrderBox.php:384
-msgid "e.g. Bosta, Aramex"
-msgstr "مثال: Bosta, Aramex"
-
-#: src\Admin\OrderBox.php:385
-msgid "Tracking number"
-msgstr "رقم التتبع"
-
 #: src\Admin\OrderBox.php:387
 msgid "Save shipment details"
 msgstr "حفظ بيانات الشحن"
 
-#: src\Admin\OrderBox.php:419
+#: src\Admin\OrderBox.php:411
+msgid "COD settled:"
+msgstr "تاريخ تسوية COD:"
+
+#: src\Admin\OrderBox.php:427
 msgid "Delivery"
 msgstr "التسليم"
 
-#: src\Admin\OrderBox.php:420
+#: src\Admin\OrderBox.php:428
 msgid "Failed delivery attempts:"
 msgstr "محاولات التسليم الفاشلة:"
 
-#: src\Admin\OrderBox.php:425
+#: src\Admin\OrderBox.php:433
 msgid "Reason (required if delivery failed)"
 msgstr "السبب (مطلوب في حالة فشل التسليم)"
 
-#: src\Admin\OrderBox.php:435
+#: src\Admin\OrderBox.php:443
 msgid ""
 "Maximum delivery attempts reached. Receive the returned shipment back at the"
 " warehouse."
 msgstr ""
 "تم الوصول للحد الأقصى لمحاولات التسليم. استلم الشحنة المرتجعة في المخزن."
 
-#: src\Admin\OrderBox.php:465
+#: src\Admin\OrderBox.php:473
 msgid "Delivery attempts"
 msgstr "محاولات التسليم"
 
-#: src\Admin\OrderBox.php:466
-msgid "#"
-msgstr "#"
-
-#: src\Admin\OrderBox.php:467 src\Admin\OrderBox.php:491
-msgid "When"
-msgstr "الوقت"
-
-#: src\Admin\OrderBox.php:467 src\Admin\OrderBox.php:492
-msgid "Employee"
-msgstr "الموظف"
-
-#: src\Admin\OrderBox.php:468 src\Admin\OrderBox.php:492
+#: src\Admin\OrderBox.php:476 src\Admin\OrderBox.php:500
 msgid "Result"
 msgstr "النتيجة"
 
-#: src\Admin\OrderBox.php:468
+#: src\Admin\OrderBox.php:476
 msgid "Reason"
 msgstr "السبب"
 
-#: src\Admin\OrderBox.php:485
+#: src\Admin\OrderBox.php:493
 msgid "Call log"
 msgstr "سجل المكالمات"
 
-#: src\Admin\OrderBox.php:487
+#: src\Admin\OrderBox.php:495
 msgid "No calls yet."
 msgstr "لا توجد مكالمات بعد."
 
-#: src\Admin\OrderBox.php:493
+#: src\Admin\OrderBox.php:501
 msgid "Note"
 msgstr "ملاحظة"
 
-#: src\Admin\OrderBox.php:515
+#: src\Admin\OrderBox.php:523
 msgid "History"
 msgstr "السجل"
 
-#: src\Admin\OrderBox.php:523
+#: src\Admin\OrderBox.php:531
 msgid "System"
 msgstr "النظام"
 
@@ -747,17 +873,9 @@ msgstr "الإجمالي:"
 msgid "Order items"
 msgstr "أصناف الطلب"
 
-#: src\Admin\OrdersTable.php:35
-msgid "Order"
-msgstr "الطلب"
-
 #: src\Admin\OrdersTable.php:36
 msgid "Customer"
 msgstr "العميل"
-
-#: src\Admin\OrdersTable.php:37
-msgid "Total"
-msgstr "الإجمالي"
 
 #: src\Admin\OrdersTable.php:38
 msgid "Operational status"
@@ -787,11 +905,15 @@ msgstr "العمليات"
 msgid "Failed attempts: %d"
 msgstr "محاولات فاشلة: %d"
 
-#: src\Admin\OrdersTable.php:204
+#: src\Admin\OrdersTable.php:177
+msgid "COD settled"
+msgstr "تمت تسوية COD"
+
+#: src\Admin\OrdersTable.php:207
 msgid "No orders found."
 msgstr "لا توجد طلبات."
 
-#: src\Admin\OrdersTable.php:218
+#: src\Admin\OrdersTable.php:221
 msgid "Assign selected"
 msgstr "عيّن المحدد"
 
