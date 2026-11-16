@@ -12,7 +12,7 @@ namespace Anoofy\Woo\Database;
 final class Schema
 {
     /** Bump when any table changes; the Migrator re-runs dbDelta when it differs from the stored value. */
-    public const VERSION = '5';
+    public const VERSION = '6';
 
     /** Full table name for one of our tables, e.g. table('wp_', 'order_ops') => 'wp_anoofy_order_ops'. */
     public static function table(string $prefix, string $short): string
@@ -45,6 +45,8 @@ final class Schema
   engaz_courier varchar(255) DEFAULT NULL,
   engaz_tracking varchar(255) DEFAULT NULL,
   prep_items_hash varchar(64) DEFAULT NULL,
+  cod_settled_at datetime DEFAULT NULL,
+  cod_settlement_id bigint(20) unsigned DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (order_id),
@@ -139,6 +141,32 @@ final class Schema
   PRIMARY KEY  (id),
   KEY order_id (order_id),
   KEY created_at (created_at)
+) {$collate};",
+
+            // COD settlement batches from courier statements (Phase 4).
+            "CREATE TABLE {$prefix}anoofy_cod_settlements (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  courier varchar(100) NOT NULL,
+  reference varchar(100) DEFAULT NULL,
+  total_orders int(10) unsigned NOT NULL DEFAULT 0,
+  total_cents bigint(20) unsigned NOT NULL DEFAULT 0,
+  created_by bigint(20) unsigned NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY created_at (created_at)
+) {$collate};",
+
+            // Individual orders settled in a COD batch (UNIQUE order_id prevents double settlement).
+            "CREATE TABLE {$prefix}anoofy_cod_settlement_orders (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  settlement_id bigint(20) unsigned NOT NULL,
+  order_id bigint(20) unsigned NOT NULL,
+  tracking_number varchar(100) NOT NULL,
+  amount_cents bigint(20) unsigned NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY order_id (order_id),
+  KEY settlement_id (settlement_id)
 ) {$collate};",
         ];
     }

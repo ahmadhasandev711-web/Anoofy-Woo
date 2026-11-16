@@ -162,6 +162,58 @@ final class OpsRepository
     }
 
     /**
+     * @param list<string> $trackings
+     * @return list<OrderOps>
+     */
+    public function findByTrackingNumbers(array $trackings): array
+    {
+        global $wpdb;
+        $clean = array_values(array_unique(array_filter(array_map(
+            static fn (string $t): string => trim($t),
+            $trackings
+        ), static fn (string $t): bool => $t !== '')));
+
+        if ($clean === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($clean), '%s'));
+        $sql = "SELECT * FROM {$this->table()} WHERE tracking_number IN ({$placeholders})";
+        $rows = $wpdb->get_results($wpdb->prepare($sql, ...$clean), ARRAY_A);
+
+        return array_map(static fn (array $r): OrderOps => OrderOps::fromRow($r), is_array($rows) ? $rows : []);
+    }
+
+    /** @return list<OrderOps> Delivered standalone orders not yet settled. */
+    public function findDeliveredUnsettled(int $limit = 500): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE ops_status = %s AND engaz_handover_at IS NULL AND cod_settled_at IS NULL ORDER BY order_id DESC LIMIT %d",
+            OrderStatus::Delivered->value,
+            $limit,
+        ), ARRAY_A);
+
+        return array_map(static fn (array $r): OrderOps => OrderOps::fromRow($r), is_array($rows) ? $rows : []);
+    }
+
+    public function markCodSettled(int $orderId, int $settlementId, string $settledAt): bool
+    {
+        global $wpdb;
+        $changed = $wpdb->query($wpdb->prepare(
+            "UPDATE {$this->table()} SET cod_settled_at = %s, cod_settlement_id = %d, updated_at = %s
+             WHERE order_id = %d AND ops_status = %s AND engaz_handover_at IS NULL AND cod_settled_at IS NULL",
+            $settledAt,
+            $settlementId,
+            self::now(),
+            $orderId,
+            OrderStatus::Delivered->value,
+        ));
+
+        return $changed === 1;
+    }
+
+    /**
      * @param list<string>|null $statuses
      * @param list<int>|null    $orderIds
      * @return list<OrderOps>

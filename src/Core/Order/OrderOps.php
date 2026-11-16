@@ -28,12 +28,19 @@ final class OrderOps
         public readonly ?string $engazCourier = null,
         public readonly ?string $engazTracking = null,
         public readonly ?string $prepItemsHash = null,
+        public readonly ?string $codSettledAt = null,
+        public readonly ?int $codSettlementId = null,
     ) {
     }
 
     public function isHandedOver(): bool
     {
         return $this->engazHandoverAt !== null && trim($this->engazHandoverAt) !== '';
+    }
+
+    public function isCodSettled(): bool
+    {
+        return $this->codSettledAt !== null && trim($this->codSettledAt) !== '';
     }
 
     /** @param array<string, mixed> $row values as returned by $wpdb (everything is a string or null) */
@@ -52,6 +59,10 @@ final class OrderOps
         $engazCourier = isset($row['engaz_courier']) ? trim((string) $row['engaz_courier']) : '';
         $engazTracking = isset($row['engaz_tracking']) ? trim((string) $row['engaz_tracking']) : '';
         $prepItemsHash = isset($row['prep_items_hash']) ? trim((string) $row['prep_items_hash']) : '';
+        $codSettledAt = isset($row['cod_settled_at']) ? trim((string) $row['cod_settled_at']) : '';
+        $codSettlementId = isset($row['cod_settlement_id']) && $row['cod_settlement_id'] !== null && $row['cod_settlement_id'] !== ''
+            ? (int) $row['cod_settlement_id']
+            : null;
 
         return new self(
             (int) ($row['order_id'] ?? 0),
@@ -73,6 +84,8 @@ final class OrderOps
             $engazCourier === '' ? null : $engazCourier,
             $engazTracking === '' ? null : $engazTracking,
             $prepItemsHash === '' ? null : $prepItemsHash,
+            $codSettledAt === '' ? null : $codSettledAt,
+            $codSettlementId,
         );
     }
 
