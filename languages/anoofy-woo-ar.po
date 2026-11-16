@@ -967,9 +967,27 @@ msgstr ""
 msgid "Cancelled by Anoofy: %s"
 msgstr "تم الإلغاء بواسطة Anoofy: %s"
 
-#: src\Services\OrderOpsService.php:428
+#: src\Services\OrderOpsService.php:431
 msgid "Status updated by Anoofy."
 msgstr "تم تحديث الحالة بواسطة Anoofy."
+
+#: src\Services\ReturnService.php:69
+msgid "Returned to origin (RTO)"
+msgstr "مرتجع للمخزن (RTO)"
+
+#: src\Services\ReturnService.php:94
+msgid ""
+"Anoofy: order marked as Returned to Origin (RTO); awaiting warehouse "
+"inspection."
+msgstr "Anoofy: تم تمييز الطلب كمرتجع للمخزن (RTO)؛ بانتظار فحص المخزن."
+
+#: src\Services\ReturnService.php:177
+msgid "Anoofy: customer return #%1$d opened (%2$s)."
+msgstr "Anoofy: تم فتح مرتجع عميل #%1$d (%2$s)."
+
+#: src\Services\ReturnService.php:367
+msgid "Anoofy: return #%1$d approved (%2$d restocked, %3$d damaged)."
+msgstr "Anoofy: تم اعتماد المرتجع #%1$d (أُعيد للمخزون: %2$d، تالف: %3$d)."
 
 #: anoofy-woo.php:34
 msgid ""

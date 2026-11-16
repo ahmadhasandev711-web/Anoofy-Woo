@@ -11,7 +11,9 @@ use Anoofy\Woo\Data\InboxRepository;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\OutboxRepository;
 use Anoofy\Woo\Data\PreparedItemsRepository;
+use Anoofy\Woo\Data\ReturnRepository;
 use Anoofy\Woo\Data\SettlementRepository;
+use Anoofy\Woo\Data\StockMovementRepository;
 
 /** Tiny service locator (no container library on purpose). */
 final class Services
@@ -28,6 +30,9 @@ final class Services
     private static ?DeliveryAttemptLog $deliveryLog = null;
     private static ?SettlementRepository $settlements = null;
     private static ?CodSettlementService $codSettlement = null;
+    private static ?ReturnRepository $returns = null;
+    private static ?StockMovementRepository $stockMovements = null;
+    private static ?ReturnService $returnService = null;
 
     public static function engazInbound(): EngazInboundService
     {
@@ -95,6 +100,26 @@ final class Services
         return self::$codSettlement ??= new CodSettlementService(
             self::repository(),
             self::settlements(),
+            self::auditLog()
+        );
+    }
+
+    public static function returns(): ReturnRepository
+    {
+        return self::$returns ??= new ReturnRepository();
+    }
+
+    public static function stockMovements(): StockMovementRepository
+    {
+        return self::$stockMovements ??= new StockMovementRepository();
+    }
+
+    public static function returnService(): ReturnService
+    {
+        return self::$returnService ??= new ReturnService(
+            self::repository(),
+            self::returns(),
+            self::stockMovements(),
             self::auditLog()
         );
     }

@@ -228,5 +228,9 @@
  "Duplicate in CSV": "مكرر في الكشف",
  "Selected COD orders settled and marked paid in WooCommerce.": "تمت تسوية طلبات الـ COD المحددة وتسجيلها كمدفوعة في ووكومرس.",
  "COD settled:": "تاريخ تسوية COD:",
- "COD settled": "تمت تسوية COD"
+ "COD settled": "تمت تسوية COD",
+ "Returned to origin (RTO)": "مرتجع للمخزن (RTO)",
+ "Anoofy: order marked as Returned to Origin (RTO); awaiting warehouse inspection.": "Anoofy: تم تمييز الطلب كمرتجع للمخزن (RTO)؛ بانتظار فحص المخزن.",
+ "Anoofy: customer return #%1$d opened (%2$s).": "Anoofy: تم فتح مرتجع عميل #%1$d (%2$s).",
+ "Anoofy: return #%1$d approved (%2$d restocked, %3$d damaged).": "Anoofy: تم اعتماد المرتجع #%1$d (أُعيد للمخزون: %2$d، تالف: %3$d)."
 }

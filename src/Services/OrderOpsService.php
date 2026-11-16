@@ -416,8 +416,11 @@ final class OrderOpsService
                 }
             } elseif ($effect === Effect::HandOverToEngaz) {
                 $this->handOverToEngaz($order, $userId);
+            } elseif ($effect === Effect::OpenRtoReturn) {
+                Services::returnService()->openRtoReturn($order, $userId, $reason);
+            } elseif ($effect === Effect::AddRtoTag) {
+                Services::returnService()->addRtoTag($order);
             }
-            // OpenRtoReturn / AddRtoTag belong to Phase 5 (returns) and are intentionally ignored here.
         }
 
         // Optional mirror of the ops status onto the Woo status. Off by default until spikes S-1/S-2 confirm
