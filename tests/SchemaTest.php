@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemaTest extends TestCase
 {
-    public function testSchemaVersionIsFour(): void
+    public function testSchemaVersionIsFive(): void
     {
-        self::assertSame('4', Schema::VERSION);
+        self::assertSame('5', Schema::VERSION);
     }
 
     public function testEveryStatementCreatesAPrefixedTableWithAPrimaryKeyInDbDeltaFormat(): void
     {
         $statements = Schema::statements('wp_', 'DEFAULT CHARACTER SET utf8mb4');
-        self::assertCount(6, $statements);
+        self::assertCount(7, $statements);
         foreach ($statements as $sql) {
             self::assertTrue(str_starts_with($sql, 'CREATE TABLE wp_anoofy_'), $sql);
             // dbDelta needs exactly two spaces after PRIMARY KEY and KEY (not INDEX).
@@ -63,6 +63,23 @@ final class SchemaTest extends TestCase
         self::assertTrue(str_contains($prepSql, 'KEY order_id (order_id)'));
     }
 
+    public function testDeliveryAttemptsStatementContainsRequiredColumnsAndKeys(): void
+    {
+        $statements = Schema::statements('wp_', '');
+        $sql = $statements[6] ?? '';
+        self::assertTrue(str_contains($sql, 'CREATE TABLE wp_anoofy_delivery_attempts ('));
+        self::assertTrue(str_contains($sql, 'id bigint(20) unsigned NOT NULL AUTO_INCREMENT'));
+        self::assertTrue(str_contains($sql, 'order_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($sql, 'attempt_no smallint(5) unsigned NOT NULL'));
+        self::assertTrue(str_contains($sql, 'user_id bigint(20) unsigned NOT NULL'));
+        self::assertTrue(str_contains($sql, 'outcome varchar(20) NOT NULL'));
+        self::assertTrue(str_contains($sql, 'reason text DEFAULT NULL'));
+        self::assertTrue(str_contains($sql, 'created_at datetime NOT NULL'));
+        self::assertTrue(str_contains($sql, 'PRIMARY KEY  (id)'));
+        self::assertTrue(str_contains($sql, 'KEY order_id (order_id)'));
+        self::assertTrue(str_contains($sql, 'KEY created_at (created_at)'));
+    }
+
     public function testInboxStatementContainsRequiredColumnsAndKeys(): void
     {
         $statements = Schema::statements('wp_', '');
@@ -104,7 +121,7 @@ final class SchemaTest extends TestCase
     public function testTableHelperMatchesTheCreateStatements(): void
     {
         $names = Schema::statements('wp_', '');
-        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items'] as $short) {
+        foreach (['order_ops', 'call_attempts', 'audit_log', 'outbox', 'inbox', 'order_prepared_items', 'delivery_attempts'] as $short) {
             $table = Schema::table('wp_', $short);
             $found = false;
             foreach ($names as $sql) {
