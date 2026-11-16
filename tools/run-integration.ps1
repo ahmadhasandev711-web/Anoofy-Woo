@@ -16,6 +16,7 @@ $tests = @(
     @{ Name = 'S-2/S-5/S-6 (Phase 2 Spikes)'; File = 'test-s2-s5-s6-spikes.php' },
     @{ Name = 'S-3 (COD Payment Spike)'; File = 'test-s3-cod-payment-spike.php' },
     @{ Name = 'S-4 (RTO Restock Spike)'; File = 'test-s4-rto-restock-spike.php' },
+    @{ Name = 'S-7 (Orders Perf Spike)'; File = 'test-s7-orders-perf-spike.php' },
     @{ Name = 'C-1 (Connection Verify)'; File = 'test-c1-connection-verify.php' },
     @{ Name = 'C-2 (Standalone Mode)'; File = 'test-c2-standalone.php' },
     @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
