@@ -71,4 +71,73 @@ final class AuditLog
 
         return ((int) $count) > 0;
     }
+
+    /** @return list<array{id: int, order_id: ?int, user_id: int, action: string, from_status: ?string, to_status: ?string, reason: ?string, created_at: string}> */
+    public function search(?string $action = null, ?int $userId = null, ?int $orderId = null, int $limit = 50, int $offset = 0): array
+    {
+        global $wpdb;
+        [$where, $args] = self::buildWhere($action, $userId, $orderId);
+        $args[] = max(1, $limit);
+        $args[] = max(0, $offset);
+
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, order_id, user_id, action, from_status, to_status, reason, created_at FROM {$this->table()}{$where} ORDER BY id DESC LIMIT %d OFFSET %d",
+            ...$args
+        ), ARRAY_A);
+
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $r) {
+            $out[] = [
+                'id' => (int) $r['id'],
+                'order_id' => $r['order_id'] !== null ? (int) $r['order_id'] : null,
+                'user_id' => (int) $r['user_id'],
+                'action' => (string) $r['action'],
+                'from_status' => $r['from_status'] !== null ? (string) $r['from_status'] : null,
+                'to_status' => $r['to_status'] !== null ? (string) $r['to_status'] : null,
+                'reason' => $r['reason'] !== null ? (string) $r['reason'] : null,
+                'created_at' => (string) $r['created_at'],
+            ];
+        }
+
+        return $out;
+    }
+
+    public function count(?string $action = null, ?int $userId = null, ?int $orderId = null): int
+    {
+        global $wpdb;
+        [$where, $args] = self::buildWhere($action, $userId, $orderId);
+        $sql = "SELECT COUNT(*) FROM {$this->table()}{$where}";
+
+        return (int) $wpdb->get_var($args === [] ? $sql : $wpdb->prepare($sql, ...$args));
+    }
+
+    /** @return list<string> */
+    public function distinctActions(): array
+    {
+        global $wpdb;
+        $col = $wpdb->get_col("SELECT DISTINCT action FROM {$this->table()} ORDER BY action ASC");
+
+        return array_values(array_map('strval', is_array($col) ? $col : []));
+    }
+
+    /** @return array{0: string, 1: list<int|string>} */
+    private static function buildWhere(?string $action, ?int $userId, ?int $orderId): array
+    {
+        $parts = [];
+        $args = [];
+        if ($action !== null && $action !== '') {
+            $parts[] = 'action = %s';
+            $args[] = $action;
+        }
+        if ($userId !== null && $userId > 0) {
+            $parts[] = 'user_id = %d';
+            $args[] = $userId;
+        }
+        if ($orderId !== null && $orderId > 0) {
+            $parts[] = 'order_id = %d';
+            $args[] = $orderId;
+        }
+
+        return [$parts === [] ? '' : ' WHERE ' . implode(' AND ', $parts), $args];
+    }
 }

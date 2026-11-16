@@ -87,6 +87,7 @@ Later phases add: delivery attempts, COD settlements (+ orders), returns (+ item
 - **S-6** A user with only `anoofy_*` capabilities: can the plugin read orders (`wc_get_orders`) and show the minimum customer data the role is allowed to see.
   - *Result (WooCommerce 11.2.1)*: Verified in `test-s2-s5-s6-spikes.php`. `anoofy_warehouse` has `anoofy_order_view` + `anoofy_order_prepare` and lacks `edit_shop_orders` and `anoofy_order_view_customer_contact`. `wc_get_orders()` executes cleanly under `anoofy_warehouse`, so operational actions must live inside `Anoofy -> Orders` (not only on the Woo order edit page which rejects users without `edit_shop_orders`).
 - **S-7** Performance of the Orders screen with 50k orders (indexes on `anoofy_order_ops`).
+  - *Result (MariaDB 11.4)*: Verified in `test-s7-orders-perf-spike.php`. With 5,000+ rows in `anoofy_order_ops`, `OpsQuery::select` by `ops_status` uses index `ops_status` (`~0.9ms`), assignee filtering uses `assigned_to` (`~0.8ms`), and `OpsQuery::statusCounts` uses a covering index scan (`Using index`, `~3.7ms`). Schema v8 adds `tracking_number`, `status_created (ops_status, created_at)`, and `audit_log` `action_created (action, created_at)` indexes for CSV settlement lookups, time-bounded KPI queries, and audit filtering.
 
 ## 7. Testing
 

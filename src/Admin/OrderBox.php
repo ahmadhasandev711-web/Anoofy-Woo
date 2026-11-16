@@ -383,7 +383,15 @@ final class OrderBox
             if (Permissions::can($role, Action::ShipmentCreate)) {
                 echo '<div data-anoofy-form="anoofy_save_shipment"><div class="anoofy-ship-fields">';
                 echo '<label>' . esc_html__('Courier', 'anoofy-woo')
-                    . '<input type="text" name="anoofy_courier" maxlength="100" value="' . esc_attr($ops->courier ?? '') . '" placeholder="' . esc_attr__('e.g. Bosta, Aramex', 'anoofy-woo') . '" /></label>';
+                    . '<input type="text" name="anoofy_courier" list="anoofy-courier-list" maxlength="100" value="' . esc_attr($ops->courier ?? '') . '" placeholder="' . esc_attr__('e.g. Bosta, Aramex', 'anoofy-woo') . '" /></label>';
+                echo '<datalist id="anoofy-courier-list">';
+                foreach (Services::courierManager()->all() as $gateway) {
+                    if ($gateway->slug() === 'manual') {
+                        continue;
+                    }
+                    echo '<option value="' . esc_attr($gateway->label()) . '"></option>';
+                }
+                echo '</datalist>';
                 echo '<label>' . esc_html__('Tracking number', 'anoofy-woo')
                     . '<input type="text" name="anoofy_tracking" maxlength="100" value="' . esc_attr($ops->trackingNumber ?? '') . '" /></label>';
                 echo '<button type="button" class="button" data-anoofy-submit>' . esc_html__('Save shipment details', 'anoofy-woo') . '</button>';

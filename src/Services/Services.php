@@ -11,6 +11,7 @@ use Anoofy\Woo\Data\InboxRepository;
 use Anoofy\Woo\Data\OpsRepository;
 use Anoofy\Woo\Data\OutboxRepository;
 use Anoofy\Woo\Data\PreparedItemsRepository;
+use Anoofy\Woo\Data\ReportRepository;
 use Anoofy\Woo\Data\ReturnRepository;
 use Anoofy\Woo\Data\SettlementRepository;
 use Anoofy\Woo\Data\StockMovementRepository;
@@ -33,6 +34,9 @@ final class Services
     private static ?ReturnRepository $returns = null;
     private static ?StockMovementRepository $stockMovements = null;
     private static ?ReturnService $returnService = null;
+    private static ?ReportRepository $reports = null;
+    private static ?ReportService $reportService = null;
+    private static ?CourierManager $courierManager = null;
 
     public static function engazInbound(): EngazInboundService
     {
@@ -122,6 +126,24 @@ final class Services
             self::stockMovements(),
             self::auditLog()
         );
+    }
+
+    public static function reports(): ReportRepository
+    {
+        return self::$reports ??= new ReportRepository();
+    }
+
+    public static function reportService(): ReportService
+    {
+        return self::$reportService ??= new ReportService(
+            self::reports(),
+            self::codSettlement()
+        );
+    }
+
+    public static function courierManager(): CourierManager
+    {
+        return self::$courierManager ??= new CourierManager();
     }
 
     public static function orderOps(): OrderOpsService

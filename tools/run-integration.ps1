@@ -6,7 +6,7 @@ param(
 $modes = if ($Mode -eq 'all') { @('on', 'off') } else { @($Mode) }
 
 $tests = @(
-    @{ Name = 'Schema v7 (Migration)'; File = 'test-schema-v7.php' },
+    @{ Name = 'Schema v8 (Migration)'; File = 'test-schema-v8.php' },
     @{ Name = 'S-1 (COD Order)'; File = 'test-s1-cod.php' },
     @{ Name = 'S-8 (Tracking Hooks)'; File = 'test-s8-tracking.php' },
     @{ Name = 'S-9 (Search)'; File = 'test-s9-search.php' },
@@ -16,6 +16,7 @@ $tests = @(
     @{ Name = 'S-2/S-5/S-6 (Phase 2 Spikes)'; File = 'test-s2-s5-s6-spikes.php' },
     @{ Name = 'S-3 (COD Payment Spike)'; File = 'test-s3-cod-payment-spike.php' },
     @{ Name = 'S-4 (RTO Restock Spike)'; File = 'test-s4-rto-restock-spike.php' },
+    @{ Name = 'S-7 (Orders Perf Spike)'; File = 'test-s7-orders-perf-spike.php' },
     @{ Name = 'C-1 (Connection Verify)'; File = 'test-c1-connection-verify.php' },
     @{ Name = 'C-2 (Standalone Mode)'; File = 'test-c2-standalone.php' },
     @{ Name = 'C-3 (Connected Confirm & Outbox)'; File = 'test-c3-connected-confirm.php' },
@@ -36,6 +37,7 @@ $tests = @(
     @{ Name = 'P4-2 (COD Settlement UI)'; File = 'test-p4-cod-ui.php' },
     @{ Name = 'P5-1 (Returns & RTO Service)'; File = 'test-p5-returns-rto.php' },
     @{ Name = 'P5-2 (Returns & RTO UI)'; File = 'test-p5-returns-ui.php' },
+    @{ Name = 'P6-1 (KPI Reports, Audit & Couriers)'; File = 'test-p6-reports-and-audit.php' },
     @{ Name = 'E2E-0 (WC Basic Auth on HTTP)'; File = 'test-e2e-wc-basic-auth.php' }
 )
 
