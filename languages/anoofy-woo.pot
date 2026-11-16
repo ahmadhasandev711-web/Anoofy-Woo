@@ -806,6 +806,10 @@ msgstr ""
 msgid "is inactive:"
 msgstr ""
 
+#: src\Services\CodSettlementService.php:148
+msgid "Anoofy: COD settled via %1$s (settlement #%2$d)."
+msgstr ""
+
 #: src\Services\OrderOpsService.php:253
 msgid ""
 "Anoofy: order items were modified during preparation; re-preparation "

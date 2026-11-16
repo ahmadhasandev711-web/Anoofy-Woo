@@ -815,6 +815,10 @@ msgstr "Anoofy خدمة عملاء"
 msgid "is inactive:"
 msgstr "غير مفعّلة:"
 
+#: src\Services\CodSettlementService.php:148
+msgid "Anoofy: COD settled via %1$s (settlement #%2$d)."
+msgstr "Anoofy: تم تسوية الدفع عند الاستلام عبر %1$s (تسوية #%2$d)."
+
 #: src\Services\OrderOpsService.php:253
 msgid ""
 "Anoofy: order items were modified during preparation; re-preparation "

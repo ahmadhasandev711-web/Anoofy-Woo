@@ -198,5 +198,6 @@
  "Delivery attempts": "محاولات التسليم",
  "#": "#",
  "Reason": "السبب",
- "Failed attempts: %d": "محاولات فاشلة: %d"
+ "Failed attempts: %d": "محاولات فاشلة: %d",
+ "Anoofy: COD settled via %1$s (settlement #%2$d).": "Anoofy: تم تسوية الدفع عند الاستلام عبر %1$s (تسوية #%2$d)."
 }
