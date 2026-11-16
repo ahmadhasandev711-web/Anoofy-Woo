@@ -166,6 +166,13 @@ final class OrdersTable extends \WP_List_Table
         if ($tracking !== null && $tracking !== '') {
             $parts[] = '<code>' . esc_html($tracking) . '</code>';
         }
+        if (!$ops->isHandedOver() && $ops->deliveryAttempts > 0) {
+            $parts[] = '<span class="description">' . esc_html(sprintf(
+                /* translators: %d: number of failed delivery attempts */
+                __('Failed attempts: %d', 'anoofy-woo'),
+                $ops->deliveryAttempts
+            )) . '</span>';
+        }
 
         return implode('<br>', $parts);
     }

@@ -181,5 +181,22 @@
  "Total:": "الإجمالي:",
  "Order items": "أصناف الطلب",
  "Shipment": "الشحنة",
- "Operations": "العمليات"
+ "Operations": "العمليات",
+ "Failed": "فشل",
+ "Mark delivered": "تأكيد التسليم",
+ "Mark delivery failed": "تسجيل فشل التسليم",
+ "Retry delivery": "إعادة محاولة التسليم",
+ "Receive returned (RTO)": "استلام مرتجع (RTO)",
+ "Order marked as delivered.": "تم تسليم الطلب.",
+ "Failed delivery attempt recorded.": "تم تسجيل محاولة تسليم فاشلة.",
+ "Delivery retry started.": "تم بدء إعادة محاولة التسليم.",
+ "Order marked as returned to origin.": "تم تسجيل الطلب كمرتجع للمخزن.",
+ "Delivery": "التسليم",
+ "Failed delivery attempts:": "محاولات التسليم الفاشلة:",
+ "Reason (required if delivery failed)": "السبب (مطلوب في حالة فشل التسليم)",
+ "Maximum delivery attempts reached. Receive the returned shipment back at the warehouse.": "تم الوصول للحد الأقصى لمحاولات التسليم. استلم الشحنة المرتجعة في المخزن.",
+ "Delivery attempts": "محاولات التسليم",
+ "#": "#",
+ "Reason": "السبب",
+ "Failed attempts: %d": "محاولات فاشلة: %d"
 }

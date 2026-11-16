@@ -17,7 +17,7 @@ use Anoofy\Woo\Services\Services;
  */
 final class ActionsController
 {
-    /** Events the Phase 1 and Phase 2 screens may trigger (later phases add more). */
+    /** Events the Phase 1, 2, and 3 screens may trigger (later phases add more). */
     private const EVENTS = [
         OrderEvent::Confirm,
         OrderEvent::Reject,
@@ -27,6 +27,10 @@ final class ActionsController
         OrderEvent::RequestCancel,
         OrderEvent::ConfirmRestocked,
         OrderEvent::Ship,
+        OrderEvent::MarkDelivered,
+        OrderEvent::MarkDeliveryFailed,
+        OrderEvent::RetryDelivery,
+        OrderEvent::ReceiveReturned,
     ];
 
     public static function register(): void
